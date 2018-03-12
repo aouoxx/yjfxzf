@@ -1,0 +1,399 @@
+#set($_title = "永嘉非现执法系统")
+#set($_msgFlag="1")
+#parse("platform/_header.vm")
+#parse("platform/_head.vm")
+</head>
+<body>
+##<div class="ui-layout-center" id="centerMain">
+#*
+<div class="ui-layout-west">
+  #parse("platform/_sidebar.vm")
+</div>
+*#
+<iframe class="ui-layout-center" id="_main_frame" name="_main_frame" scrolling="auto" src="about:blank"
+        frameborder="no" ></iframe>
+##</div>
+
+<!-- header start -->
+<div class="ui-layout-north">
+    <div class="ui-header">
+    	<div style="position: absolute;right: 126px;top: 20px;">您好：<span id="username" style="cursor: pointer;"> </span> ,欢迎登陆！</div>
+		<div class="ui-h-btns">
+			<a class="h-btn" title="返回橱窗" href="$!{rc.contextPath}/"><i class="i-btn-app"></i></a>
+			<!--<a class="h-btn" title="用户" href=""><i class="i-btn-user"></i></a>
+			<a class="h-btn" title="信息" href=""><i class="i-btn-msg"></i></a>
+			<a class="h-btn" title="搜索" href=""><i class="i-btn-search"></i></a>-->
+			<a class="h-btn" title="设置" href="$!{rc.contextPath}/platform/index"><i class="i-btn-set"></i></a>
+			<a class="h-btn" title="退出" href="$!{rc.contextPath}/logout"><i class="i-btn-logout"></i></a>
+		</div>
+		<ul id="menu">
+            <li id="item1">
+    			<a href="$!{rc.contextPath}/" style="text-align:center;">首页</a>
+                <ul id="itemMenus">
+                #foreach($app in $root_menu.children)
+                #if($app.display)
+                	
+                    <li>
+                    	#if($app.code != "FXZF_MONITOR")
+    						#if($app.showIcon)<i class="fa $!{app.showIcon}"></i> #{end}<a href="javascript:void(0);" onclick="window.location.href='$!{rc.contextPath}/index?code=$!{app.code}'">$!{app.name}</a>
+    	                    <ul> <!-- moving the UL to the next line will cause an IE7 problem -->
+    	                    	#foreach($m in $app.children)
+    	                    	#if($m.display)	
+    	                        <li #if($!{m.linkUrl}) link="$!{rc.contextPath}$!{m.linkUrl}" #end>
+    	                        	#if($m.showIcon)<i class="fa $!{m.showIcon}"></i> #{end}
+    	                        	#set ($varCount=0)
+    	                        	#set ($m_linkUrl="")
+    	                        	#foreach($mm in $m.children)
+    	                        		#if($mm.display)
+    	                        			#if($varCount == 0)
+    	                        				#if($!{mm.linkUrl})
+    	                        					#set ($m_linkUrl = $mm.linkUrl)
+    	                        				#end
+    	                        				#set ($varCount = $varCount +1)
+    	                        			#end
+    	                        		#end
+    	                        	#end
+    	                        	<a href="javascript:void(0);" onclick="goMenu('$!{app.code}','$!{m_linkUrl}');">$!{m.name}</a>
+    							</li> 
+    							#end                       	
+    	                        #end
+    	                    </ul>
+    	                 #end
+    	                 #if($app.code == "FXZF_MONITOR")
+    	                 	#if($app.showIcon)<i class="fa $!{app.showIcon}"></i> #{end}<a href="javascript:void(0);" onclick="javascript:openMonitor();">$!{app.name}</a>
+    	                 #end   
+                    </li>
+                #end    
+                #end    
+                </ul>
+            </li>
+			#foreach($menu in $menus.children)
+            #if($menu.display)
+                <li>
+                	#set ($varCount=0)
+                	#set ($m_linkUrl="")
+                	#foreach($m in $menu.children)
+                		#if($m.display)
+                			#if($varCount == 0)
+                				#if($!{m.linkUrl})
+                					#set ($m_linkUrl = $m.linkUrl)
+                				#end
+                				#set ($varCount = $varCount +1)
+                			#end
+                		#end
+                	#end
+					<a code="$!{menus.code}" link="$!{m_linkUrl}">$!{menu.name}</a>
+                    <ul>
+                        #foreach($m in $menu.children)
+                        #if($m.display)
+                            <li #if($!{m.linkUrl}) link="$!{rc.contextPath}$!{m.linkUrl}" code="$!{menus.code}" #end>
+                                #if($m.showIcon)<i class="fa $!{m.showIcon}"></i> #{end}$!{m.name}
+                                #if($m.children && $m.children.size() > 0)
+                                    <ul>
+                                        #foreach($mm in $m.children)
+                                        #if($mm.display)
+                                            <li #if($!{mm.linkUrl}) link="$!{rc.contextPath}$!{mm.linkUrl}" code="$!{menus.code}" #end>
+                                                #if($mm.showIcon)<i class="fa $!{mm.showIcon}"></i> #{end}
+                                            </li>
+                                        #end    
+                                        #end
+                                    </ul>
+                                #end
+                            </li>
+                        #end    
+                        #end
+                    </ul>
+                </li>
+            #end    
+            #end
+		</ul>
+    </div>
+</div>
+<!-- header end -->
+
+<!-- footer -->
+<div class="ui-layout-south">
+    <div class="ui-footer">Copyright &copy; 2003-2018 永嘉县公路管理局 | 技术支持单位: 浙江浙大中控信息技术有限公司</div>
+</div>
+
+<!-- loading -->
+<div id="platform_loading"></div>
+
+
+<!-- 全文检索 -->
+<div id="fulltext_retrieval">
+    <input placeholder="快捷菜单"/>
+    <a class="search-btn"></a>
+</div>
+
+
+
+<div class="notices-w" id="notices-w">
+	<div class="notices-title">
+		通知消息
+		<i class="flodicon" onclick="fadeclose();"></i>
+		##<i class="closeIcon" onclick="minW();"></i>
+	</div>
+		<div class="notices-contents">
+			<ul id="msgContent">
+			 </ul>
+		 </div>
+	</div>
+</div>
+
+<div class="notices-w-min" id="notices-w-min">
+	<div class="notices-title">
+		<i class="unflodicon" onclick="fadeopen();"></i>
+		##<i class="closeIcon" onclick="closeW();"></i>
+	</div>
+	</div>
+</div>
+
+<div id="newMessageDIV" style="display:none;"></div>
+<script type="text/javascript">
+    $.CONTEXT_PATH = "$!{rc.contextPath}";
+    var _layout, _header_layout, _center_layout, _inner_layout;
+    var skin_url_cookie = readCookie("skin_url") ? readCookie("skin_url") : "";//读取缓存skin
+	function changeItemClick(target) {
+		$('li.k-item.k-state-default.current').removeClass('current');
+		target.addClass('current');
+		target.parents('li.k-item.k-state-default').addClass('current');
+	}
+    $(document).ready(function () {
+   		var username='$!{username}';
+		$('#username').text(username);
+		$('#username').click(function(){
+			quick_dialog('password_dlg','修改用户密码','$!{rc.contextPath}/xtgl/user/password',500,200);
+		});
+        if (skin_url_cookie == '$!{_platform_assets_url}/skins/blue-yiqi/css/skin.css') {
+            _layout = $('body').layout({
+                defaults: {
+                    resizable: false,
+                    closable: true,
+                    spacing_open: 0
+                },
+                north: {
+                    size: 115
+                },
+                south: {
+                    size: 25
+                },
+                west: {
+                    size: 42
+                },
+                onresize_end: function () {
+                    $(".fun-search").css("left", _layout.state.center.innerWidth / 2 - $(".fun-search").width() / 2);
+                }
+            });
+        }
+        else{
+            _layout = $('body').layout({
+                defaults: {
+                    resizable: false,
+                    closable: true,
+                    spacing_open: 0
+                },
+                north: {
+                    size: 54
+                },
+                south: {
+                    size: 25
+                },
+                west: {
+                    size: 42
+                },
+                onresize_end: function () {
+                    $(".fun-search").css("left", _layout.state.center.innerWidth / 2 - $(".fun-search").width() / 2);
+                }
+            });
+		}	
+		$("#menu").kendoMenu();
+
+        iframe_loaded($("#_main_frame")[0], loadComplete);
+
+		//默认跳转到第一个菜单
+		var currentLink = $.base64.decode(window.location.hash), target = '';
+		if (currentLink === undefined || currentLink === '') {
+			target = $('#menu>li:nth-child(2) .k-item.k-first');
+			currentLink = target.attr('link');
+		} else {
+			currentLink = "$!{rc.contextPath}" + currentLink;
+		}
+		if (!target.length) {
+			target = $('li.k-item.k-state-default[link="' + currentLink + '"]').eq(0);
+		}
+		changeItemClick(target);
+		$("#_main_frame")[0].src = currentLink;
+
+    #*
+    setTimeout(function () {
+        $.post("$!{rc.contextPath}/platform/weather/current", function (res) {
+            if (!res)return;
+            $("#weather").html(
+                    //res.city + ' ' +
+                    res.weather + ' ' + res.temp2 + '~' + res.temp1);
+        });
+    }, 2000);
+    *#
+
+        /* 全文检索 */
+        $(".fun-search").css("left", _layout.state.center.innerWidth / 2 - $(".fun-search").width() / 2);
+
+        $(".fun-search").click(function (e) {
+            if ($("#fulltext_retrieval").is(":visible")) {
+                $("#fulltext_retrieval").fadeOut();
+                $(".fun-search").removeClass("current");
+            }
+            else {
+                $("#fulltext_retrieval").fadeIn();
+                $(".fun-search").addClass("current");
+                $("#fulltext_retrieval input").focus();
+            }
+        });
+        $("#fulltext_retrieval input").autocomplete({
+            serviceUrl: "$!{rc.contextPath}/platform/auth/menu/suggestion",
+            type: "POST",
+            onSelect: function (suggestion) {
+                var url = suggestion.data;
+                if (url) {
+                    var encodedUrl = $.base64.encode(url);
+                    if (window.location.hash != encodedUrl) {
+                        window.location.hash = encodedUrl;
+                       // $("#main_nav_menu").data("navmenu").position();
+                    }
+                }
+                $("#fulltext_retrieval input").val("");
+                $("#fulltext_retrieval").fadeOut();
+                $(".fun-search").removeClass("current");
+            },
+            transformResult: function (res) {
+                res = $.parseJSON(res);
+                var list = [];
+                $.each(res, function (idx, it) {
+                    list.push({value: "菜单：" + it.name, data: it.url});
+                });
+                return {
+                    suggestions: list
+                };
+            }
+        });
+
+        /* 打开换肤窗口 */
+        $(".fun-skin").click(function (e) {
+            quick_dialog("index_change_skin_dlg", "换肤", "$!{rc.contextPath}/platform/index/skins", 400, 180);
+        });
+
+    });
+
+    function loadFrame(url) {
+        $("#platform_loading").show();
+        $("#_main_frame").attr("src", url);
+    }
+    function loadComplete() {
+        $("#platform_loading").hide();
+    }
+
+    /* 换肤 */
+    function changeSkin(skin_url) {
+        if (skin_url == '$!{_platform_assets_url}/skins/blue-yiqi/css/skin.css') {
+            _layout.sizePane("north", 115);
+        }
+        else { // "default"
+            _layout.sizePane("north", 100);
+        }
+        //设置页面样式
+        $("#skin_css_file").attr("href", skin_url);
+
+        createCookie("skin_url", skin_url, 7);
+    }
+	$(function() {
+		$(document).on('click', '.k-animation-container li.k-item.k-state-default', function(e) {
+			var curLink = $(this).attr('link');
+			if (curLink === undefined || curLink === '' || curLink === '#') {
+				return;
+			}
+			e.stopPropagation();
+			goMenu($(this).attr('code'), curLink);
+		});
+		$(document).on('click', '#menu>li>a', function() {
+			var curLink = $(this).attr('link');
+			if (curLink === undefined || curLink === '' || curLink === '#') {
+				return;
+			}
+			goMenu($(this).attr('code'), curLink);
+		});
+	});
+	
+	/*
+		修改成添加hashcode值，防止F5刷新后跳回到橱窗的第一个菜单
+	*/
+	function goMenu(code , url){
+		var basepath = "$!{rc.contextPath}/index?code=";
+		var t = new Date();
+		if (url.indexOf($.CONTEXT_PATH) !== -1) {
+			url = url.substring($.CONTEXT_PATH.length);
+		}
+		window.location.href = basepath + code + "&t=" + t.getTime() +"#" + $.base64.encode(url);
+	}
+	
+	function openMonitor(){
+		var _w = window.screen.width;
+		var _h = window.screen.height;
+		var t = new Date();
+		$("#itemMenus").css("display", "none");
+		window.open("$!{rc.contextPath}/fxzf/monitor/init?_t="+Math.random()*100000000000000 ,"台州非现执法监控系统",'height=' + _h+ ',width= ' + _w + ',titlebar=no, toolbar=no,menubar=no,scrollbars=no, resizable=no,location=yes, status=yes');
+	}	
+	
+	
+</script>
+
+<script type="text/javascript">
+	window.onload=function ()
+	{
+	    var oDrag=document.getElementById('notices-w');
+	     
+	    oDrag.onmousedown=function (ev)
+	    {
+	        var oEvent=ev||event;
+	        var disX=oEvent.clientX-oDrag.offsetLeft;//x坐标
+	        var disY=oEvent.clientY-oDrag.offsetTop;//y坐标
+	         
+	        document.onmousemove=function (ev)
+	        {
+	            var oEvent=ev||event;
+	            var l=oEvent.clientX-disX;//移动x坐标位置
+	            var t=oEvent.clientY-disY;//移动y坐标位置
+	            //限制范围
+	            if(l<0)
+	            {
+	                l=0;
+	            }
+	            else if(l>document.documentElement.clientWidth-oDrag.offsetWidth)
+	            {
+	                l=document.documentElement.clientWidth-oDrag.offsetWidth;
+	            }
+	             
+	            if(t<0)
+	            {
+	                t=0;
+	            }
+	            else if(t>document.documentElement.clientHeight-oDrag.offsetHeight)
+	            {
+	                t=document.documentElement.clientHeight-oDrag.offsetHeight;
+	            }
+	             
+	            oDrag.style.left=l+'px';
+	            oDrag.style.top=t+'px';
+	        };
+	         
+	        document.onmouseup=function ()
+	        {
+	            document.onmousemove=null;
+	            document.onmouseup=null;
+	        };
+	    };
+	};
+ </script>
+
+</body>
+</html>

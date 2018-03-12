@@ -1,0 +1,80 @@
+/*.east-charts{background:#161616;,margin-top:0;}
+.east-width-set{height:100%;overflow:hidden;}
+.east-charts-top{width:570px;height:300px;background:url(../image/top_charts_bg.png);margin:10px auto;}
+.east-charts-top .chart-item{width:50%;height:100%;float:left;}
+.east-charts-top .chart-item h3{color:#6ee1ff;font-size:14px;font-family:'微软雅黑';text-align:center;height:36px;line-height:36px;}
+.east-charts-top .chart-item .chart-item-cont{height:250px;overflow-x:hidden;overflow-y:auto;padding:3px 20px;}
+.chart-info li{margin-bottom:5px;}
+.chart-info li,.chart-info p{font-size:12px;color:#fff;font-family:'微软雅黑';}
+.chart-info a:hover p{color:#ffae00;}
+.east-charts-bottom{width:570px;margin:0 auto;background:#373737;}
+.east-charts-bottom .chart-top{height:12px;background:url(../image/box_bg.png);background-position:0 -27px;}
+.east-charts-bottom .chart-center{height:60px;
+  border:1px solid #323232;
+  border-width:0 2px;
+  background-color:#151515;
+  background:-webkit-gradient(linear, left top, left bottom, from(#373737), to(#151515));
+  background:-moz-linear-gradient(top, #373737, #151515);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#373737', endColorstr='#151515');
+  background:-o-linear-gradient(top, #373737, #151515);
+  background:-ms-linear-gradient(top, #373737, #151515);
+  background:linear-gradient(to bottom, #373737, #151515);
+}
+.east-charts-bottom .chart-center h3{color:#6ee1ff;font-size:14px;font-family:'微软雅黑';text-align:left;padding-left:20px;margin:0 10px;padding-bottom:8px;border-bottom:1px solid #454545;}
+.east-charts-bottom .chart-bottom{height:12px;background:url(../image/box_bg.png);background-position:0 -41px;}
+
+
+.ui-table-yjd{border:none;}
+.ui-table-yjd th{border:none;padding:16px 5px;color:#c1c1c1;}
+.ui-table-yjd td{border:none;color:#fff;height:25px}
+.ui-table-yjd thead tr{background:#454545;}
+.ui-table-yjd tbody tr{background:none;}
+.ui-table-yjd i.state-yjd{display:inline-block;width:16px;height:16px;background:url(../image/icon-jtyjd.png);}
+.ui-table-yjd i.state-1{background-position:0 0;}
+.ui-table-yjd i.state-2{background-position:-16px 0;}
+.ui-table-yjd i.state-3{background-position:-32px 0;}
+.ui-table-yjd i.state-4{background-position:-48px 0;}
+.ui-table-yjd i.state-5{background-position:-64px 0;}
+h3.chart-item-title{color:#6ee1ff;font-size:14px;font-family:'微软雅黑';text-align:left;padding-left:20px;margin:0 10px;padding-bottom:8px;border-bottom:1px solid #454545;}
+.ui-paging a, .ui-paging .ui-paging-prev, .ui-paging .ui-paging-next{margin-right:5px;border:1px solid #3A3737;background:none;}
+.ui-paging a:hover{background:none;}
+.ui-paging-which input{background:none;border:1px solid #3A3737;}
+.ui-paging a.ui-paging-goto{background:none;border:1px solid #3A3737;filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#161616', endColorstr='#161616');}*/
+
+.ui-table-yjd {
+border: solid 1px #e1e5e6;
+border-collapse: collapse;
+width:100%;	
+}
+.ui-table-yjd td, .ui-table-yjd th {
+border: solid 1px #e1e5e6;
+color: #808080;
+text-align: center;
+}
+.ui-table-yjd th {
+height: 18px;
+font-size: 14px;
+text-align: center;
+background: #f5f5f5;
+}
+.ui-table-yjd tbody:first-child tr:first-child {
+height: 30px;
+line-height: 30px;
+text-align: center;
+}
+.ui-table-yjd tr:nth-child(even){
+background: #f5f5f5;
+}
+.ui-table-yjd p{
+margin: 0;
+}
+.ui-table-yjd tr:hover {
+background: #faecb6;
+}
+h3.chart-item-title, .chart-center h3 {
+padding-left: 20px;
+}
+
+
+
+

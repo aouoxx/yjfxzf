@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.supconit.kqfx.web.fxzf.search.entities.FxzfStatic">
+
+	<sql id="TABLE_NAME" lang="velocity">T_FXZF_STATIC</sql>
+
+	<resultMap type="com.supconit.kqfx.web.fxzf.search.entities.FxzfStatic" id="FxzfStaticResultMap">
+		<result property="id" column="ID" />
+		<result property="lane" column="LANE" />
+		<result property="weight" column="WEIGHT" />
+		<result property="speed" column="SPEED" />
+		<result property="axisCount" column="AXIS_COUNT" />
+		<result property="overLoadStatus" column="OVERLOAD_STATUS" />
+		<result property="overLoadPercent" column="OVERLOAD_PERCENT" />
+		<result property="carModel" column="CAR_MODEL" />
+		<result property="captureTime" column="CAPTURE_TIME" />
+		<result property="license" column="LICENSE" />
+		<result property="licenseColor" column="LICENSE_COLOR" />
+
+		<result property="headLicense" column="HEAD_LICENSE" />
+		<result property="headLicenseZxdD" column="HEAD_LICENSE_ZXD" />
+		<result property="headLicenseColor" column="HEAD_LICENSE_COLOR" />
+		<result property="headLicensePicdir" column="HEAD_LICENSE_PICDIR" />
+		<result property="headCarPicdir" column="HEAD_CAR_PICDIR" />
+
+		<result property="tailLicense" column="TAIL_LICENSE" />
+		<result property="tailLicenseZxdD" column="TAIL_LICENSE_ZXD" />
+		<result property="tailLicenseColor" column="TAIL_LICENSE_COLOR" />
+		<result property="tailLicensePicdir" column="TAIL_LICENSE_PICDIR" />
+		<result property="tailCarPicdir" column="TAIL_CAR_PICDIR" />
+
+		<result property="carDirection" column="CAR_DIRECTION" />
+		<result property="overLoadPunish" column="OVERLOAD_PUNISH" />
+		<result property="punishId" column="PUNISH_ID" />
+		<result property="punishOpintion" column="PUNISH_OPINION" />
+		<result property="punishReason" column="PUNISH_REASON" />
+		<result property="picFlag" column="PIC_FLAG" />
+		<result property="warnFlag" column="WARN_FLAG" />
+		<result property="overLoad" column="OVERLOAD" />
+		<result property="axisLength" column="AXIS_LENGTH" />
+		<result property="axisWeightTotal" column="AXIS_WEIGHTTOTAL" />
+		<result property="transport" column="TRANSPORT" />
+		<result property="transportTime" column="TRANSPORTTIME" />
+	</resultMap>
+
+	<select id="getById" parameterType="String" resultMap="FxzfStaticResultMap" lang="velocity">
+		SELECT * FROM
+		<include refid="TABLE_NAME" />
+		WHERE ID = @{_parameter, jdbcType=VARCHAR}
+	</select>
+
+	<select id="getCountByCondition" parameterType="com.supconit.kqfx.web.fxzf.search.entities.FxzfStatic" resultType="integer" lang="velocity">
+		SELECT COUNT(*) FROM
+		<include refid="TABLE_NAME" /> 
+  		<![CDATA[
+  			#where()
+			    #if($_parameter.captureTime && $_parameter.captureTime != '')
+				   AND CAPTURE_TIME >= @{_parameter.captureTime,jdbcType=TIMESTAMP}
+			    #end
+			    #if($_parameter.backTime && $_parameter.backTime != '')
+				   AND CAPTURE_TIME < @{_parameter.backTime,jdbcType=TIMESTAMP}
+			    #end
+			    #if($_parameter.overLoadStatus && $_parameter.overLoadStatus != '')
+			    	AND OVERLOAD_STATUS != @{_parameter.overLoadStatus,jdbcType=NUMERIC} 
+			    #end
+			    AND CAPTURE_TIME IS NOT NULL
+		    #end
+  		]]>
+	</select>
+
+	<select id="getOverLoadStatusCount" parameterType="com.supconit.kqfx.web.fxzf.search.entities.FxzfStatic" resultType="int" lang="velocity">
+		SELECT COUNT(*) FROM
+		<include refid="TABLE_NAME" /> 
+  		<![CDATA[
+  			#where()
+				#if($_parameter.license && $_parameter.license != '')
+				   AND LICENSE = @{_parameter.license,jdbcType=VARCHAR}
+			    #end
+			    #if($_parameter.licenseColor && $_parameter.licenseColor != '')
+				   AND LICENSE_COLOR = @{_parameter.licenseColor,jdbcType=VARCHAR}
+				#else
+					AND LICENSE_COLOR IS NULL
+			    #end
+			    #if($_parameter.captureTime && $_parameter.captureTime != '')
+				   AND CAPTURE_TIME >= @{_parameter.captureTime,jdbcType=TIMESTAMP}
+			    #end
+			    #if($_parameter.backTime && $_parameter.backTime != '')
+				   AND CAPTURE_TIME <= @{_parameter.backTime,jdbcType=TIMESTAMP}
+			    #end
+			        AND OVERLOAD_STATUS = @{_parameter.overLoadStatus,jdbcType=NUMERIC} 
+		    #end
+  		]]>
+	</select>
+
+	<select id="getOverLoadCount" parameterType="com.supconit.kqfx.web.fxzf.search.entities.FxzfStatic" resultType="integer" lang="velocity">
+		SELECT COUNT(*) FROM
+		<include refid="TABLE_NAME" /> 
+  		<![CDATA[
+  			#where()
+			    #if($_parameter.captureTime && $_parameter.captureTime != '')
+				   AND CAPTURE_TIME >= @{_parameter.captureTime,jdbcType=TIMESTAMP}
+			    #end
+			    #if($_parameter.backTime && $_parameter.backTime != '')
+				   AND CAPTURE_TIME <= @{_parameter.backTime,jdbcType=TIMESTAMP}
+			    #end
+			    #if($_parameter.overLoadStatus && $_parameter.overLoadStatus != '')
+			        AND OVERLOAD_STATUS = @{_parameter.overLoadStatus,jdbcType=NUMERIC} 
+			    #end
+		    #end
+  		]]>
+	</select>
+
+	<select id="getIllegalLevelCount" parameterType="com.supconit.kqfx.web.fxzf.search.entities.FxzfStatic" resultType="int" lang="velocity">
+		SELECT COUNT(*) FROM
+		<include refid="TABLE_NAME" /> 
+  		<![CDATA[
+  			#where()
+				#if($_parameter.license && $_parameter.license != '')
+				   AND LICENSE = @{_parameter.license,jdbcType=VARCHAR}
+			    #end
+			    #if($_parameter.licenseColor && $_parameter.licenseColor != '')
+				   AND LICENSE_COLOR = @{_parameter.licenseColor,jdbcType=VARCHAR}
+			    #end
+			        AND OVERLOAD_STATUS >= @{_parameter.overLoadStatus,jdbcType=NUMERIC} 
+		    #end
+  		]]>
+	</select>
+
+	<update id="checkFxzfMessage" parameterType="com.supconit.kqfx.web.fxzf.search.entities.FxzfStatic" lang="velocity">
+		UPDATE
+		<include refid="TABLE_NAME" />
+		#mset()
+		<![CDATA[
+			#if($_parameter.punishId)PUNISH_ID = @{_parameter.punishId,jdbcType=VARCHAR},#end
+			#if($_parameter.overLoadPunish)OVERLOAD_PUNISH = @{_parameter.overLoadPunish,jdbcType=NUMERIC},#end
+			#if($_parameter.punishOpintion)PUNISH_OPINION = @{_parameter.punishOpintion,jdbcType=VARCHAR},#end
+			#if($_parameter.punishReason)PUNISH_REASON = @{_parameter.punishReason,jdbcType=NUMERIC},#end
+		]]>
+		#end
+		WHERE ID = @{_parameter.id,jdbcType=VARCHAR}
+	</update>
+
+	<update id="upDateFxzftransport" parameterType="com.supconit.kqfx.web.fxzf.search.entities.FxzfStatic" lang="velocity">
+		UPDATE
+		<include refid="TABLE_NAME" />
+		#mset()
+		<![CDATA[
+			#if($_parameter.transport)TRANSPORT = @{_parameter.transport,jdbcType=VARCHAR},#end
+			#if($_parameter.transportTime)TRANSPORTTIME = @{_parameter.transportTime,jdbcType=TIMESTAMP},#end
+		]]>
+		#end
+		WHERE ID = @{_parameter.id,jdbcType=VARCHAR}
+	</update>
+
+	<select id="selectPager" lang="velocity" resultMap="FxzfStaticResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE" />
+		SELECT * FROM
+		<include refid="TABLE_NAME" />
+		<include refid="SEARCH_CONDITION_SQL_LOG" />
+		#order($_parameter.condition,"CAPTURE_TIME DESC")
+		<include refid="_PUBLIC_V.PAGER_AFTER" />
+	</select>
+
+	<sql id="SEARCH_CONDITION_SQL_LOG" lang="velocity">
+     <![CDATA[
+		#where()
+		    #if($_parameter.condition.overStatus && $_parameter.condition.overStatus != '')
+			   AND (
+ 					 #repeat( $_parameter.condition.status $status "," " OVERLOAD_STATUS IN (" ")" )
+						    @{status,jdbcType=NUMERIC}
+					 #end
+				   )
+		    #end
+		    #if($_parameter.condition.overPunish && $_parameter.condition.overPunish != '')
+			   AND (
+ 					 #repeat( $_parameter.condition.punish $punish "," " OVERLOAD_PUNISH IN (" ")" )
+						    @{punish,jdbcType=NUMERIC}
+					 #end
+				   )
+		    #end
+		    
+		    #if($_parameter.condition.license && $_parameter.condition.license != ''&& $_parameter.condition.license != ' ')
+			   AND LICENSE #set($_license = '%' + $_parameter.condition.license + '%')
+						LIKE @{_license,jdbcType=VARCHAR}
+		    #end
+		    #if($_parameter.condition.license == ' ')
+			   AND LICENSE is null
+		    #end
+		    #if($_parameter.condition.captureTime && $_parameter.condition.captureTime != '')
+			   AND CAPTURE_TIME >= @{_parameter.condition.captureTime,jdbcType=TIMESTAMP}
+		    #end
+		    #if($_parameter.condition.backTime && $_parameter.condition.backTime != '')
+			   AND CAPTURE_TIME <= @{_parameter.condition.backTime,jdbcType=TIMESTAMP}
+		    #end
+		    #if($_parameter.condition.licenseColor && $_parameter.condition.licenseColor != '')
+			   AND LICENSE_COLOR = @{_parameter.condition.licenseColor,jdbcType=VARCHAR}
+		    #end
+		    #if($_parameter.condition.warnFlag && $_parameter.condition.warnFlag != '')
+			   AND WARN_FLAG = @{_parameter.condition.warnFlag,jdbcType=VARCHAR}
+		    #end
+		    #if($_parameter.condition.beginWeight && $_parameter.condition.beginWeight != '')
+			   AND WEIGHT >= @{_parameter.condition.beginWeight,jdbcType=NUMERIC}
+		    #end
+		    #if($_parameter.condition.endWeight && $_parameter.condition.endWeight != '')
+			   AND WEIGHT <= @{_parameter.condition.endWeight,jdbcType=NUMERIC}
+		    #end
+		    
+		    #if($_parameter.condition.beginSpeed && $_parameter.condition.beginSpeed != '')
+			   AND SPEED >= @{_parameter.condition.beginSpeed,jdbcType=NUMERIC}
+		    #end
+		    #if($_parameter.condition.endSpeed && $_parameter.condition.endSpeed != '')
+			   AND SPEED <= @{_parameter.condition.endSpeed,jdbcType=NUMERIC}
+		    #end
+		    
+		     #if($_parameter.condition.beginOverLoadPercent && $_parameter.condition.beginOverLoadPercent != '')
+			   AND OVERLOAD_PERCENT >= @{_parameter.condition.beginOverLoadPercent,jdbcType=NUMERIC}
+		    #end
+		    #if($_parameter.condition.endOverLoadPercent && $_parameter.condition.endOverLoadPercent != '')
+			   AND OVERLOAD_PERCENT <= @{_parameter.condition.endOverLoadPercent,jdbcType=NUMERIC}
+		    #end
+		    	AND LICENSE IS NOT NULL
+		#end
+		]]>
+	</sql>
+	<select id="countPager" lang="velocity" resultType="long">
+		<include refid="COUNT_PRE" />
+		<include refid="SEARCH_CONDITION_SQL_LOG" />
+	</select>
+	<sql id="COUNT_PRE" lang="velocity">
+		SELECT COUNT(1) FROM
+		<include refid="TABLE_NAME" />
+	</sql>
+
+	<insert id="insert" parameterType="com.supconit.kqfx.web.fxzf.search.entities.FxzfStatic" keyProperty="ID" keyColumn="ID" lang="velocity" databaseId="oracle">
+		<include refid="INSERT_SQL" />
+	</insert>
+	<insert id="insert" parameterType="com.supconit.kqfx.web.fxzf.search.entities.FxzfStatic" keyProperty="ID" keyColumn="ID" lang="velocity">
+		<include refid="INSERT_SQL" />
+		<selectKey keyProperty="ID" resultType="string" order="AFTER">
+			<include refid="_PUBLIC_V.SELECT_KEY" />
+		</selectKey>
+	</insert>
+	<sql id="INSERT_SQL" lang="velocity">
+		INSERT INTO
+		<include refid="TABLE_NAME" />
+		(
+		#if($_databaseId == 'oracle') ID,#end
+		LANE
+		,WEIGHT
+		,SPEED
+		,AXIS_COUNT
+		,OVERLOAD_STATUS
+		,OVERLOAD_PERCENT
+		,CAR_MODEL
+		,CAPTURE_TIME
+		,LICENSE
+		,LICENSE_COLOR
+		,LICENSE_PICDIR
+		,CAR_PICDIR
+		,CAR_DIRECTION
+		,OVERLOAD_PUNISH
+		,PIC_FLAG
+		,OVERLOAD
+		,WARN_FLAG
+
+		,HEAD_LICENSE
+		,HEAD_LICENSE_ZXD
+		,HEAD_LICENSE_COLOR
+		,HEAD_LICENSE_PICDIR
+		,HEAD_CAR_PICDIR
+
+		,TAIL_LICENSE
+		,TAIL_LICENSE_ZXD
+		,TAIL_LICENSE_COLOR
+		,TAIL_LICENSE_PICDIR
+		,TAIL_CAR_PICDIR
+
+		,LENGTH
+		,WIDTH
+		,HEIGHT
+
+		,TRANSPORT
+		,TRANSPORTTIME
+
+		,AXIS_LENGTH
+		,AXIS_WEIGHTTOTAL
+
+		) VALUES (
+		#if($_databaseId == 'oracle') @{_parameter.id,jdbcType=VARCHAR},#end
+		@{_parameter.lane,jdbcType=NUMERIC}
+		,@{_parameter.weight,jdbcType=NUMERIC}
+		,@{_parameter.speed,jdbcType=NUMERIC}
+		,@{_parameter.axisCount,jdbcType=NUMERIC}
+		,@{_parameter.overLoadStatus,jdbcType=NUMERIC}
+		,@{_parameter.overLoadPercent,jdbcType=NUMERIC}
+		,@{_parameter.carModel,jdbcType=NUMERIC}
+		,@{_parameter.captureTime,jdbcType=TIMESTAMP}
+		,@{_parameter.license,jdbcType=VARCHAR}
+		,@{_parameter.licenseColor,jdbcType=VARCHAR}
+		,@{_parameter.licensePicdir,jdbcType=VARCHAR}
+		,@{_parameter.carPicdir,jdbcType=VARCHAR}
+		,@{_parameter.carDirection,jdbcType=NUMERIC}
+		,@{_parameter.overLoadPunish,jdbcType=NUMERIC}
+		,@{_parameter.picFlag,jdbcType=NUMERIC}
+		,@{_parameter.overLoad,jdbcType=NUMERIC}
+		,@{_parameter.warnFlag,jdbcType=NUMERIC}
+
+		,@{_parameter.headLicense, jdbcType=VARCHAR}
+		,@{_parameter.headLicenseZxdD,jdbcType=NUMERIC}
+		,@{_parameter.headLicenseColor, jdbcType=VARCHAR}
+		,@{_parameter.headLicensePicdir, jdbcType=VARCHAR}
+		,@{_parameter.headCarPicdir, jdbcType=VARCHAR}
+
+		,@{_parameter.tailLicense, jdbcType=VARCHAR}
+		,@{_parameter.tailLicenseZxdD,jdbcType=NUMERIC}
+		,@{_parameter.tailLicenseColor, jdbcType=VARCHAR}
+		,@{_parameter.tailLicensePicdir, jdbcType=VARCHAR}
+		,@{_parameter.tailCarPicdir, jdbcType=VARCHAR}
+
+		,@{_parameter.length, jdbcType=NUMERIC}
+		,@{_parameter.width,jdbcType=NUMERIC}
+		,@{_parameter.height, jdbcType=NUMERIC}
+
+		,@{_parameter.transport, jdbcType=NUMERIC}
+		,@{_parameter.transportTime, jdbcType=TIMESTAMP}
+
+		,@{_parameter.axisLength, jdbcType=VARCHAR}
+		,@{_parameter.axisWeightTotal, jdbcType=VARCHAR}
+		)
+	</sql>
+
+	<update id="update" parameterType="com.supconit.kqfx.web.fxzf.search.entities.FxzfStatic" lang="velocity">
+		UPDATE
+		<include refid="TABLE_NAME" />
+		#mset()
+		<![CDATA[
+			#if($_parameter.license)LICENSE = @{_parameter.license,jdbcType=VARCHAR},#end
+		]]>
+		#end
+		WHERE ID = @{_parameter.id,jdbcType=VARCHAR}
+	</update>
+
+	<delete id="deleteById" parameterType="string" lang="velocity">
+		DELETE FROM
+		<include refid="TABLE_NAME" />
+		WHERE ID = @{_parameter,jdbcType=VARCHAR}
+	</delete>
+
+	<select id="selectPagerDetail" lang="velocity" resultMap="FxzfStaticResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE" />
+		SELECT * FROM
+		<include refid="TABLE_NAME" />
+		<include refid="SEARCH_CONDITION_SQL_LOG_DETAIL" />
+		#order($_parameter.condition,"CAPTURE_TIME DESC")
+		<include refid="_PUBLIC_V.PAGER_AFTER" />
+	</select>
+
+	<sql id="SEARCH_CONDITION_SQL_LOG_DETAIL" lang="velocity">
+     <![CDATA[
+		#where()
+		    #if($_parameter.condition.overStatus && $_parameter.condition.overStatus != '')
+			   AND (
+ 					 #repeat( $_parameter.condition.status $status "," " OVERLOAD_STATUS IN (" ")" )
+						    @{status,jdbcType=NUMERIC}
+					 #end
+				   )
+		    #end
+		    #if($_parameter.condition.overPunish && $_parameter.condition.overPunish != '')
+			   AND (
+ 					 #repeat( $_parameter.condition.punish $punish "," " OVERLOAD_PUNISH IN (" ")" )
+						    @{punish,jdbcType=NUMERIC}
+					 #end
+				   )
+		    #end
+		    #if($_parameter.condition.license && $_parameter.condition.license != ''&& $_parameter.condition.license != ' ')
+			   AND LICENSE = @{_parameter.condition.license,jdbcType=VARCHAR}
+		    #end
+		    #if($_parameter.condition.license == ' ')
+			   AND LICENSE is null
+		    #end
+		    #if($_parameter.condition.captureTime && $_parameter.condition.captureTime != '')
+			   AND CAPTURE_TIME > @{_parameter.condition.captureTime,jdbcType=TIMESTAMP}
+		    #end
+		    #if($_parameter.condition.backTime && $_parameter.condition.backTime != '')
+			   AND CAPTURE_TIME < @{_parameter.condition.backTime,jdbcType=TIMESTAMP}
+		    #end
+		     #if($_parameter.condition.warnFlag && $_parameter.condition.warnFlag != '')
+			   AND WARN_FLAG = @{_parameter.condition.warnFlag,jdbcType=VARCHAR}
+		    #end
+		    #if($_parameter.condition.licenseColor && $_parameter.condition.licenseColor != '')
+			   AND LICENSE_COLOR = @{_parameter.condition.licenseColor,jdbcType=VARCHAR}
+			#else
+			   AND LICENSE_COLOR IS NULL
+		    #end
+		   
+		#end
+		]]>
+	</sql>
+
+	<select id="countPagerDetail" lang="velocity" resultType="long">
+		<include refid="COUNT_PRE" />
+		<include refid="SEARCH_CONDITION_SQL_LOG_DETAIL" />
+	</select>
+
+	<select id="getFxzfToTransport" parameterType="com.supconit.kqfx.web.fxzf.search.entities.FxzfStatic" resultMap="FxzfStaticResultMap" lang="velocity">
+		SELECT * FROM
+		<include refid="TABLE_NAME" /> 
+	      <![CDATA[
+	 		    #where()
+				   TRANSPORT = 0 AND ROWNUM <10
+		        #end
+	 		]]>
+		ORDER BY CAPTURE_TIME DESC
+	</select>
+
+	<!-- <select id="getFxzfToTransport" resultMap="FxzfStaticResultMap" lang="velocity"> SELECT * FROM (SELECT * FROM T_FXZF_STATIC WHERE TRANSPORT = 0 ORDER BY CAPTURE_TIME DESC) WHERE 
+		ROWNUM <10 </select> -->
+</mapper>

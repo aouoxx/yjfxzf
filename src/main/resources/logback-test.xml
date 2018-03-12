@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%-20(%d{HH:mm:ss.SSS} [%thread]) %-5level %logger{80} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	<logger name="com.supconit" level="DEBUG" />
+	<logger name="com.supcon" level="DEBUG" />
+	<logger name="hc" level="DEBUG" />
+	<logger name="org.springframework.web.servlet.PageNotFound" level="ERROR" />
+	<root level="INFO">
+		<appender-ref ref="STDOUT" />
+	</root>
+</configuration>

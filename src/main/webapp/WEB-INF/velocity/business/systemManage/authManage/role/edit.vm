@@ -1,0 +1,67 @@
+#set($_title = "新增部门 - " + $_site_name)
+#parse("platform/_header.vm")
+</head>
+<body>
+
+<form method="post" id="plat_auth_role_edit_form" action="$!{rc.contextPath}/platform/authorization/role/edit" class="ui-dialog-form">
+	<input type="hidden" name="role.id" value="$!{role.id}"/>
+    <table width="100%">
+        <tr>
+            <td class="label">角色编码：</td>
+            <td>$!{role.code}</td>
+            <td class="label"><span class="ui-form-required">*</span>角色名称：</td>
+            <td><input name="role.name" class="k-textbox" value="$!{role.name}"></td>
+            <td></td>
+        </tr>
+		<tr>
+            <td class="label">备注：</td>
+            <td colspan="3"><textarea name="role.description" class="k-textbox">$!{role.description}</textarea></td>
+            <td></td>
+        </tr>
+    </table>
+    <div class="actions">
+        <button class="k-primary hc_btn" type="submit" id="save"><i class="fa fa-save"></i>保 存</button>
+        <button class="hc_btn cancel" onclick="close_dialog('role_edit_dlg')" type="button"><i class="fa fa-close"></i>取 消</button>
+    </div>
+</form>
+
+    #parse("platform/_footer.vm")
+	
+<script>
+	$('form').validator({
+        rules: {
+            
+        },
+        messages: {
+            required: "请填写{0}",
+            email: "邮箱地址不合法"
+        },
+        fields: {
+            'role.name': '角色名称:required;length[~255];',
+			'role.description': '备注:length[~512];'
+        },
+		msgClass: "n-bottom",
+        valid: function(form){
+			form_btn_submit('#save','#plat_auth_role_edit_form',function(res){
+    				notify("操作成功", "success");
+					window.parent.frames["_main_frame"].callback();
+					close_dialog('role_edit_dlg');
+			})
+        }
+    });
+	$("form .k-textbox").bind({
+		mouseover: function(e) {
+			if ($(this).hasClass("n-invalid")) {
+				var msg_box = $(this).siblings(".msg-box").get(0);
+				$(msg_box).find(".n-error").show();
+			}
+		},
+		mouseout: function(e){
+			if ($(this).hasClass("n-invalid")) {
+				$(this).siblings(".msg-box").find(".n-error").hide();
+			}
+		}
+	});
+</script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	#set($_title="永嘉非现执法系统")
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <title>$!{_title}</title>
+	<link rel="stylesheet" href="$!{main_static_url}/css/hcstyle.css?t=#date_format($time,'yyyyMMddHHmmss')">
+    <link rel="stylesheet" href="$!{main_static_url}/css/font.css?t=#date_format($time,'yyyyMMddHHmmss')">
+    <link rel="stylesheet" href="$!{main_static_url}/css/site.css?t=#date_format($time,'yyyyMMddHHmmss')">
+##    <link rel="stylesheet" href="$!{main_static_url}/skins/green/css/skin.css?t=#date_format($time,'yyyyMMddHHmmss')">
+##    <link rel="stylesheet" href="$!{rc.contextPath}/assets/css/custom.css?t=#date_format($time,'yyyyMMddHHmmss')">
+    <link rel="stylesheet" href="$!{rc.contextPath}/assets/css/login.css?t=#date_format($time,'yyyyMMddHHmmss')">
+    <link href="$!{rc.contextPath}/assets/images/favicon.ico" rel="icon" type="image/x-icon" />
+	<link href="$!{rc.contextPath}/assets/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+</head>
+##  <body class="ui-login-body" onload="document.getElementById('username').focus()">
+##    <div class="ui-login-content">
+##      <form class="ui-form ui-login-form" id="LoginForm" action="$!{rc.contextPath}/platform/login" method="post">
+##        <input type="hidden" id="callback" name="callback" value="$!{rc.contextPath}/" />
+##        <div class="ui-form-item">
+##          <label class="ui-label" for="username">用&nbsp;&nbsp;&nbsp;&nbsp;户&nbsp;&nbsp;:</label>
+##          <input id="username" name="username" class="ui-input"  type="text" />
+##        </div>
+##        <div class="ui-form-item">
+##          <label class="ui-label" for="password">密&nbsp;&nbsp;&nbsp;&nbsp;码&nbsp;&nbsp;:</label>
+##          <input id="password" name="password" class="ui-input"  type="password" />
+##        </div>
+##        <div class="ui-form-item fn-mt-5">
+##          <label class="ui-label"></label> 
+##          <button class="btn btn-primary btn-large" style="margin-right:30px" type="submit">登&nbsp;&nbsp;录</button>
+##          <button class="btn btn-primary btn-large" type="reset">取&nbsp;&nbsp;消</button>
+##        </div>
+##      </form>
+##      <div class="ui-login-footer">Copyright © 2003-2014 浙江浙大中控信息技术有限公司</div>
+##    </div>
+##  <script src="$!{main_static_url}/js/hcjs-debug.js?t=#date_format($time,'yyyyMMddHHmmss')" type="text/javascript"></script>
+##  <script src="$!{main_static_url}/js/suppermenu.js?t=#date_format($time,'yyyyMMddHHmmss')" type="text/javascript"></script>
+##  <script src="$!{main_static_url}/js/site.js?t=#date_format($time,'yyyyMMddHHmmss')" type="text/javascript"></script>
+##  <script src="$!{rc.contextPath}/assets/js/custom.js?t=#date_format($time,'yyyyMMddHHmmss')" type="text/javascript"></script>
+##  <script src="$!{main_static_url}/js/autocomplete.min.js?t=#date_format($time,'yyyyMMddHHmmss')"></script>
+##  <script src="$!{main_static_url}/datepicker/WdatePicker.js?t=#date_format($time,'yyyyMMddHHmmss')"></script>
+##  <script src="$!{main_static_url}/skins/green/js/site.js?t=#date_format($time,'yyyyMMddHHmmss')"></script>
+##	</body>
+	
+<body class="ui-login-body" onload="document.getElementById('username').focus()">
+	<div class="ui-login-bg">
+		##<div class="ui-login-header"></div>
+		<div class="ui-login-content">
+			<div class="content-style">
+			  	<form class="ui-form ui-login-form" id="LoginForm" action="$!{rc.contextPath}/platform/login" method="post">
+			  		<input type="hidden" id="callback" name="callback" value="$!{rc.contextPath}/" />
+			  		<table border="0" cellpadding="0" cellspacing="0">
+						<tr><td>&nbsp;</td><td><span class="login-welcome">欢迎登录</span></td></tr>
+						<tr>
+							<td><label class="ui-label" for="username">用&nbsp;&nbsp;户:</label></td>
+							<td><input id="username" name="username" class="ui-input"  type="text" /></td>
+						</tr>
+						<tr>
+							<td><label class="ui-label" for="password">密&nbsp;&nbsp;码:</label></td>
+							<td><input id="password" name="password" class="ui-input"  type="password" /></td>
+						</tr>
+						<tr>
+							<td>&nbsp;</td>
+							<td>
+							<input type="submit" class="btn-primary submit-btn" value="登录" style="margin-right:10px;">
+							<input type="reset" class="btn-primary reset-btn" value="重置">
+						
+					  		</td>
+						</tr>
+					</table>
+			  	</form>
+			</div>
+		</div>
+		<div class="ui-login-footer">
+			<div class="fonter-copyright">
+				Copyright &copy; 2003-2015 浙江浙大中控信息技术有限公司
+			</div>
+		</div>
+	</div> 
+</body>
+</html>
+
+<script type="text/javascript">
+	function downloadApp(type){
+		url = "$!{rc.contextPath}/app/";
+		if("android"==type){
+			url = url + "tzfxzf.apk";
+		}else{
+			url = url + "tzfxzf.ipa";
+		}
+		window.location.href = url;
+	}
+</script>
+

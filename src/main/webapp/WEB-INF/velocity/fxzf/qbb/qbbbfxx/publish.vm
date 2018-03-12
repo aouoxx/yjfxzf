@@ -1,0 +1,537 @@
+#parse("platform/_header.vm")
+<style>
+form {margin-left:10px; margin-right:10px;}
+.ui-title{ margin-bottom:0;}
+.ui-table { margin-top:6px; width:100%;}
+.ui-table .ui-input-cms{width:100%;}
+.ui-table td .btn .iconfont{ margin-right:0;}
+.ui-table-noborder {border:0px;}
+.select-small {width :160px;}
+.select-small-80 {width:80px;}
+.ui-textarea-small-160 {width:160px;height:86px;}
+.fieldset-legend {text-align:left;margin-left:10px;margin-top:5px;}
+.ui-label{width:100px;}
+</style>
+</head>
+<body>
+<div class="boder-no flexigrid">
+<input type="hidden" id="qbbid" value="$!{cms.id}"/>
+<form class="ui-form" id="qbbxxfb">
+<fieldset>
+	<legend class="fieldset-legend">播放列表</legend>
+  <table class="ui-table">
+    <thead>
+      <tr>
+        <th>&nbsp;</th>
+        <th>内容</th>
+        <th>出字方式</th>
+        <th>字体</th>
+        <th>颜色</th>
+      </tr>
+    </thead>
+    <!-- 表头可选 -->
+    <tbody>
+      <tr>
+        <td style="vertical-align:middle;width:20px;"><input type="radio" name="selectId" value="1" onclick="toEdit('1');"/></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="CNT1" readonly="readonly"></td>
+        <td>
+	         #dic_select2("QBB_WAY","WAY1","","select-small","WAY1","false")
+	         <span id="WAY_VALUE1"></span>                        
+        </td>
+        <td>
+             #dic_select2("QBB_FONT","FONT1","","select-small-80","FONT1","false")
+             <span id="FONT_VALUE1"></span>       
+        </td>
+        <td>
+             #dic_select2("QBB_COLOR","COLOR1","","select-small-80","COLOR1","false")
+             <span id="COLOR_VALUE1"></span>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align:middle"><input type="radio" name="selectId" value="2" onclick="toEdit('2');"/></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="CNT2" readonly="readonly"></td>
+        <td>
+	         #dic_select2("QBB_WAY","WAY2","","select-small","WAY2","false")
+	         <span id="WAY_VALUE2"></span>                     
+        </td>
+        <td>
+             #dic_select2("QBB_FONT","FONT2","","select-small-80","FONT2","false")
+             <span id="FONT_VALUE2"></span>       
+        </td>
+        <td>
+             #dic_select2("QBB_COLOR","COLOR2","","select-small-80","COLOR2","false")
+             <span id="COLOR_VALUE2"></span>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align:middle"><input type="radio" name="selectId" value="3" onclick="toEdit('3');"/></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="CNT3" readonly="readonly"></td>
+        <td>
+	         #dic_select2("QBB_WAY","WAY3","","select-small","WAY3","false")
+	         <span id="WAY_VALUE3"></span>                        
+        </td>
+        <td>
+             #dic_select2("QBB_FONT","FONT3","","select-small-80","FONT3","false")
+             <span id="FONT_VALUE3"></span>       
+        </td>
+        <td>
+             #dic_select2("QBB_COLOR","COLOR3","","select-small-80","COLOR3","false")
+             <span id="COLOR_VALUE3"></span>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align:middle"><input type="radio" name="selectId" value="4" onclick="toEdit('4');"/></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="CNT4" readonly="readonly"></td>
+        <td>
+	         #dic_select2("QBB_WAY","WAY4","","select-small","WAY4","false")
+	         <span id="WAY_VALUE4"></span>                        
+        </td>
+        <td>
+             #dic_select2("QBB_FONT","FONT4","","select-small-80","FONT4","false")
+             <span id="FONT_VALUE4"></span>       
+        </td>
+        <td>
+             #dic_select2("QBB_COLOR","COLOR4","","select-small-80","COLOR4","false")
+             <span id="COLOR_VALUE4"></span>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align:middle"><input type="radio" name="selectId" value="5" onclick="toEdit('5');"/></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="CNT5" readonly="readonly"></td>
+        <td>
+	         #dic_select2("QBB_WAY","WAY5","","select-small","WAY5","false")
+	         <span id="WAY_VALUE5"></span>                       
+        </td>
+        <td>
+             #dic_select2("QBB_FONT","FONT5","","select-small-80","FONT5","false")
+             <span id="FONT_VALUE5"></span>    
+        </td>
+        <td>
+             #dic_select2("QBB_COLOR","COLOR5","","select-small-80","COLOR5","false")
+             <span id="COLOR_VALUE5"></span>
+        </td>
+      </tr>
+##      <tr>
+##      	<td colspan="5" align="center">
+##      		<a class="k-primary hc_btn" id="bcxx" onclick="javascript:bcxx();"><i class="fa fa-save"></i>保存播放列表</a>&nbsp;
+##      		<a class="k-primary hc_btn" id="hfxx" onclick="javascript:hfxx();">恢复播放列表</a>
+##      	</td>
+##      </tr>
+    </tbody>
+  </table>
+</fieldset> 
+<fieldset>
+	<legend class="fieldset-legend">基础信息</legend>
+	<table class="ui-table" width="100%">
+        <tr>
+			<td class="label"><span class="ui-form-required">*</span>停留时间(分钟)：</td>
+            <td>
+                <input class="k-textbox" style="width:100%;" type="text" name="remainTime" id="remainTime" data-rule="停留时间: required;integer[+];"/>
+            </td>
+            <td class="label"><span class="ui-form-required">*</span>轮询时间(秒)：</td>
+            <td>
+                <input class="k-textbox" style="width:100%;" type="text" name="circleTime" id="circleTime" data-rule="轮询时间: required;integer[+];"/>
+            </td>
+        </tr>
+        <tr>
+        	<td class="label"><span class="ui-form-required">*</span>情报板位置:</td>
+            <td>
+            	#dic_select2("QBB_STATIONNAME","location","$!{location}","ui-combobox","location","false")
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
+   </table>
+</fieldset>
+<fieldset>
+	<legend class="fieldset-legend">信息编辑</legend>
+	<input type="hidden" id="editId" value=""/>
+	<table style="height:100%;width:100%;" >
+		<tr>
+			<td style="height:100%;width:50%;" rowspan="3">
+				<table style="height:100%;width:100%;">
+					<tr>
+						<td style="background:black;text-align:center;vertical-align:middle;">
+							<span id="cntView" style="width:20px"></span>
+						</td>
+					</tr>
+				</table>
+			</td>
+			<td style="vertical-align:middle; text-align:right; width: 8%;">出字方式：</td>
+			<td>#dic_select2("QBB_WAY","WAY","","ui-combobox select-small","WAY","false")</td>
+		</tr>
+		<tr>
+			<td style="vertical-align:middle; text-align:right;width: 8%;">字体样式：</td>
+			<td><div style="display:inline"> #dic_select2("QBB_FONT","FONT","","ui-combobox select-small-80","FONT","false")#dic_select2("QBB_COLOR","COLOR","","ui-combobox select-small-80","COLOR","false")</div></td>
+		</tr>
+		<tr>
+			<td valign="top" style="text-align:right;width: 8%;">文本信息：</td>
+			<td><textarea class="k-textbox" style="width:80%;height:120px;" id="CNT" name="CNT" /></textarea></td>
+		</tr>
+		<tr>
+			<td><a class="k-primary hc_btn" href="javascript:void(0);" onclick="javascript:selectQbbxxmb()"><i class="fa fa-check-square-o"></i>从模板选择</a></td>
+			<td colspan="2" style="padding-left: 100px;"><a class="k-primary hc_btn" href="javascript:void(0);" onclick="javascript:toPlaylist();"><i class="fa fa-save"></i>保存</a></td>
+		</tr>				
+	</table>
+</fieldset>
+<fieldset>
+	<legend class="fieldset-legend">操作</legend>
+	<div style="width:100%;text-align:center">
+	  	<a class="k-primary hc_btn" id="btnPlay" href="javascript:void(0);" onclick="javascript:toPlay();" style="marin-right: 20px;"><i class="fa fa-upload"></i>情报板发送</a>
+  		<a class="hc_btn cancel" href="javascript:void(0);" onclick="javascript:close_dialog('qbbbfxx_publish_dlg');" style="width: 100px;"><i class="fa fa-close"></i>取消</a>
+	</div>
+</fieldset>	 
+
+</form>   
+     
+</div>
+#parse("platform/_footer.vm")
+<script type="text/javascript">
+//给编辑添加事件
+$("#COLOR").change(function(){
+	var color = $("#COLOR").val();
+	if("R"==color){ 
+		color = "red";
+	}else if("Y"==color){
+		color = "yellow";
+	}else if("G"==color){
+		color = "green";
+	}
+	$("#cntView").css("color",color);
+});
+$("#FONT").change(function(){
+	$("#cntView").css("font-family",$("#FONT").find("option:selected").text());
+});
+
+$("#CNT").keyup(function(){
+	var len = $("#CNT").val().length;
+	var cnt = $("#CNT").val();
+	if(len > 16){
+		cnt = $("#CNT").val().substring(0,16);
+		$("#CNT").val(cnt);
+	}
+	var color = $("#COLOR").val();
+	if("R"==color){ 
+		color = "red";
+	}else if("Y"==color){
+		color = "yellow";
+	}else if("G"==color){
+		color = "green";
+	}
+	$("#cntView").css("color",color);
+	$("#cntView").css("font-size","20px");
+	$("#cntView").css("font-family",$("#FONT").find("option:selected").text());
+	$("#cntView").html(cnt);
+});
+
+
+//恢复信息（播放列表）
+function hfxx(){
+	var qbbid = $("#qbbid").val();
+	if(qbbid == ""){
+		alert("情报板信息不全");
+		return;
+	}
+	if(confirm("确定要将保存的播放列表恢复到当前吗?")){
+		$.post("${rc.contextPath}/monitor/qbbbcxx/findByQbbid",
+		{"qbbid": qbbid },
+		function(result){
+			if(result.status == "success"){
+				$.each(result.data,function(i,value){
+					var n = i+1;
+					$("#CNT"+n).val(value.xxnr);
+					$("#WAY"+n).val(value.czfs);
+					$("#FONT"+n).val(value.zt);
+					$("#COLOR"+n).val(value.ys);
+					
+					$("#WAY_VALUE"+n).html($("#WAY"+n).find("option:selected").text());
+					$("#FONT_VALUE"+n).html($("#FONT"+n).find("option:selected").text());
+					$("#COLOR_VALUE"+n).html($("#COLOR"+n).find("option:selected").text());
+				});
+			}else{
+				notify(result.message, "warn");
+			}
+		});
+	}else{
+	
+	}
+}
+
+//保存信息（播放列表）
+function bcxx(){
+	var qbbid = $("#qbbid").val();
+	if(qbbid == ""){
+		alert("情报板信息不全");
+		return;
+	}
+	if(confirm("确定要保存当前播放列表吗?")){
+		var param  = {
+			"qbbbcxx.qbbid" : $("#qbbid").val(),
+			"qbbbcxx.qbbbcxxList[0].qbbid" : qbbid,
+			"qbbbcxx.qbbbcxxList[0].xxnr" : $("#CNT1").val(),
+			"qbbbcxx.qbbbcxxList[0].czfs" : $("#WAY1").val(),
+			"qbbbcxx.qbbbcxxList[0].zt" : $("#FONT1").val(),
+			"qbbbcxx.qbbbcxxList[0].ys" : $("#COLOR1").val(),
+	
+			"qbbbcxx.qbbbcxxList[1].qbbid" : qbbid,
+			"qbbbcxx.qbbbcxxList[1].xxnr" : $("#CNT2").val(),
+			"qbbbcxx.qbbbcxxList[1].czfs" : $("#WAY2").val(),
+			"qbbbcxx.qbbbcxxList[1].zt" : $("#FONT2").val(),
+			"qbbbcxx.qbbbcxxList[1].ys" : $("#COLOR2").val(),
+			
+			"qbbbcxx.qbbbcxxList[2].qbbid" : qbbid,
+			"qbbbcxx.qbbbcxxList[2].xxnr" : $("#CNT3").val(),
+			"qbbbcxx.qbbbcxxList[2].czfs" : $("#WAY3").val(),
+			"qbbbcxx.qbbbcxxList[2].zt" : $("#FONT3").val(),
+			"qbbbcxx.qbbbcxxList[2].ys" : $("#COLOR3").val(),
+			
+			"qbbbcxx.qbbbcxxList[3].qbbid" : qbbid,
+			"qbbbcxx.qbbbcxxList[3].xxnr" : $("#CNT4").val(),
+			"qbbbcxx.qbbbcxxList[3].czfs" : $("#WAY4").val(),
+			"qbbbcxx.qbbbcxxList[3].zt" : $("#FONT4").val(),
+			"qbbbcxx.qbbbcxxList[3].ys" : $("#COLOR4").val(),	
+			
+			"qbbbcxx.qbbbcxxList[4].qbbid" : qbbid,
+			"qbbbcxx.qbbbcxxList[4].xxnr" : $("#CNT5").val(),
+			"qbbbcxx.qbbbcxxList[4].czfs" : $("#WAY5").val(),
+			"qbbbcxx.qbbbcxxList[4].zt" : $("#FONT5").val(),
+			"qbbbcxx.qbbbcxxList[4].ys" : $("#COLOR5").val()
+		};
+		
+		$.post("${rc.contextPath}/monitor/qbbbcxx/savePlayList",
+			param,
+			function(result){
+				if(result.status == "success"){
+					notify("播放列表保存成功","success");
+				}else{
+					notify(result.message,"success");
+				}
+		});
+	}else{
+	
+	}
+}
+
+//情报板信息获取(仅一次显示在界面)
+function xxhq(){
+	var deviceCode  = $("#sbzhdm").val();
+	var deviceid = $("#qbbid").val();
+	if(deviceid == ""){
+		notify("情报板信息不全", "warn");
+		return;
+	}
+	$.post("${rc.contextPath}/monitor/qbbbfxx/getPlayList",
+		{"deviceid" : deviceid},
+		function(result){
+			if(result.status == "success"){
+				for(var i = 0; i < 5; i++){
+					var n = i + 1;
+					if(result.data[deviceCode+"_K_CNT" + n]){
+						$("#CNT" + n).val(result.data[deviceCode+"_K_CNT" + n]);
+					}
+					if(result.data[deviceCode +"_K_WAY" + n]){
+						$("#WAY" + n).val(parseInt(result.data[deviceCode +"_K_WAY" + n]));
+						$("#WAY_VALUE" + n).html($("#WAY" + n).find("option:selected").text());
+					}
+					if(result.data[deviceCode +"_K_FONT" +n]){
+						$("#FONT" + n).val(parseInt(result.data[deviceCode +"_K_FONT" + n]));
+						$("#FONT_VALUE" + n).html($("#FONT" + n).find("option:selected").text());
+					}
+					if(result.data[deviceCode +"_K_RED"+ n] && result.data[deviceCode +"_K_GREEN"+ n]){
+						var red = parseInt(result.data[deviceCode +"_K_RED"+ n]).toString(16);
+						var green = parseInt(result.data[deviceCode +"_K_GREEN"+ n]).toString(16);
+						if(result.data[deviceCode +"_K_RED" + n] < 16){
+							red = "0"+red;
+						}
+						if(result.data[deviceCode +"_K_GREEN" + n] < 16){
+							green  ="0"+green;
+						}
+						$("#COLOR" + n).val(red+green+"00");
+						$("#COLOR_VALUE" + n).html($("#COLOR" + n).find("option:selected").text());						
+					}
+				}
+			}else{
+				notify("获取情报板内容失败", "warn");
+			}
+	});
+	
+}
+
+
+
+//情报板发送
+function toPlay(){
+	if($("#location").val() == undefined || $("#location").val() == ""){
+		alert("情报板位置不可为空");
+		return;
+	}
+	if("" == $("#FONT1").val()&&"" == $("#FONT2").val()&&"" == $("#FONT3").val()&&"" == $("#FONT4").val()&&"" == $("#FONT5").val()){
+		alert("情报板列表不可为空");
+	}
+	if($("#remainTime").val() == undefined || $("#remainTime").val() == ""){
+		alert("停留时间不可为空");
+		return;
+	}
+	if($("#circleTime").val() == undefined || $("#circleTime").val() == ""){
+		alert("轮询时间不可为空");
+		return;
+	}
+	if(!confirm("确定要进行情报板发送操作吗?")){
+		return;
+	}
+	var location  = $("#location").val();
+	var remainTime = $("#remainTime").val();
+	var circleTime = $("#circleTime").val();
+	
+	var success = "success";
+	var cnt = [];
+	var way = [];
+	var font = [];
+	var color = [];
+	var order = [];
+	
+	for(var i =1 ;i <= 5 ;i++){
+		if("" != $("#CNT"+i).val() && undefined != $("#CNT"+i).val()){
+			cnt[i] = $("#CNT"+i).val();
+		}
+		if("" != $("#WAY"+i).val() && undefined != $("#WAY"+i).val()){
+			way[i] = $("#WAY"+i).val();
+		}
+		if("" != $("#FONT"+i).val() && undefined != $("#FONT"+i).val()){
+			font[i] = $("#FONT"+i).val();
+		}
+		if("" != $("#COLOR"+i).val() && undefined != $("#COLOR"+i).val()){
+			color[i] = $("#COLOR"+i).val();
+		}
+		order[i] = i;
+	}
+	
+	var param = {"location":location,"remainTime":remainTime,"circleTime":circleTime,"cnt":cnt,"way":way,"font":font,"color":color,"order":order};
+	
+##	$.post("${rc.contextPath}/fxzf/qbb/qbbbfxx/publish",
+##		param,
+##		function(result){
+##			if(result.status == success){
+##				notify("情报板发送成功", "success");
+##				close_dialog('qbbbfxx_publish_dlg');
+##			}else{
+##				notify("情报板发送失败", "warn");					
+##			}
+##	});
+	
+	$.ajax({
+		  url: "${rc.contextPath}/fxzf/qbb/qbbbfxx/publish",
+		  traditional:true,
+          data: param,
+		  type: 'post',
+          success: function(result){
+			if(result.status == success){
+				notify("情报板发送成功", "success");
+				var list = window.parent.frames["_main_frame"];
+				close_dialog('qbbbfxx_publish_dlg');
+				list.edited_callback();
+			}else{
+				notify("情报板发送失败", "warn");					
+			}
+		  }
+	});
+}
+
+function toEdit(i){
+	$("#editId").val(i);
+	//内容
+	$("#CNT").val($("#CNT"+i).val());
+	//出字方式
+	$("#WAY").data("kendoComboBox").value($("#WAY"+i).val());
+	//字体
+	$("#FONT").data("kendoComboBox").value($("#FONT"+i).val());
+	//颜色
+	$("#COLOR").data("kendoComboBox").value($("#COLOR"+i).val());
+	
+	//触发预览事件
+	$("#CNT").trigger("keyup");
+	$("#COLOR").trigger("change");
+	
+}
+
+//把编辑的内容写入到播放列表
+function toPlaylist(){
+	var i  = $("#editId").val();
+	if(i== ""){
+		alert("请从播放列表选择一条信息后编辑");
+		return;
+	}
+	
+	if($("#WAY").val() == ""){
+		alert("请选择出字方式");
+		return;
+	}
+	if($("#FONT").val() == ""){
+		alert("请选择字体");
+		return;
+	}
+	if($("#COLOR").val() == ""){
+		alert("请选择颜色");
+		return;
+	}
+	
+	//写入到播放列表
+	//内容
+	$("#CNT"+i).val($("#CNT").val());
+	//$("#CNT_VALUE"+i).html($("#CNT"+i).find("option:selected").text());
+	//出字方式
+	$("#WAY"+i).val($("#WAY").val());
+	$("#WAY_VALUE"+i).html($("#WAY"+i).find("option:selected").text());
+	//字体
+	$("#FONT"+i).val($("#FONT").val());
+	$("#FONT_VALUE"+i).html($("#FONT"+i).find("option:selected").text());
+	//颜色
+	$("#COLOR"+i).val($("#COLOR").val());
+	$("#COLOR_VALUE"+i).html($("#COLOR"+i).find("option:selected").text());
+	
+}
+</script>
+<script>
+$("#WAY1").attr("style","display:none");
+$("#WAY2").attr("style","display:none");
+$("#WAY3").attr("style","display:none");
+$("#WAY4").attr("style","display:none");
+$("#WAY5").attr("style","display:none");
+
+$("#FONT1").attr("style","display:none");
+$("#FONT2").attr("style","display:none");
+$("#FONT3").attr("style","display:none");
+$("#FONT4").attr("style","display:none");
+$("#FONT5").attr("style","display:none");
+
+$("#COLOR1").attr("style","display:none");
+$("#COLOR2").attr("style","display:none");
+$("#COLOR3").attr("style","display:none");
+$("#COLOR4").attr("style","display:none");
+$("#COLOR5").attr("style","display:none");
+
+##setTimeout("xxhq()",1000);
+
+function setSelectTemp(content,way,font,color){
+	//内容
+	$("#CNT").val(content);
+	//出字方式
+	$("#WAY").data("kendoComboBox").value(way);
+	//字体
+	$("#FONT").data("kendoComboBox").value(font);
+	//颜色
+	$("#COLOR").data("kendoComboBox").value(color);
+	$("#CNT").trigger("keyup");
+	$("#COLOR").trigger("change");
+}
+function selectQbbxxmb(){
+	var t = new Date();
+	quick_dialog("_select_qbbmbxx", "选择模板信息", "${rc.contextPath}/fxzf/qbb/qbbmbxx/select?dlg_id=qbbbfxx_publish_dlg&flag=0&t="+ t.getTime(),700, 520);
+}
+
+$(function(){
+	$("input[name='selectId']")[0].click();
+})
+</script>
+</body>
+</html>

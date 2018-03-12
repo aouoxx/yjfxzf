@@ -1,0 +1,136 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+<div class="ui-layout-north">
+	#bread_crumbs2("FXZF_QBB_FBXX")
+    <div class="ui-search-container">
+        <form id="search_form">
+        </form>
+    </div>
+</div>
+
+<div class="ui-layout-center">
+    <div id="grid"></div>
+</div>
+
+#parse("platform/_footer.vm")
+<script>
+    var _iframe_layout;
+    $(function () {
+        _iframe_layout = $('body').layout({
+            center__maskContents: true,
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            },
+            center: {
+                onresize_end: function () {
+                    var grid = $("#grid").data("kendoGrid");
+                    grid.resize();
+                }
+            },
+            north: {size:34}
+        });
+
+        quick_datagrid("#grid", "#search_form", "$!{rc.contextPath}/fxzf/qbb/qbbbfxx/list", [
+            {
+                field: "id",
+                hidden: true
+        	},{
+                field: "locationStr",
+                title: "情报板位置",
+                template:"<a href=\"javascript:void(0)\" title=\"查看情报板详情\" onclick=\"showQbbInfo('+#:data.id#+','#:data.count#');\" >#: data.locationStr #</a> ",
+                attributes :{
+                	style: "text-align: left;"
+                }
+            },{
+                field: "xxnr",
+                title: "情报板内容"
+            },{
+                field: "color",
+                title: "颜色"              
+            },{
+                field: "remainTime",
+                title: "停留时间(分钟)"
+            },{
+           		field: "circleTime",
+           		title:"轮训时间(秒)"
+            },{
+                field: "publishTime",
+                title: "发布时间"
+            },{
+                field: "type",
+                title: "发布类型"
+            },{
+                field: "flag",
+                title: "标志",
+                width: "5%"
+            },{
+                field: "count",
+                hidden: true
+            }
+            ], {
+             sortable: false,
+			 pageable: true,
+			 dataBound:function(e){
+			 	grid_dataBound(e);
+			 }
+        	}, {
+             serverSorting: true
+        	},
+			[
+                #hc_grid_buttons("FXZF_QBB_FBXX")#end
+			]);
+    });
+    function edited_callback() {
+        setTimeout("grid_flush()",1000);
+    }
+    
+    function grid_flush(){
+    	var grid = $("#grid").data("kendoGrid");
+        grid.dataSource.read();
+    }
+	
+	function grid_dataBound(e){
+		var data = e.sender._data;
+		for(var i=0;i< data.length;i++){   	
+		 	var mrFlag =  $(e.sender.tbody[0].childNodes[i]).find('td').eq(8).text()+'';
+		 	if(mrFlag=='默认信息'){
+		 		$(e.sender.tbody[0].childNodes[i]).find('td').eq(5).text('无限期');
+		 	}
+		 	var flag =  $(e.sender.tbody[0].childNodes[i]).find('td').eq(9).text()+'';
+		 	if(flag=="Y"){
+		 		var station =  $(e.sender.tbody[0].childNodes[i]).find('td').eq(2).text()+'';
+		 		var html='<img title=\"'+station+'当前播放信息'+'\" src=\"$!{rc.contextPath}/assets/images/qbbbfxx.jpg\" width=\"15px\" heght=\"15px\">';
+		 		$(e.sender.tbody[0].childNodes[i]).find('td').eq(9).html(html);
+		 	}else{
+		 		$(e.sender.tbody[0].childNodes[i]).find('td').eq(9).html('');
+		 	}
+		}
+	}
+	
+	function showQbbInfo(id,count){
+		console.log(id);
+		switch(count){
+			case '1':
+				quick_dialog('qbbInfo_dlg','查看情报板详情','$!{rc.contextPath}/fxzf/qbb/qbbbfxx/view?id='+id,628,242);
+				break;
+			case '2':
+				quick_dialog('qbbInfo_dlg','查看情报板详情','$!{rc.contextPath}/fxzf/qbb/qbbbfxx/view?id='+id,628,277);
+				break;
+			case '3':
+				quick_dialog('qbbInfo_dlg','查看情报板详情','$!{rc.contextPath}/fxzf/qbb/qbbbfxx/view?id='+id,628,312);
+				break;
+			case '4':
+				quick_dialog('qbbInfo_dlg','查看情报板详情','$!{rc.contextPath}/fxzf/qbb/qbbbfxx/view?id='+id,628,347);
+				break;
+			case '5':
+				quick_dialog('qbbInfo_dlg','查看情报板详情','$!{rc.contextPath}/fxzf/qbb/qbbbfxx/view?id='+id,628,382);
+				break;
+		}
+		
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.supconit.kqfx.web.fxzf.msg.entities.PushMsgFlag">
+  
+   <sql id="TABLE_NAME" lang="velocity">T_MSGPUSH_FLAG</sql>
+  
+   <resultMap type="com.supconit.kqfx.web.fxzf.msg.entities.PushMsgFlag" id="PushMsgFlagResultMap">
+			 <result property="id" column="ID" />
+			 <result property="userId" column="USERID" />
+			 <result property="channelId" column="CHANNELID" />
+			 <result property="type" column="TYPE" />
+			 <result property="flagName" column="FLAGNAME" />
+			 <result property="flagValue" column="FLAGVALUE" />
+			 <result property="updateTime" column="UPDATETIME" />
+ 	</resultMap>
+  
+   
+   	<select id="getByUserIds" parameterType="com.supconit.kqfx.web.fxzf.msg.entities.PushMsgFlag" resultMap="PushMsgFlagResultMap" lang="velocity">
+  		SELECT * FROM (SELECT M.USERID,M.FLAGNAME,M.FLAGVALUE,N.CHANNELID,N.TYPE FROM T_MSGPUSH_FLAG M RIGHT JOIN T_USER_CHANNELID N on M.USERID = N.USERID) 
+  		<include refid="SEARCH_CONDITION_SQL_LOG"/> 
+  	</select>
+    
+     <sql id="SEARCH_CONDITION_SQL_LOG" lang="velocity">
+    	 <![CDATA[
+			#where()
+				#if($_parameter.userId && $_parameter.userId != '')
+				   AND (
+	 					#repeat( $_parameter.userIds $code "," " USERID IN (" ")" )
+			    			@{code,jdbcType=VARCHAR}
+						#end
+					   )
+			    #end
+			    #if($_parameter.flagName && $_parameter.flagName != '')
+				   AND FLAGNAME = @{_parameter.flagName,jdbcType=VARCHAR}
+			    #end
+			    #if($_parameter.flagValue && $_parameter.flagValue != '')
+				   AND FLAGVALUE = @{_parameter.flagValue,jdbcType=VARCHAR}
+			    #end
+			#end
+		]]>
+	</sql>
+	
+	
+	<sql id="INSERT_SQL" lang="velocity">
+		INSERT INTO <include refid="TABLE_NAME"/>(
+		#if($_databaseId == 'oracle') ID,#end
+								 USERID
+								,FLAGNAME
+								,FLAGVALUE
+								,UPDATETIME
+		) VALUES (
+		#if($_databaseId == 'oracle') @{_parameter.id,jdbcType=VARCHAR},#end
+								@{_parameter.userId,jdbcType=VARCHAR}
+								,@{_parameter.flagName,jdbcType=VARCHAR}
+								,@{_parameter.flagValue,jdbcType=VARCHAR}
+								,@{_parameter.updateTime,jdbcType=TIMESTAMP}
+	)
+	</sql>
+	
+	<insert id="insert" parameterType="com.supconit.kqfx.web.fxzf.msg.entities.PushMsgFlag" 
+		keyProperty="ID" keyColumn="ID" 		lang="velocity" databaseId="oracle">
+		  <include refid="INSERT_SQL" />
+	</insert>
+	<insert id="insert" parameterType="com.supconit.kqfx.web.fxzf.msg.entities.PushMsgFlag" 
+		keyProperty="ID" keyColumn="ID" 		 lang="velocity">
+        <include refid="INSERT_SQL"/>
+        <selectKey keyProperty="ID" resultType="string" order="AFTER">
+        <include refid="_PUBLIC_V.SELECT_KEY"/> 
+        </selectKey>    
+    </insert>
+	
+	<delete id="deleteByUserId" parameterType="string" lang="velocity">
+		DELETE FROM <include refid="TABLE_NAME" /> WHERE USERID = @{_parameter,jdbcType=VARCHAR}
+	</delete>
+	
+	<delete id="deleteChannelByUserId" parameterType="string" lang="velocity">
+		DELETE FROM T_USER_CHANNELID WHERE USERID = @{_parameter,jdbcType=VARCHAR}
+	</delete>
+	
+  </mapper>

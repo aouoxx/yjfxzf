@@ -1,0 +1,71 @@
+#parse("platform/_header.vm")
+<style>
+.ui-table { margin-top:6px; width:100%;border:0px;}
+.fieldset-legend {text-align:left;margin-left:10px;margin-top:5px;}
+.ui-dialog-form .fieldset-legend{color:#0973B6;}
+.ui-dialog-form select{color:#0973B6;}
+.ui-dialog-form textarea{color:#0973B6;}
+
+
+</style>
+</head>
+<body>
+<form class="ui-dialog-form">
+<fieldset>
+	<legend class="fieldset-legend">模板信息选取</legend>
+	<table class="ui-table">
+		<tr>
+		<select name="parameter" multiple="multiple" style="margin:10px 70px;width:150px;height:150px;" onclick="clickPara(this);">
+			<option value="@车牌号@">车牌号</option>
+			<option value="@治超站@">治超站</option>
+			<option value="@过车时间@">过车时间</option>
+			<option value="@总重@">总重</option>
+			<option value="@轴数@">轴数</option>
+			<option value="@超限率@">超限率</option>
+			<option value="@违法等级@">违法等级</option>
+    	</select>
+    	<tr>
+	</table>
+</fieldset>
+<fieldset>
+	<legend class="fieldset-legend">已选取模板信息</legend>
+	<table class="ui-table">
+		<tr>
+			<textarea id="content" style="margin-top:10px;width:98%;height:60px;" value="$!{content}">$!{content}</textarea>
+		<tr>
+	</table>
+</fieldset>
+<div class="actions">
+        <button class="k-primary hc_btn save-s" onclick="fillAppContent();" id="save">保 存</button>
+        <button class="hc_btn cancel close-s" onclick="close_dialog('_select_qbbmbxx')" type="button">取 消</button>
+</div>
+</form>
+    #parse("platform/_footer.vm")
+</body>
+<script type="text/javascript">
+
+function clickPara(obj){
+	var val = $("#content").val()+"+"+obj.value;
+	if(val.indexOf("+")==0)
+	{
+		val = val.substring(1,val.length);
+	}
+	
+	$("#content").val(val);
+}
+
+
+function fillAppContent(){
+	var count = '$!{count}';
+	var content = $("#content").val();
+	var dlg_id="$!{dlg_id}";
+	if(dlg_id !="undefined" && dlg_id){
+		var dlg = get_fun_in_dialog(dlg_id);
+		dlg.fillAppContent(content);
+	}else{
+		window.parent.frames["_main_frame"].fillAppContent(count,content);
+	}
+	close_dialog('_select_qbbmbxx')
+}
+</script>
+</html>

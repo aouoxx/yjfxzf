@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.supconit.kqfx.web.fxzf.search.entities.YhInfo">
+
+	<resultMap type="com.supconit.kqfx.web.fxzf.search.entities.YhInfo" id="YhResultMap">
+		<id property="id" column="ID"/>
+			<result property="operationType" column="OPERATION_TYPE" />
+			<result property="yhName" column="YH_NAME" />
+			<result property="yhAddress" column="YH_ADDRESS" />
+			<result property="economicType" column="ECONOMIC_TYPE" />
+			<result property="acceptNo" column="ACCEPT_NO" />
+			<result property="postalNo" column="POSTAL_NO" />
+			<result property="operationArea" column="OPERATION_AREA" />
+			<result property="regionCode" column="REGION_CODE" />
+			<result property="regionName" column="REGION_NAME" />
+			<result property="legalPersion" column="LEGAL_PERSION" />
+			<result property="legalTelephone" column="LEGAL_TELEPHONE" />
+			<result property="legalCellphone" column="LEGAL_CELLPHONE" />
+			<result property="legalCertificate" column="LEGAL_CERTIFICATE" />
+			<result property="principalPersion" column="PRINCIPAL_PERSION" />
+			<result property="agentPersion" column="AGENT_PERSION" />
+			<result property="telephoneNo" column="TELEPHONE_NO" />
+			<result property="faxNo" column="FAX_NO" />
+			<result property="cellphoneNo" column="CELLPHONE_NO" />
+			<result property="email" column="EMAIL" />
+			<result property="certificateNo" column="CERTIFICATE_NO" />
+			<result property="indateBegin" column="INDATE_BEGIN" />
+			<result property="indateEnd" column="INDATE_END" />
+			<result property="businessLicenseNo" column="BUSINESS_LICENSE_NO" />
+			<result property="commerceDepartment" column="COMMERCE_DEPARTMENT" />
+			<result property="businessLicenseDate" column="BUSINESS_LICENSE_DATE" />
+			<result property="registeredFund" column="REGISTERED_FUND" />
+			<result property="domicilePipe" column="DOMICILE_PIPE" />
+			<result property="operationState" column="OPERATION_STATE" />
+			<result property="longitude" column="LONGITUDE" />
+			<result property="latidute" column="LATIDUTE" />
+			<result property="yhClSl" column="YH_CL_SL" />
+			<result property="yhRySl" column="YH_RY_SL" />
+			<result property="yhlxOtherFlag" column="YHLX_OTHER_FLAG" />
+			<result property="illegalTimes" column="ILLEGALTIMES"/>
+			<collection property="vehicleList" ofType="com.supconit.kqfx.web.fxzf.search.entities.VehicleInfo">
+				<id property="id" column="V_ID" />
+				<result property="yhId" column="YH_ID" />
+				<result property="planeNo" column="PLANE_NO" />
+				<result property="planeColor" column="PLANE_COLOR" />
+				<result property="vehicleColor" column="VEHICLE_COLOR" />
+				<result property="vehicleType" column="VEHICLE_TYPE" />
+				<result property="plateType" column="PLATE_TYPE" />
+				<result property="vehicleLevel" column="VEHICLE_LEVEL" />
+				<result property="trailerNo" column="TRAILER_NO" />
+				<result property="brandType" column="BRAND_TYPE" />
+				<result property="brandFactory" column="BRAND_FACTORY" />
+				<result property="vehicleFn" column="VEHICLE_FN" />
+				<result property="fuelType" column="FUEL_TYPE" />
+				<result property="checkPassenger" column="CHECK_PASSENGER" />
+				<result property="checkWeight" column="CHECK_WEIGHT" />
+				<result property="tankVolume" column="TANK_VOLUME" />
+				<result property="vlength" column="VLENGTH" />
+				<result property="vweight" column="VWEIGHT" />
+				<result property="vheight" column="VHEIGHT" />
+				<result property="engineNo" column="ENGINE_NO" />
+				<result property="chassisNo" column="CHASSIS_NO" />
+				<result property="factoryDate" column="FACTORY_DATE" />
+				<result property="startupDate" column="STARTUP_DATE" />
+				<result property="regionCode" column="V_REGION_CODE" />
+				<result property="transportNo" column="TRANSPORT_NO" />
+				<result property="transportNote" column="TRANSPORT_NOTE" />
+				<result property="transportMark" column="TRANSPORT_MARK" />
+			</collection>
+	</resultMap>
+	
+	<sql id="TABLE_NAME" lang="velocity">T_YG_YH_INFO</sql>
+	<sql id="SELECT_PRE" lang="velocity">SELECT * FROM <include refid="TABLE_NAME" /></sql>
+	<sql id="COUNT_PRE" lang="velocity">SELECT COUNT(1) FROM <include refid="TABLE_NAME" /></sql>
+
+	<sql id="SEARCH_CONDITION_SQL" lang="velocity">
+		<![CDATA[
+			#where()
+				#if($_parameter.condition.yhName && $_parameter.condition.yhName !='')
+						#set($_yhName = '%' + $_parameter.condition.yhName + '%')
+					AND Y.YH_NAME LIKE @{_yhName,jdbcType=VARCHAR}
+				#end
+			#end
+			ORDER BY ILLEGALTIMES DESC
+		]]>
+	</sql>
+	
+	<sql id="SEARCH_FXZF_CONDITION_SQL" lang="velocity">
+		<![CDATA[
+			#where()
+				#if($_parameter.condition.fxzf.detectStation && $_parameter.condition.fxzf.detectStation !='')
+					AND F.DETECT_STATION = @{_parameter.condition.fxzf.detectStation,jdbcType=VARCHAR}
+				#end
+				#if($_parameter.condition.fxzf.overLoadStatus && $_parameter.condition.fxzf.overLoadStatus !='')
+					AND F.OVERLOAD_STATUS = @{_parameter.condition.fxzf.overLoadStatus,jdbcType=VARCHAR}
+				#else
+					AND F.OVERLOAD_STATUS !='normal'
+				#end
+				#if($_parameter.condition.beginTime && $_parameter.condition.beginTime != '')
+				   AND F.CAPTURE_TIME >= @{_parameter.condition.beginTime,jdbcType=TIMESTAMP}
+			    #end
+			    #if($_parameter.condition.endTime && $_parameter.condition.endTime != '')
+				   AND F.CAPTURE_TIME < @{_parameter.condition.endTime,jdbcType=TIMESTAMP}
+			    #end
+			#end
+			AND F.ID IS NOT NULL
+			GROUP BY V.YH_ID
+		]]>
+	</sql>
+
+	<select id="getById" resultMap="YhResultMap" parameterType="string" lang="velocity">
+		<include refid="SELECT_PRE" />
+		WHERE ID = @{_parameter, jdbcType=VARCHAR}
+	</select>
+	
+	
+	<select id="selectPager" lang="velocity" resultMap="YhResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE" />
+		SELECT Y.*,
+		(CASE WHEN A.ILLEGALTIMES IS NULL THEN 0 ELSE A.ILLEGALTIMES END) AS ILLEGALTIMES 
+		FROM  <include refid="TABLE_NAME" /> Y INNER JOIN
+		(SELECT V.YH_ID AS ID, COUNT(1) AS ILLEGALTIMES
+			FROM T_YG_VEHICLE_INFO V
+		INNER JOIN T_FXZF F ON V.PLANE_NO = F.LICENSE
+		<include refid="SEARCH_FXZF_CONDITION_SQL" />) A ON Y.ID = A.ID
+		<include refid="SEARCH_CONDITION_SQL" />
+		<include refid="_PUBLIC_V.PAGER_AFTER" />
+	</select>
+
+	<select id="selectPager" lang="velocity" resultMap="YhResultMap"
+		databaseId="sqlserver">
+		<include refid="_PUBLIC_V.PAGER_BEFORE" />
+		SELECT *
+		<include refid="_PUBLIC_V.ROW_NUMBER_OVER" />
+		#order($_parameter.condition,"ID DESC")
+		<include refid="_PUBLIC_V.AS_ROW_NUM" />
+		FROM <include refid="TABLE_NAME" />
+		<include refid="SEARCH_CONDITION_SQL" />
+		<include refid="_PUBLIC_V.PAGER_AFTER" />
+	</select>
+
+	<select id="countPager" lang="velocity" resultType="long">
+		SELECT COUNT(1) FROM  <include refid="TABLE_NAME" /> Y INNER JOIN
+		(
+			SELECT V.YH_ID AS ID, COUNT(1) AS ILLEGALTIMES FROM T_YG_VEHICLE_INFO V
+			INNER JOIN T_FXZF F ON V.PLANE_NO = F.LICENSE
+			<include refid="SEARCH_FXZF_CONDITION_SQL" />
+		) A ON Y.ID = A.ID
+		<include refid="SEARCH_CONDITION_SQL" />
+	</select>
+
+</mapper>

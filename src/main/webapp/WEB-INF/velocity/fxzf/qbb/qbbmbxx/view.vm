@@ -1,0 +1,21 @@
+<form class="ui-form" id="jcjk_qbbxxmb_view_form" action="$!{rc.contextPath}/fxzf/qbb/qbbmbxx/view" method="post">
+    <fieldset>
+        <div class="ui-form-item ">
+            <label class="ui-label" for="">信息内容：</label>
+            <input class="ui-input" type="text" name="QbbMbxx.xxnr" value="$!{QbbMbxx.xxnr}"
+                data-rule="信息内容: required;length[~50];"       			/>
+        </div>
+        <div class="ui-form-item ">
+            <label class="ui-label" for="">出字方式：</label>
+            #dic_select2("QBB_WAY","QbbMbxx.czfs",${QbbMbxx.czfs},'ui-select')
+        </div>
+        <div class="ui-form-item ">
+            <label class="ui-label" for="">字体：</label>
+            #dic_select2("QBB_FONT","QbbMbxx.font",${QbbMbxx.font},'ui-select')
+        </div>
+        <div class="ui-form-item ">
+            <label class="ui-label" for="">颜色：</label>
+            #dic_select2("QBB_COLOR","QbbMbxx.color",${QbbMbxx.color},'ui-select')
+        </div>
+    </fieldset>
+</form>

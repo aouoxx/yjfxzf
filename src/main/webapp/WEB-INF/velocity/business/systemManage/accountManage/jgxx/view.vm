@@ -1,0 +1,122 @@
+#if($_type)#else#set($_type="edit")#end
+#parse("platform/_header.vm")
+</head>
+<body>
+	   <table>
+			<tr>
+                <td class="label">
+					机构名称：
+				</td>
+                <td class="cont">
+    				$!{jgxx.jgmc}
+    			</td>
+                <td class="label">
+					机构简称:
+				</td>
+                <td class="cont">
+					$!{jgxx.jgjc}
+    			</td>
+			</tr>
+			<tr>
+                <td class="label">
+					组织机构代码：
+				</td>
+                <td>
+					$!{jgxx.zzjgdm}
+    			</td>
+                <td class="label">
+					机构分类：
+				</td>
+                <td>
+					#if($jgxx.jgdj)
+						#dic_name("XTGL_JGXX_JGDJ","$!{jgxx.jgdj}")
+					#end
+    			</td>
+			</tr>
+			<tr>
+                <td class="label">
+					上级机构：
+				</td>
+                <td colspan="3">
+    				
+					$!{jgxx.parent.jgmc}
+			</tr>
+			<tr>
+                <td class="label">
+					行政区划：
+				</td>
+                <td colspan="3">
+    				<span id="xzqh"></span>
+    			</td>
+			</tr>
+			<tr>
+                <td class="label">
+					负责人：
+				</td>
+                <td>
+					$!{jgxx.fzr}
+    			</td>
+                <td class="label">
+					联系电话：
+				</td>
+                <td>
+					$!{jgxx.fzrlxfs}
+    			</td>
+			</tr>
+			<tr>
+                <td class="label">
+					传真：
+				</td>
+                <td>
+					$!{jgxx.cz}
+    			</td>
+                <td class="label">
+					邮编：
+				</td>
+                <td>
+					$!{jgxx.yb}
+    			</td>
+			</tr>
+##			<tr>
+##                <td class="label">
+##					经度：
+##				</td>
+##                <td>
+##					$!{jgxx.jd}
+##    			</td>
+##                <td class="label">
+##					纬度：
+##				</td>
+##                <td>
+##					$!{jgxx.wd}
+##				</td>
+##			</tr>
+			<tr>
+                <td class="label">
+					详细地址：
+				</td>
+                <td colspan="3">
+					$!{jgxx.xxdz}
+    			</td>
+                
+			</tr>
+			<tr>
+                <td class="label">
+					备注：
+				</td>
+                <td colspan="3" class="cont">
+    				<textarea class="k-textbox" style="width:98%" readonly="readonly"  name="jgxx.bz" data-rule="length[~50];">$!{jgxx.bz}</textarea>
+    			</td>
+               
+			</tr>
+		</table>
+    #parse("platform/_footer.vm")
+<script src="$!{rc.contextPath}/assets/js/xtgl/xzqh.js" type="text/javascript"></script>
+<script type="text/javascript">
+$("body").css({"padding":"10px","height":"auto"});
+$("table").addClass("ui-view");
+$("table").find("tr:odd").addClass("odd");
+$("table").find("tr:even").addClass("even");
+
+$.xzqh_mc( {contextPath : "$!{rc.contextPath}", spanId: "xzqh", xzqhdm : "$!{jgxx.xzqhdm}" ,isQC : true});	
+</script>

@@ -1,0 +1,96 @@
+#if($_type)#else#set($_type="edit")#end
+#parse("platform/_header.vm")
+</head>
+<body>
+<form class="ui-dialog-form" id="xtgl_zhgl_dept_$!{_type}_form" action="$!{rc.contextPath}/xtgl/zhgl/department/$!{_type}" method="post">
+	<input type="hidden" name="department.id" value="$!{department.id}" />
+	    <table width="100%">
+			<tr>
+                <td class="label">
+					<span class="ui-form-required">*</span>部门名称：
+				</td>
+                <td>
+    				<input class="k-textbox"  name="department.name" value="$!{department.name}" />
+    			</td>
+                <td class="label">
+					部门编码:
+				</td>
+                <td>
+    				<input class="k-textbox"  name="department.code" value="$!{department.code}" data-rule="部门编码:length[1~30]"/>
+    			</td>
+    			<td></td>
+			</tr>
+			<tr>
+                <td class="label">
+					<span class="ui-form-required">*</span>所属机构：
+				</td>
+                <td colspan="3">
+    				<select name="department.jgxx.id" id="fatherId"></select>
+				</td>	
+				<td></td>
+			</tr>
+			<tr>
+                <td class="label">
+					备注：
+				</td>
+                <td colspan="3">
+    				<textarea  rows="4" class="k-textbox" name="department.description" data-rule="length[~50];">$!{department.description}</textarea>
+    			</td>
+               	<td></td>
+			</tr>
+		</table>
+  <div class="actions">
+        <button class="k-primary hc_btn" type="submit" id="save" ><i class="fa fa-save"></i>保 存</button>
+        <button class="hc_btn cancel" onclick="close_dialog('dept_$!{_type}_dlg')" type="button"><i class="fa fa-close"></i>取 消</button>
+    </div>
+ 
+</form>
+
+ #parse("platform/_footer.vm")
+<script src="$!{rc.contextPath}/assets/js/xtgl/zhgl/jgxx.js" type="text/javascript"></script>
+<script type="text/javascript">
+	$(function(){
+	
+	selectJgxx("fatherId","dept_$!{_type}_dlg","$!{department.jgxx.id}","$!{department.jgxx.jgmc}")
+     
+	
+	});
+	
+	$('form').validator({
+        rules: {
+            
+        },
+        messages: {
+            required: "请填写{0}",
+            email: "邮箱地址不合法"
+        },
+        fields: {
+            'department.name': '部门名称:required;length[~256];',
+            'department.code': '部门编码:length[~128];',
+            'department.jgxx.id': '所属机构:required;',
+            'department.description': '备注:length[~512];'
+        },
+        valid: function(form){
+			form_btn_submit('#save','#xtgl_zhgl_dept_$!{_type}_form',function(res){
+    				notify("操作成功", "success");
+					window.parent.frames["_main_frame"].edited_callback();
+					close_dialog('dept_$!{_type}_dlg');
+			})
+        }
+    });
+		$("form .k-textbox").bind({
+		mouseover: function(e) {
+			if ($(this).hasClass("n-invalid")) {
+				var msg_box = $(this).siblings(".msg-box").get(0);
+				$(msg_box).find(".n-error").show();
+			}
+		},
+		mouseout: function(e){
+			if ($(this).hasClass("n-invalid")) {
+				$(this).siblings(".msg-box").find(".n-error").hide();
+			}
+		}
+	});
+</script>
+</body>
+</html>

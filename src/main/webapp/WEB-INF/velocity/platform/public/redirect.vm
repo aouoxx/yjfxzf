@@ -1,0 +1,154 @@
+#set($_title = "继续操作提示 - " + $!_site_name)
+#parse("platform/_header.vm")
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .container {
+        color #6D6D6D;
+        margin: auto;
+        min-width: 280px;
+        height: 100%;
+        text-align: center;
+        position: relative;
+    }
+
+    .container h1 {
+        padding-top: 16px;
+    }
+
+    .container a {
+        color: blue;
+    }
+
+    .container .k-button {
+        height: 26px;
+        line-height: 26px;
+        font-size: 14px;
+        padding: 0px 20px;
+    }
+
+    .option {
+        height: 28px;
+        width: 100%;
+        background: #f8f8f8;
+        border-top: solid 1px #e2e2e2;
+        padding: 4px 0;
+        text-align: center;
+    }
+
+    .ui-layout-north p {
+        margin-top: 20px;
+        padding: 0;
+    }
+
+    .ui-layout-north .fa {
+        font-size: 52px;
+    }
+
+    .ui-layout-center {
+        padding-top: 10px;
+    }
+</style>
+</head>
+<body>
+
+    #if($success)
+    <div class="container">
+        <div class="ui-layout-north success-header">
+            <h1>
+                #if($title)$title
+                #else $message
+                #end
+            </h1>
+
+            <p><i class="fa fa-check-circle"></i></p>
+        </div>
+        <div class="ui-layout-center">
+            <div style="padding:0 20px;font-size: 13px;color:#666;line-height:25px;text-align: left;text-indent: 26px;">
+                $!{message}
+                #if(!$close)
+                    <br/>
+                    等待 <span id="stopwatch">${stopwatch}</span> 秒后自动转到$!{next}页面。
+                #end
+            </div>
+        ##        #if($close)
+        ##          等待 <span id="stopwatch">${stopwatch}</span> 秒后自动<a href="javascript:void(0)" onclick="closeWindow()">关闭该窗口</a>。
+        ##        #else
+        ##          等待 <span id="stopwatch">${stopwatch}</span> 秒后自动转到$!{next}页面。
+        ##        #end
+        </div>
+        <div class="ui-layout-south option">
+            <button class="k-primary k-button" onclick="window.location = '$!{rc.contextPath}$!{nextUrl}';">
+                继续 $!{next} </button>
+            #if($close)
+                <button class="k-button" onclick="closeWindow()">关闭 (<span id="stopwatch">${stopwatch}</span>秒)
+                </button>#end
+        </div>
+    </div>
+    #else
+    <div class="container">
+      <div class="ui-layout-north error-header">
+        <h1>操作失败：$!{title}</h1>
+
+        <p><i class="fa fa-times-circle"></i></p>
+      </div>
+      <div class="ui-layout-center">
+        <div style="padding:0 20px;font-size: 13px;color:#666;line-height:25px;text-align: left;text-indent: 26px;">$!{message}</div>
+      </div>
+      <div class="ui-layout-south option">
+        #if($historyGo)
+          <button class="k-button" onclick="history.go(-1);">返&nbsp;回</button>#end
+        #if($close)
+          <button class="k-button" style="margin-left:20px;" onclick="closeWindow()">关&nbsp;闭</button>#end
+      </div>
+    </div>
+    #end
+
+<script>
+    $(function () {
+        var _pop_layout = $(".container").layout({
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            }
+        })
+
+        #if($success)
+            #if($callback)
+                try {
+                        $!{callback}();
+                } catch (e) {
+                }
+            #end
+
+
+            var counter = ${stopwatch};
+            var _interval = setInterval(function () {
+                counter--;
+                $("#stopwatch").text(counter);
+                if (counter == 0) {
+                    clearInterval(_interval);
+                    #if($close)
+                        closeWindow();
+                    #else
+                        window.location = "$!{rc.contextPath}$!{nextUrl}";
+                    #end
+                }
+            }, 1000);
+        #end
+
+    });
+        #if($close)
+        function closeWindow() {
+            close_dialog();
+        }
+        #end
+</script>
+</body>
+</html>

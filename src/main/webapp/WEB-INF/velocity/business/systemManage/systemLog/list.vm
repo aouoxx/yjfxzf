@@ -1,0 +1,184 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+<div class="ui-layout-north">
+	 #bread_crumbs2("XTGL_XTJS_SYSTEM_LOG")
+    <div class="ui-search-container">
+        <form id="search_form">
+            <table width="100%">
+                <tr>
+                    <td>
+                        <table class="ui-search-table">
+                            <tr>
+                                <td class="ui-search-name first">模块名称：</td>
+                                <td class="ui-search-c">#dic_select2("SYSTEM_MODULE","condition.moduleCode","","ui-combobox")</td>
+                                
+                                <td class="ui-search-name">操作类型：</td>
+                                <td class="ui-search-c">
+                                   <select class="ui-combobox" name="condition.operateType">
+                	                    <option value=""></option>
+                	                    #foreach($type in $operateType)
+                	                        <option value="$type.code">$type.desc</option>
+                	                    #end
+                                   </select>
+                                </td>
+                                
+                               	<!--
+	                               	<td class="ui-search-name">操作者：</td>
+	                                <td class="ui-search-c"><input name="condition.operateUser" class="k-textbox" type="text"></td>
+                                -->
+                            </tr>
+                            
+                            <tr>
+                                <td class="ui-search-name first">开始时间：</td>
+                                <td class="ui-search-c"><input name="condition.startTime" id="datePicker1"></td>
+                                
+                                <td class="ui-search-name">结束时间：</td>
+                                <td class="ui-search-c"><input name="condition.endTime" id="datePicker2"></td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td width="100" >
+                        <button type="submit" class="hc_btn k-primary"><i class="fa fa-search"></i>查询</button>
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+
+<div class="ui-layout-center">
+    <div id="grid"></div>
+</div>
+
+    #parse("platform/_footer.vm")
+<script>
+    var _iframe_layout;
+    
+	$(document).ready(function(){
+	 var start = $("#datePicker1").hcDateTimePicker({
+    	culture : "zh-CN",
+    	format :"yyyy-MM-dd HH:mm:ss",
+    	change : startChange
+    }).data("kendoDateTimePicker");
+    var end = $("#datePicker2").hcDateTimePicker({
+    	culture : "zh-CN",
+    	format : "yyyy-MM-dd HH:mm:ss",
+    	change : endChange
+    }).data("kendoDateTimePicker");
+
+   function startChange() {
+        var startDate = start.value(),
+        endDate = end.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate());
+            end.min(startDate);
+        } else if (endDate) {
+            start.max(new Date(endDate));
+        } else {
+            endDate = new Date();
+            start.max(endDate);
+        }
+    }
+    function endChange() {
+        var endDate = end.value(),
+        startDate = start.value();
+
+        if (endDate) {
+            endDate = new Date(endDate);
+            endDate.setDate(endDate.getDate());
+            start.max(endDate);
+        } else if (startDate) {
+            end.min(new Date(startDate));
+        } else {
+            endDate = new Date();
+            start.max(endDate);
+        }
+    }    
+    startChange();
+    endChange();
+  });
+    
+    $(function () {
+        _iframe_layout = $('body').layout({
+            center__maskContents: true,
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            },
+            center: {
+                onresize_end: function () {
+                    var grid = $("#grid").data("kendoGrid");
+                    grid.resize();
+                }
+            },
+            north: {size:127}
+        });
+
+        quick_datagrid("#grid", "#search_form", "$!{rc.contextPath}/xtgl/system-log/list", [
+            {
+                field: "id",
+                hidden: true
+        	},{
+                field: "moduleStr",
+                title: "模块名称",
+                attributes :{
+                	style: "text-align: left;"
+                },
+                width: "300px"
+            },{
+                field: "operateTypeStr",
+                title: "操作类型",
+                attributes :{
+                	style: "text-align: left;"
+                }
+            },{
+                field: "operateContent",
+                title: "操作内容",
+                attributes :{
+                	style: "text-align: left;"
+                }
+            },{
+                field: "userName",
+                title: "操作者账号",
+                attributes :{
+                	style: "text-align: left;"
+                }
+            },{
+                field: "name",
+                title: "操作者姓名",
+                attributes :{
+                	style: "text-align: left;"
+                }
+            },{
+                field: "operateIp",
+                title: "访问ip",
+                attributes :{
+                	style: "text-align: left;"
+                }
+            },{
+                field: "operateTime",
+                title: "操作时间"
+            }], {
+             sortable: false,
+			 pageable: true
+        	}, {
+             serverSorting: true
+        	});
+
+    });
+    function edited_callback() {
+       var grid = get_grid("#grid");
+		if(grid.dataSource){
+            grid.dataSource.read();
+        }else{
+            $grid.data("kendoGrid").dataSource.read();
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <title>$!{_title}</title>
+    <link href="$!{_platform_assets_url}/framework/styles/kendo.common.min.css" rel="stylesheet">
+    <link href="$!{_platform_assets_url}/framework/styles/kendo.default.min.css" rel="stylesheet">
+    ##<link href="$!{_platform_assets_url}/framework/styles/kendo.flat.min.css" rel="stylesheet">
+    <link href="$!{_platform_assets_url}/css/layout-default-latest.css" rel="stylesheet">
+    <link href="$!{_platform_assets_url}/css/jquery.validator.css" rel="stylesheet">
+    <link rel="stylesheet" href="$!{_platform_assets_url}/skins/hctpl3/css/skin.css" id="skin_css_file" />
+	<link href="$!{_platform_assets_url}/css/ztree/zTreeStyle.css" rel="stylesheet">
+		
+    <script src="$!{_platform_assets_url}/js/jquery-1.11.1.js"></script>
+    <script src="$!{_platform_assets_url}/js/jquery.layout-latest.js"></script>
+
+    <script src="$!{_platform_assets_url}/framework/js/kendo.core.min.js"></script>
+    <script src="$!{_platform_assets_url}/framework/js/kendo.data.min.js"></script>
+    <script src="$!{_platform_assets_url}/framework/js/kendo.dom.min.js"></script>
+##    <script src="$!{_platform_assets_url}/framework/js/kendo.data.odata.min.js"></script>
+    <script src="$!{_platform_assets_url}/framework/js/kendo.button.min.js"></script>
+    <script src="$!{_platform_assets_url}/framework/js/kendo.menu.min.js"></script>
+    <script src="$!{_platform_assets_url}/framework/js/kendo.popup.min.js"></script>
+    <script src="$!{_platform_assets_url}/framework/js/kendo.list.min.js"></script>
+      <script src="$!{_platform_assets_url}/framework/js/kendo.dropdownlist.min.js"></script>
+      <script src="$!{_platform_assets_url}/framework/js/kendo.combobox.min.js"></script>
+    <script src="$!{_platform_assets_url}/framework/js/kendo.calendar.min.js"></script>
+    <script src="$!{_platform_assets_url}/framework/js/kendo.datepicker.min.js"></script>
+    <script src="$!{_platform_assets_url}/framework/js/kendo.timepicker.min.js"></script>
+    <script src="$!{_platform_assets_url}/framework/js/kendo.datetimepicker.min.js"></script>
+    <script src="$!{_platform_assets_url}/framework/js/kendo.userevents.min.js"></script>
+    <script src="$!{_platform_assets_url}/framework/js/kendo.numerictextbox.min.js"></script>
+    <script src="$!{_platform_assets_url}/framework/js/kendo.pager.min.js"></script>
+      <script src="$!{_platform_assets_url}/framework/js/kendo.selectable.min.js"></script>
+      <script src="$!{_platform_assets_url}/framework/js/kendo.columnsorter.min.js"></script>
+      <script src="$!{_platform_assets_url}/framework/js/kendo.binder.min.js"></script>
+      <script src="$!{_platform_assets_url}/framework/js/kendo.validator.min.js"></script>
+      <script src="$!{_platform_assets_url}/framework/js/kendo.editable.min.js"></script>
+      <script src="$!{_platform_assets_url}/framework/js/kendo.maskedtextbox.min.js"></script>
+      <script src="$!{_platform_assets_url}/framework/js/kendo.multiselect.min.js"></script>
+      <script src="$!{_platform_assets_url}/js/kendo.complexeselect.js"></script>
+##    <script src="$!{_platform_assets_url}/framework/js/kendo.autocomplete.min.js"></script>
+    <script src="$!{_platform_assets_url}/framework/js/kendo.grid.min.js"></script>
+##    <script src="$!{_platform_assets_url}/framework/src/js/kendo.grid.js"></script>
+    <script src="$!{_platform_assets_url}/framework/js/kendo.treelist.min.js"></script>
+    <script src="$!{_platform_assets_url}/framework/js/kendo.draganddrop.min.js"></script>
+    <script src="$!{_platform_assets_url}/framework/js/kendo.window.min.js"></script>
+    <script src="$!{_platform_assets_url}/framework/js/messages/kendo.messages.zh-CN.min.js"></script>
+    <script src="$!{_platform_assets_url}/framework/js/cultures/kendo.culture.zh-CN.min.js"></script>
+	<script src="$!{_platform_assets_url}/framework/js/kendo.tabstrip.min.js"></script>
+    
+	<script src="$!{_platform_assets_url}/js/jquery.ztree.all-3.5.min.js"></script>
+    <script src="$!{_platform_assets_url}/js/jquery.form.js"></script>
+    <script src="$!{_platform_assets_url}/js/jquery.validator.js"></script>
+    <script src="$!{_platform_assets_url}/js/adapter.js"></script>
+    <script src="$!{_platform_assets_url}/js/base64.js"></script>
+    <script src="$!{_platform_assets_url}/js/notify-combined.min.js"></script>
+    <script src="$!{_platform_assets_url}/js/jquery.autocomplete.js"></script>
+    <script src="$!{_platform_assets_url}/js/site.js"></script>
+    <script src="$!{rc.contextPath}/assets/js/navmenu.js"></script>
+	<script src="$!{rc.contextPath}/assets/js/custom.js"></script>	
+    
+    <link href="$!{_platform_assets_url}/css/font-awesome.min.css" rel="stylesheet">
+	<link href="$!{rc.contextPath}/assets/css/custom.css" rel="stylesheet">
+	<link href="$!{rc.contextPath}/assets/images/favicon.ico" rel="icon" type="image/x-icon" />
+	<link href="$!{rc.contextPath}/assets/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <script type="text/javascript">
+  	var skin_url_cookie;
+  	/* 读取皮肤 */
+  	skin_url_cookie = readCookie("skin_url");
+  	if(skin_url_cookie){
+    	$("#skin_css_file").attr("href", skin_url_cookie);
+  	}
+  	var ROOT = '$!{rc.contextPath}';
+	 
+	setInterval(function(){
+ 		$.post("$!{rc.contextPath}/ajaxSession",{},function(res){
+ 			if(res.data == 401){
+ 				window.location.href = "$!{rc.contextPath}/platform/login";
+ 			}
+		}); 
+ 	}, 5*60000);
+	
+	function loadMain(linkUrl){
+		window.location.href = linkUrl;
+	}
+	
+    </script>
+    
+   
+ 
+   

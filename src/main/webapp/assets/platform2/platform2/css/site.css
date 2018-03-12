@@ -1,0 +1,442 @@
+.insert-code {
+    position: relative;
+    z-index: 9999;
+}
+#demo1 {
+    width: 100%;
+    padding: 0;
+}
+.portal-list{
+    width: 380px;
+    padding-left: 15px;
+    overflow: hidden;
+}
+.layoutlist {
+    width: 380px;
+}
+.contentlist {
+    width: 400px;
+}
+.portal-list li{
+    float: left;
+    margin-right: 15px;
+    margin-bottom: 10px;
+}
+.layoutlist li a {
+    display: block;
+    border: 5px solid #fff;
+}
+.layoutlist li.selected a {
+    display: block;
+    border: 5px solid #135697;
+}
+.layoutlist li a:hover {
+    border: 5px solid #cddaea;
+}
+.contentlist .add-img {
+    padding: 5px;
+}
+.contentlist .add-link {
+    height: 30px;
+    float: left;
+    text-align: right;
+}
+.contentlist li {
+}
+.contentlist li a {
+    float: right;
+    text-decoration: none;
+    width: 80px;
+}
+.contentlist li a:hover {
+    text-decoration: none;
+}
+.contentlist .iconfont {
+    cursor: pointer;
+}
+.contentlist .ui-box-content {
+    padding: 0;
+}
+.ui-setup {
+  position: absolute;
+  right: 0;
+  white-space: nowrap;
+  z-index: 10000;
+  width: 30px;
+  height: 30px;
+  background: #62A7E7;
+  border-radius: 2px;
+  text-decoration: none;
+  line-height: 30px;
+  text-align: center;
+  cursor: pointer;
+}
+.ui-setup-code {
+  top: 200px;
+}
+.ui-setup-layout {
+  top: 240px;
+}
+.ui-setup-add {
+  top: 280px;
+}
+.ui-setup:hover{
+  text-decoration: none;
+}
+.ui-setup .iconfont {
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+.ui-sortable-placeholder {
+  border: 2px dotted #88c2e2;
+  visibility: visible !important;
+  height: 50px;
+}
+
+.login-mainCenter .msg-box {
+  top: 6px;
+}
+
+/* index side */
+
+/* tab */
+.side-tab .ui-tab-item {
+  border: 1px solid #bd9f66;
+  border-radius: 0;
+  float: left;
+  margin-right: 3px;
+  width: 34px;
+  height: 26px;
+}
+.side-tab .ui-tab-item a {
+  font-size: 13px;
+  padding: 5px 12px;
+  height: 16px;
+  color: #959595;
+  background: #f3e1b1;
+  display: block;
+}
+.side-tab .ui-tab-item .iconfont {
+  font-size: 14px;
+  float: left;
+  height: 16px;
+  line-height: 16px;
+  color: #3f1e1d;
+}
+.side-tab .ui-tab-item a span {
+  display: none;
+  float: left;
+  padding-left: 6px;
+  height: 16px;
+  line-height: 16px;
+}
+.side-tab .ui-tab-items {
+  border-bottom: none;
+  height: 28px;
+  margin-bottom: 8px;
+}
+.side-tab .ui-tab-items .current {
+  background-color: #cf231e;
+  background: -webkit-gradient(linear, left top, left bottom, from(#de3530), to(#cf231e));
+  background: -moz-linear-gradient(top, #de3530, #cf231e);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#de3530', endColorstr='#cf231e');
+  background: -o-linear-gradient(top, #de3530, #cf231e);
+  background: linear-gradient(top, #de3530, #cf231e);
+  border-color: #ce231d;
+  top: 0;
+  width: auto;
+  _width: 90px;
+}
+.side-tab .ui-tab-items .current a {
+  color: #fff;
+}
+.side-tab .ui-tab-item a.current span {
+  display: block;
+  _width: 80px;
+}
+
+.side-tab .ui-table td {
+  padding: 6px 20px;
+}
+/* monitor-task */
+.monitor-object {
+  clear: both;
+}
+.monitor-object h3 {
+    padding: 5px 10px;
+    background: #f8f2ea;
+    color: #3f1e1d;
+}
+.monitor-object-title {
+  font-size: 12px;
+  padding: 5px 10px;
+  background: #f8f2ea;
+  color: #3f1e1d;
+  overflow: hidden;
+}
+.monitor-object ul {
+
+}
+.monitor-object ul li{
+  float: left;
+  width: 90px;
+  height: 90px;
+  text-align: center;
+  padding: 10px 0 0 6px;
+}
+.monitor-object ul li a{
+  display: block;
+  width: 50px;
+  height: 50px;
+  margin: 0 20px;
+  background-image: url(../images/lijiang-icons.png);
+  background-repeat: no-repeat;
+}
+.monitor-object ul li .iconfont {
+  display: block;
+  font-size: 36px;
+  color: #7EA6D6;
+}
+.monitor-object ul li span {
+  display: block;
+}
+
+
+.monitor-task {
+  padding: 0;
+}
+.monitor-task .ui-form-item-pick {
+    border-bottom: 1px solid #f4e2b2;
+}
+.monitor-task .ui-form-item {
+    height: 50px;
+}
+.monitor-task .ui-label {
+    display: block;
+    float: none;
+    text-align: left;
+}
+.monitor-task .ui-input {
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.monitor-task-total {
+
+}
+.monitor-task-result {
+
+}
+/* warning */
+.warning-level .iconfont {
+  font-size: 18px;
+}
+.warning-level-1 .iconfont {
+  color: #F11214;
+}
+.warning-level-2 .iconfont {
+  color: #FF8700;
+}
+.warning-level-3 .iconfont {
+  color: #FFEB00;
+}
+.warning-table tbody tr {
+  background: #F8F8F8;
+}
+/* map */
+.map-tool {
+  height: 19px;
+  padding: 3px 10px;
+  background-color: #FDFDFD;
+  background: -webkit-gradient(linear, left top, left bottom, from(#FDFDFD), to(#F2F2F2));
+  background: -moz-linear-gradient(top, #FDFDFD, #F2F2F2);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FDFDFD', endColorstr='#F2F2F2');
+  background: -o-linear-gradient(top, #FDFDFD, #F2F2F2);
+  background: linear-gradient(top, #FDFDFD, #F2F2F2);
+  border: 1px solid #ddd;
+}
+
+.gis-side-header {
+  padding-left: 6px;
+  overflow: hidden;
+}
+.gis-side-header .ui-input {
+  width: 210px;
+  padding: 6px 0 6px 5px;
+  font-size: 13px;
+  border: 1px solid #e28b65;
+}
+.warning-table .highlight {
+  background: #f8f2ea;
+}
+.gis-side-header .btn {
+  border-radius: 0;
+  padding: 6px 10px;
+  _padding: 6px 6px;
+  background-color: #a55029;
+  background: -webkit-gradient(linear, left top, left bottom, from(#dc6e3b), to(#a55029));
+  background: -moz-linear-gradient(top, #dc6e3b, #a55029);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#dc6e3b', endColorstr='#a55029');
+  background: -o-linear-gradient(top, #dc6e3b, #a55029);
+  background: linear-gradient(top, #dc6e3b, #a55029);
+  border: 1px solid #a55029;
+  margin-right: 0;
+}
+.gis-side-header .btn .iconfont {
+    font-size: 17px;
+    color: #fff;
+}
+.gis-side-content {
+  background: url(../images/gis-side-bg-1.png) 32px 0 repeat-y;
+}
+#workspace_tab1 {
+  background: url(../images/gis-side-bg-1.png) 32px 0 repeat-y;
+}
+ul.gis-side-list {
+  padding-top: 5px;
+}
+.gis-side-list-item {
+  clear: both;
+  padding: 10px 0 0;
+  margin-top: 10px;
+  overflow: hidden;
+}
+.gis-side-list .current {
+  background: url(../images/gis-side-bg-current.png) 32px 0 repeat-y;
+  background-color: #fff9e5;
+}
+.gis-side-list-info {
+  padding: 0 14px;
+  overflow: hidden;
+}
+.gis-side-list-icon {
+  float: left;
+  height: 30px;
+  font-size: 18px;
+  text-align: center;
+  line-height: 27px;
+  color: #fff;
+  width: 42px;
+  background: url(../images/gis-side-icons.png) no-repeat 5px -1px;
+}
+.gis-side-list-img {
+  float: left;
+  overflow: hidden;
+  width: 60px;
+  height: 60px;
+  margin: 2px 0 0 8px;
+  border: 1px solid #eee;
+}
+.gis-side-list-des {
+  float: left;
+  width: 160px;
+  margin: 0;
+  padding: 3px 0 15px 10px;
+}
+.gis-side-list-title {
+  font-size: 14px;
+  color: #47142a;
+  margin-bottom: 5px;
+}
+.gis-side-list-explain {
+  color: #47142a;
+}
+.gis-side-list-action {
+  clear: both;
+  overflow: hidden;
+}
+.gis-side-list-action ul{
+  padding: 5px 0 0 60px;
+}
+.gis-side-list-action ul li{
+  float: left;
+  width: 24px;
+  height: 24px;
+  padding: 5px 8px;
+}
+.gis-side-list-action ul li a {
+  display: block;
+}
+.gis-side-list-action ul li .iconfont {
+  font-size: 20px;
+  color: #47142a;
+}
+.gis-side-list-action ul li a:hover .iconfont {
+  color: #A0A0A0;
+}
+.gis-side-list .current .gis-side-list-title {
+  color: #47142a;
+}
+.gis-side-list .current .gis-side-list-explain {
+  color: #47142a;
+}
+.gis-side-list .current .gis-side-list-icon {
+  background-position:  5px -33px;
+}
+.gis-side-list .current .gis-side-list-action {
+  background: url(../images/gis-side-bg-current-2.png) 32px 0 repeat-y;
+  background-color: #e3c287;
+}
+
+
+.monitor-object-icon1 {
+  background-position: 4px -10px;
+}
+.monitor-object-icon2 {
+  background-position: -345px -10px;
+}
+.monitor-object-icon3 {
+  background-position: -263px -10px;
+}
+.monitor-object-icon4 {
+  background-position: -1px -108px;
+}
+.monitor-object-icon5 {
+  background-position: -88px -108px;
+}
+.monitor-object-icon6 {
+  background-position: -440px -102px;
+}
+.monitor-object-icon7 {
+  background-position: -447px -10px;
+}
+.monitor-object-icon8 {
+  background-position: -177px -10px;
+}
+.monitor-object-icon9 {
+  background-position: -93px -10px;
+}
+.monitor-object-icon10 {
+  background-position: -350px -108px;
+}
+.monitor-object-icon11 {
+  background-position: -188px -103px;
+}
+.monitor-object-icon12 {
+  background-position: -264px -108px;
+}
+.monitor-object-icon13 {
+    background-position: -1px -185px;
+}
+.monitor-object-icon14 {
+    background-position: -182px -186px;
+}
+.monitor-object-icon15 {
+    background-position: -187px -189px;
+}
+.monitor-object-icon16 {
+    background-position: -263px -185px;
+}
+.monitor-object .ui-form-item-pick {
+    margin: 10px 0;
+}
+
+table.ui-form-table td{padding:5px;}
+table.ui-form-table .ui-input{height:auto!important;}
+table.ui-form-table .ui-input,table.ui-form-table .ui-textarea{width:100%;padding:2px;float:none;}
+table.ui-form-table .ui-textarea{height:100%}
+table.ui-form-table .ui-select{width:100%;}
+table.ui-form-table .ui-text{height:auto;line-height:auto;overflow:auto;float:none;width:auto;}
+table.ui-form-table .ui-label{padding:0;margin:0;float:none;height:auto;line-height:auto;width:auto;overflow:auto;width:100%;}
+table.noborder td{border:none!important;}

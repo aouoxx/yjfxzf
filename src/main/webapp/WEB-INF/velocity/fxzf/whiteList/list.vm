@@ -1,0 +1,249 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+<div class="ui-layout-north">
+	#bread_crumbs2("WHITE")
+	<div class="ui-search-container">
+		<form id="whiteList-search-condition">
+			<table style="margin-top: 12px;">
+				<tbody>
+					<tr>
+						<td class="ui-search-name">车牌号：</td>
+						<td> <input type="text" name="condition.license" id="license" class="k-textbox"/></td>
+						<td class="ui-search-name" style="padding-left: 20px;">加入白名单时间：</td>
+						<td> <input type="text" name="condition.updateTime" id="datePicker1">&nbsp;&nbsp;至&nbsp;&nbsp;  <input type="text" name="condition.operateTime" id="datePicker2"></td>
+						<td><button type="submit" class="hc_btn k-primary search-btn" style="margin-left: 20px;">查询</button></td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	 </div>
+</div>
+
+<div class="ui-layout-center"  style="overflow: inherit;">
+	<div id="whiteList_datalist"></div>
+</div>
+
+ #parse("platform/_footer.vm")
+ <script>
+ 	$(document).ready(function(){
+	 var start = $("#datePicker1").hcDateTimePicker({
+    	culture : "zh-CN",
+    	format :"yyyy-MM-dd HH:mm:ss",
+    	change : startChange
+    }).data("kendoDateTimePicker");
+    var end = $("#datePicker2").hcDateTimePicker({
+    	culture : "zh-CN",
+    	format : "yyyy-MM-dd HH:mm:ss",
+    	change : endChange
+    }).data("kendoDateTimePicker");
+   function startChange() {
+        var startDate = start.value(),
+        endDate = end.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate());
+            end.min(startDate);
+        } else if (endDate) {
+            start.max(new Date(endDate));
+        } else {
+            endDate = new Date();
+            start.max(endDate);
+        }
+    }
+    function endChange() {
+        var endDate = end.value(),
+        startDate = start.value();
+
+        if (endDate) {
+            endDate = new Date(endDate);
+            endDate.setDate(endDate.getDate());
+            start.max(endDate);
+        } else if (startDate) {
+            end.min(new Date(startDate));
+        } else {
+            endDate = new Date();
+            start.max(endDate);
+        }
+    }    
+    startChange();
+    endChange();
+    });
+ 	var  _iframe_layout,_inner_layout;
+ 	$(function(){
+		 _iframe_layout = $('body').layout({
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+                },
+            center: {
+                onresize_end: function () {}
+                },
+            north: {size:92}
+            });
+   quick_datagrid("#whiteList_datalist", "#whiteList-search-condition", "$!{rc.contextPath}/fxzf/whiteList/list", [
+		            {
+		                field: "id",
+		                hidden: true
+		        	},{
+		                field: "license",
+		                title: "白名单车牌号"
+		            },{
+		                field: "plateColor",
+		                title: "车牌颜色"
+		            },{
+		                 field: "updateTime",
+		                 title: "加入白名单时间"
+		            },{
+		                 field: "id",
+		                 title: "删除",
+		                 template:"<button class=\"k-button k-button-icontext k-primary\" onclick=\"deleteItem('#:data.id#')\" id=\"#:data.id#\"><i class=\"fa fa-close\"></i>删除</button>"
+		            }
+		            ], {
+		             columnResizeHandleWidth: 6,
+					 pageable:true,
+					 dataBound:function(e){
+					 	grid_dataBound(e);
+					 }
+		        	}, {
+		             serverSorting: true
+		        	},[
+		        		{
+		                name: "导出本页",
+		                icon: "fa fa-download",
+		                onclick: function (obj, grid) {
+		                	exportExcelPage(obj, grid);
+		                }
+		                },
+		                {
+		                name: "导出全部",
+		                icon: "fa fa-download",
+		                onclick: function (obj, grid) {
+		                	exportExcelAll();
+		                }
+		                },
+		                {
+		                name: "添 加",
+		                icon: "fa fa-plus",
+		                onclick: function (obj, grid) {
+		                		addWhiteList();
+		                }
+		                }
+		                ]
+		        	);
+		          });
+function grid_dataBound(e){
+          	 var data = e.sender._data;
+             sender = e.sender;
+##             for(var i=0;i< data.length;i++)
+##               {
+##               	 if('1'==data[i].plateColor)
+##               	 {
+##               	 	result="白底黑字";
+##               	 	$(e.sender.tbody[0].childNodes[i]).find('td').eq(3).html(result);
+##               	 }
+##               	 if('2'==data[i].plateColor)
+##               	 {
+##               	 	result="黄底黑字";
+##               	 	$(e.sender.tbody[0].childNodes[i]).find('td').eq(3).html(result);
+##               	 }
+##               }
+          }
+
+##  导出本页
+	function exportExcelPage(obj, grid){
+
+		var total = sender.pager.dataSource._total;
+		var pageNo = sender.pager.dataSource._page;
+    	if(total==0){
+    		notify("列表数据为空,不允许导出", "warn");
+    		return ;
+    	}if(total>20*(pageNo-1))
+    	{
+    		total=total-(pageNo-1)*20;
+    	}
+    	var license = $('#license').val();
+    	license = encodeURI(encodeURI(license));
+        var begin='';
+	 	var end ='';
+		if($("#datePicker2").data("kendoDateTimePicker").value()!=null){
+					 end = $("#datePicker2").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+				}
+		if($("#datePicker1").data("kendoDateTimePicker").value()!=null){
+			 		 begin  = $("#datePicker1").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+				}
+    	window.location.href="$!{rc.contextPath}/fxzf/whiteList/exportPage?pageNo="+pageNo+"&condition.license="+license+
+    	                     "&condition.updateTime="+begin+"&condition.operateTime="+end;
+
+}
+
+## 导出全部
+function exportExcelAll(){
+		var total = sender.pager.dataSource._total;
+    	if(total==0){
+    		notify("列表数据为空,不允许导出", "warn");
+    		return ;
+    	}else if(total>2000)
+    	{
+    		if (!confirm("列表数据超过2000条,确定导出吗?"))return;
+    	}
+      var license = $('#license').val();
+      license = encodeURI(encodeURI(license));
+      var begin='';
+	  var end ='';
+		if($("#datePicker2").data("kendoDateTimePicker").value()!=null){
+					 end = $("#datePicker2").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+				}
+		if($("#datePicker1").data("kendoDateTimePicker").value()!=null){
+			 		 begin  = $("#datePicker1").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+				}
+      window.location.href="$!{rc.contextPath}/fxzf/whiteList/exportAll?condition.license="+license+
+                           "&condition.updateTime="+begin+"&condition.operateTime="+end;
+                    	
+}          
+
+##   删除白名单记录
+function deleteItem(flag){
+	##console.log(flag+"");
+	if(confirm("是否确定删除该记录")){
+		$.ajax({
+	        url: "$!{rc.contextPath}/fxzf/whiteList/deleteById",
+	        dataType: "json",
+	        type: "post",
+	        data: {
+	        	id:flag
+	        },
+   			success: function(data,textStatus){ 
+		        	notify("白名单删除成功","success");
+		        	edited_callback();
+					},
+    		error: function(XMLHttpRequest, textStatus, errorThrown){}
+			  });
+	}else{
+		return ;
+	}
+	
+}
+##  添加白名单
+function addWhiteList(){
+	quick_dialog('add_whiteList_Dlg','添加白名单','$!{rc.contextPath}/fxzf/whiteList/add',642,216);
+}
+##	回调函数
+function edited_callback() {
+        var grid = $("#whiteList_datalist").data("kendoGrid");
+        grid.dataSource.read();
+       }
+
+  </script>
+ </body>
+ <style>
+ .k-grid tbody button.k-button {
+ 	min-width: 66px;
+ 	background: url(../images/search-btn.png) no-repeat 50% 50%;
+	color: #036891;
+	border: 1px solid #9cd2ea;
+  }
+ </style>
+ </html>

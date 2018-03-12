@@ -1,0 +1,162 @@
+#parse("platform/_header.vm")
+</head>
+
+<body>
+<div class="ui-layout-north">
+	#bread_crumbs2("ILLEGALVEHICLE_TRACK")
+	<div class="ui-search-container">
+		<form id="illegalTrail-search-condition">
+			<table style="margin-top: 12px;">
+				<tbody>
+					<tr>
+						<td class="ui-search-name">车牌号：</td>
+						<td> <input type="text" name="condition.license" id="license" class="k-textbox"/></td>
+						<td class="ui-search-name">车牌颜色：</td>
+						<td class="ui-search-c"> #dic_select2("PLATECOLOR","condition.plateColor","condition_plateColor","ui-combobox","condition_plateColor")</td>
+						<td class="ui-search-name">超限次数：</td>
+						<td> <input type="text" name="condition.overLoadTimes" id="overLoadTimes" class="k-textbox"/></td>
+						<td><button type="submit" class="hc_btn k-primary search-btn" style="margin-left: 20px;">查询</button></td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	 </div>
+</div>
+
+<div class="ui-layout-center" style="overflow: inherit;">
+	<div id="illegalTrail_datalist"></div>
+</div>
+
+ #parse("platform/_footer.vm")
+ <script>
+
+ 	var  _iframe_layout,_inner_layout;
+ 	$(function(){
+		 _iframe_layout = $('body').layout({
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+                },
+            center: {
+                onresize_end: function () {}
+                },
+            north: {size:87}
+            });
+	 quick_datagrid("#illegalTrail_datalist", "#illegalTrail-search-condition", "$!{rc.contextPath}/fxzf/illegalTrail/list", [
+		            {
+		                field: "id",
+		                hidden: true
+		        	},{
+		                field: "license",
+		                title: "车牌号"
+		            },{
+		                field: "plateColor",
+		                title: "车牌颜色"
+		            },{
+		                field: "overLoadTimes",
+		                title: "历史超限次数"
+		            },{
+		                field: "updateTime",
+		                title: "最后违法过车时间"
+		            }
+		            ], {
+		             
+		             columnResizeHandleWidth: 6,
+					 pageable:true,
+					 dataBound:function(e){
+					 	grid_dataBound(e);
+					 }
+		        	}, {
+		             serverSorting: true
+		        	},[
+		        		{
+		                name: "导出本页",
+		                icon: "fa fa-download",
+		                onclick: function (obj, grid) {
+		                	exportExcelPage(obj,grid)
+		                }
+		                },
+		                {
+		                name: "导出全部",
+		                icon: "fa fa-download",
+		                onclick: function (obj, grid) {
+		                	exportExcelAll();
+		                }
+		                }
+		                ]
+		        	);
+		          });
+
+
+function grid_dataBound(e){
+             var data = e.sender._data;
+             sender = e.sender;
+          	 for(var i=0;i< data.length;i++)
+               {
+                $(e.sender.tbody[0].childNodes[i]).attr('title','双击该行数据显示过车轨迹');
+               	$(e.sender.tbody[0].childNodes[i]).bind('dblclick',function(){
+               		var license = $(this).children().eq(2).text();
+               		var  color = $(this).children().eq(3).text();
+               	    trailRecord(license,color);
+               	});
+               	}
+          }
+          
+##  轨迹查询
+	function trailRecord(license,color){
+		license = encodeURI(encodeURI(license));
+		color= encodeURI(encodeURI(color));
+		window.location.href="$!{rc.contextPath}/fxzf/illegalTrail/record?condition.license="+license+"&condition.plateColor="+color;
+		
+	}
+
+##  导出本页
+	function exportExcelPage(obj, grid){
+
+		var total = sender.pager.dataSource._total;
+		var pageNo = sender.pager.dataSource._page;
+    	if(total==0){
+    		notify("列表数据为空,不允许导出", "warn");
+    		return ;
+    	}if(total>20*(pageNo-1))
+    	{
+    		total=total-(pageNo-1)*20;
+    	}
+    	var license = $('#license').val();
+        var times = $('#overLoadTimes').val();
+        var plateColor = $("#condition_plateColor option:selected").val();
+    	window.location.href="$!{rc.contextPath}/fxzf/illegalTrail/exportPage?pageNo="+pageNo+"&condition.license="+license+"&condition.overLoadTimes="+times+
+    	    "&condition.plateColor="+plateColor;
+
+}
+
+## 导出全部
+function exportExcelAll(){
+		var total = sender.pager.dataSource._total;
+    	if(total==0){
+    		notify("列表数据为空,不允许导出", "warn");
+    		return ;
+    	}else if(total>2000&&total<65535)
+		{
+		  if (!confirm("列表数据超过2000条,确定导出吗?"))return;
+		}
+		if(total>65535)
+    	{
+    		notify("导出的数据不可以超出65535条记录");
+    	}
+    	else
+    	{
+    		var license = $('#license').val();
+      		var times = $('#overLoadTimes').val();
+      		var plateColor = $("#condition_plateColor option:selected").val();
+      		window.location.href="$!{rc.contextPath}/fxzf/illegalTrail/exportAll?condition.license="+license+"&condition.overLoadTimes="+times+
+      						"&condition.plateColor="+plateColor;
+    	}
+      	
+                    	
+}
+
+ </script>
+ </body>
+ </html>

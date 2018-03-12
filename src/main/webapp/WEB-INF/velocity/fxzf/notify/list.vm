@@ -1,0 +1,234 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+<div class="ui-layout-north">
+	#bread_crumbs2("NOTIFY_MENU")
+	<div class="ui-search-container">
+		<form id="notify-search-condition">
+			<input type="hidden" name="jgid" id="jgid" value="$!{jgid}" />
+			<table style="margin-top: 8px;">
+				<tbody>
+					<tr>
+						<td class="ui-search-name">公告内容：</td>
+						<td class="ui-search-c" id="notifyContent"> <input type="text" name="condition.content" style="width: 185px;" class="k-textbox" id="notifyContent"/> </td>
+						<td class="ui-search-name" id="">公告类型：</td>
+						<td class="ui-search-c" id="notifyType">
+							#dic_select2("NOTIFYTYPE","condition.type","condition_type","ui-combobox","condition_type") 
+						</td>
+						<td class="ui-search-name" id="rangeMark">公告范围：</td>
+						<td class="ui-search-name"  id="rangeControl">
+							<select id="range" name="condition.range" multiple="multipe">
+								<option>一桥</option>
+								<option>二桥</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td class="ui-search-name">公告载体：</td>
+						<td> 
+							<select id="carrier" name="condition.carrier"  multiple="multipe">
+								<option>网页</option>
+								<option>APP</option>
+							</select>
+						</td>
+						<td  class="ui-search-name">发布时间：</td>
+						<td> <input type="text" name="condition.updateTime" id="datePicker1"> </td>
+						<td style="padding-left: 70px;" id="space">&nbsp;&nbsp;至&nbsp;&nbsp;</td>
+						<td> <input type="text" name="condition.backTime" id="datePicker2"> </td>
+						<td><button type="submit" class="hc_btn k-primary search-btn" style="margin-left: 20px;">查询</button></td>
+						<td><button type="reset" class="hc_btn k-primary reset-btn" style="margin-left: 20px;" id="resetForm"></i>重置</button></td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+</div>
+
+<div class="ui-layout-center" style="overflow: inherit;">
+			<div id="nofity_datalist"></div>
+</div>
+
+ #parse("platform/_footer.vm")
+ <script>
+ 	$(document).ready(function(){
+	 var start = $("#datePicker1").hcDateTimePicker({
+    	culture : "zh-CN",
+    	format :"yyyy-MM-dd HH:mm:ss",
+    	change : startChange
+    }).data("kendoDateTimePicker");
+    var end = $("#datePicker2").hcDateTimePicker({
+    	culture : "zh-CN",
+    	format : "yyyy-MM-dd HH:mm:ss",
+    	change : endChange
+    }).data("kendoDateTimePicker");
+
+   function startChange() {
+        var startDate = start.value(),
+        endDate = end.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate());
+            end.min(startDate);
+        } else if (endDate) {
+            start.max(new Date(endDate));
+        } else {
+            endDate = new Date();
+            start.max(endDate);
+        }
+    }
+    function endChange() {
+        var endDate = end.value(),
+        startDate = start.value();
+
+        if (endDate) {
+            endDate = new Date(endDate);
+            endDate.setDate(endDate.getDate());
+            start.max(endDate);
+        } else if (startDate) {
+            end.min(new Date(startDate));
+        } else {
+            endDate = new Date();
+            start.max(endDate);
+        }
+    }    
+    startChange();
+    endChange();
+  });
+ 	var  _iframe_layout,_inner_layout;
+ 	$(function(){
+ 		##权限控制
+ 		var flag=($('#jgid').val());
+ 		if(flag==133){
+ 			$('#rangeMark').hide();
+ 			$('#rangeControl').hide();
+ 			$('#space').css("padding-left","10px");
+ 			$('#range').val('一桥');
+ 		}
+ 		else if(flag==134){
+ 			$('#rangeMark').hide();
+ 			$('#rangeControl').hide();
+ 			$('#space').css("padding-left","10px");
+ 			$('#range').val('二桥');
+ 		}else{
+ 		
+ 		}
+ 		
+		 _iframe_layout = $('body').layout({
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+                },
+            center: {
+                onresize_end: function () {}
+                },
+            north: {size:125}
+            });
+      
+            
+      quick_datagrid("#nofity_datalist", "#notify-search-condition", "$!{rc.contextPath}/fxzf/notify/list", [
+		            {
+		                field: "id",
+		                hidden: true
+		        	},{
+		                field: "title",
+		                title: "公告标题",
+		                template:"<a href=\"javascript:void(0)\" title=\"查看公告详情\" onclick=\"quick_dialog('notify_dlg','查看公告详情','$!{rc.contextPath}/fxzf/notify/view?id=#: data.id #',840,300)\">#:data.title#</a>"
+		            },{
+		                field: "content",
+		                title: "公告内容"
+		            },{
+		                field: "type",
+		                title: "公告类型",
+		                width: "10%"
+		            },{
+		                field: "updateTime",
+		                title: "发布时间",
+		                width: "10%"
+		            },{
+		                 field: "range",
+		                title: "公告范围",
+		                width: "8%"
+		            },{
+		                 field: "carrier",
+		                title: "公告载体",
+		                width: "8%"
+		            },{
+		                field: "endDateTime",
+		                title: "公告有效期截止时间",
+		                width: "12%"
+		            }], {
+		             columnResizeHandleWidth: 6,
+					 pageable:true,
+					 dataBound:function(e){
+					 	grid_dataBound(e);
+					 }
+		        	}, {
+		             serverSorting: true
+		        	},[
+		                {
+		                name: "发布",
+		                icon: "fa fa-file-text",
+		                onclick: function (obj, grid) {
+		                	addNotify();
+		                }
+		                }
+		                ]
+		        	);
+		$('#range').hcMultiSelect();
+		$('#carrier').hcMultiSelect();    		        	
+		          });
+		          
+
+function grid_dataBound(e){
+	var data = e.sender._data;
+      sender = e.sender;
+      for(var i=0;i< data.length;i++){
+      	var result;
+   	    if(0==data[i].type)
+           	 {
+           	 	result="一般紧急";
+           	 	$(e.sender.tbody[0].childNodes[i]).find('td').eq(4).html(result);
+           	 }
+         if(1==data[i].type)
+           	 {
+           	 	result="一般不紧急";
+           	 	$(e.sender.tbody[0].childNodes[i]).find('td').eq(4).html(result);
+           	 }
+          if(2==data[i].type)
+           	 {
+           	 	result="重要紧急";
+           	 	$(e.sender.tbody[0].childNodes[i]).find('td').eq(4).html(result);
+           	 }
+          if(3==data[i].type)
+           	 {
+           	 	result="重要不紧急";
+           	 	$(e.sender.tbody[0].childNodes[i]).find('td').eq(4).html(result);
+           	 }
+      }
+}
+## 重置页面后刷新页面
+$('#resetForm').click(function(){
+	$('#notifyContent').val("");
+	$('#range').val("");
+	$('#condition_type').val('');
+	$('#carrier').val('');
+	$('#datePicker1').val('');
+	$('#datePicker2').val('');
+	edited_callback();
+});
+##发布公告	     
+function addNotify(){
+		quick_dialog('add_Notify_Dlg','公告发布','$!{rc.contextPath}/fxzf/notify/add',1000,490);
+	}	
+	
+##  回调函数
+function edited_callback(){
+   		var grid = $("#nofity_datalist").data("kendoGrid");
+	     grid.dataSource.read();
+   }          
+			 
+</script>
+</body>
+</html>

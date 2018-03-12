@@ -1,0 +1,951 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+<div class="ui-layout-north" id="north_div">
+    #bread_crumbs2("FDATA_SEARCH")
+    <div class="ui-search-container">
+        <form id="fxzf-search-condition">
+            <table>
+                <tbody>
+                <tr>
+                    <td class="ui-search-name">所属治超站:&nbsp;</td>
+                    <td class="ui-search-c">
+                        <input type="hidden" id="detectionSelect" name="condition.detectStation"/>
+                        <input class="k-textbox" onclick="showTree();return false;" id="detectionSelectName" readonly value='' style="width: 185px; background-color:#fff"/>
+                    ##<a href="#" onclick="showTree();return false;">选择</a>
+                    </td>
+                    <td class="ui-search-name" style="width: 80px;">违法程度:&nbsp;</td>
+                    <td class="ui-search-c" id="overLoadStatusName"></td>
+                    <td class="ui-search-name">处罚结果:&nbsp;</td>
+                    <td class="ui-search-name" id="overLoadPunishName"></td>
+                    <td class="ui-search-name" id="rangeMark" style="width: 80px;">车辆总重：</td>
+                    <td class="ui-search-c">
+                        <input type="text" class="k-textbox" style="width:80px;" id="beginWeight" name="condition.beginWeight"/>
+                    </td>
+                    <td>&nbsp;至&nbsp;</td>
+                    <td>
+                        <input type="text" class="k-textbox" id="endWeight" style="width:80px;" name="condition.endWeight"/>
+                    </td>
+                    <td style="padding-left: 20px;" id="chargeFlag">
+                        <input type="checkbox" id="overLoadFlag" name="overLoadcheckbox"/> 是否超限
+                        <input type="hidden" name="condition.overLoadFlag" id="overLoadFlagValue"/>
+                        <span>&nbsp;&nbsp;</span>
+                        <input type="checkbox" id="warnFlag" name="warncheckbox"/> 是否告警
+                        <input type="hidden" name="condition.warnFlag" id="warnFlagValue"/>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr id="tr_flag">
+                    <td class="ui-search-name">车牌号:&nbsp;</td>
+                    <td><input type="text" class="k-textbox" id="inputLicense" name="condition.license" style="width: 185px;"/></td>
+                    <td class="ui-search-name" style="width: 80px;">过车时间:&nbsp;</td>
+                    <td><input type="text" name="condition.captureTime" id="datePicker1"></td>
+                    <td><span style="margin-left: 92px;" style="width: 80px;">&nbsp;&nbsp;至&nbsp;&nbsp;</span></td>
+                    <td><input type="text" name="condition.backTime" id="datePicker2"></td>
+                    <td colspan="6">
+                        <button type="submit" class="hc_btn k-primary search-btn" style="margin-left: 10px;">查询</button>
+                        <button type="reset" class="hc_btn k-primary reset-btn" style="margin-left: 10px;" id="resetForm"></i>重置</button>
+                        <button type="button" class="hc_btn k-primary refresh-btn" style="margin-left: 10px; width: 100px;" id="refresh">自动刷新</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+
+<div class="ui-layout-center" id="centerMain">
+    <div class="ui-layout-center">
+        <div id="fxzf_datalist"></div>
+    </div>
+    <div class="ui-layout-east" sytle="background-color:#EFF3F8;margin-left:0px;border: 1px solid #c3e3ef;" id="tabstrip">
+        <ul id="tabItem">
+            <li id="tab-1">车辆图片信息</li>
+            <li id="tab-2">车辆用户信息</li>
+        </ul>
+        <div id="imageView">
+##            <div class="left-msg-title"><span style="vertical-align: middle;  color: #04668e;font-weight:bold; ">车辆图片信息<span></div>
+            <div class="left-msg-img1"><span>车辆车牌图</span></div>
+            <div id="ftpimageHead"></div>
+            <div class="left-msg-img2"><span>车辆全景图</span></div>
+            <div id="ftpimageTail"></div>
+        </div>
+        <div>
+
+            <div id="yhShowView" style="width:100%;height: 97%;"></div>
+##            对不起,没有找到对应的业户详细信息！
+        </div>
+    </div>
+</div>
+
+<div id="treeContent" class="menuContent" style="display:none;position:absolute;background-color:#c5c5c5">
+    <ul id="tree" class="ztree" style="margin-top:0;width:175px;"></ul>
+</div>
+    #parse("platform/_footer.vm")
+<script>
+    var yhId;
+    $(document).ready(function () {
+        var start = $("#datePicker1").hcDateTimePicker({
+            culture: "zh-CN",
+            format: "yyyy-MM-dd HH:mm:ss",
+            change: startChange
+        }).data("kendoDateTimePicker");
+
+        var end = $("#datePicker2").hcDateTimePicker({
+            culture: "zh-CN",
+            format: "yyyy-MM-dd HH:mm:ss",
+            change: endChange
+        }).data("kendoDateTimePicker");
+
+        function startChange() {
+            var startDate = start.value(), endDate = end.value();
+            if (startDate) {
+                startDate = new Date(startDate);
+                startDate.setDate(startDate.getDate());
+                end.min(startDate);
+            } else if (endDate) {
+                start.max(new Date(endDate));
+            } else {
+                endDate = new Date();
+                start.max(endDate);
+            }
+        }
+        function endChange() {
+            var endDate = end.value(), startDate = start.value();
+            if (endDate) {
+                endDate = new Date(endDate);
+                endDate.setDate(endDate.getDate());
+                start.max(endDate);
+            } else if (startDate) {
+                end.min(new Date(startDate));
+            } else {
+                endDate = new Date();
+                start.max(endDate);
+            }
+        }
+        startChange();
+        endChange();
+    });
+
+    var _iframe_layout, _inner_layout;
+    var imageServer;
+    var refreshTime;
+    $(function () {
+        ##设置全局图片地址
+        imageServer = "$!{imageServerAddr}";
+        GeneratorTree();
+        overLoadStatus();
+        overLoadPunish();
+        ##默认选中只看超限
+        $('#overLoadFlag').prop("checked", true);
+        $('#overLoadFlagValue').val("1,2,3,4,5");
+        _iframe_layout = $('body').layout({
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            },
+            center: {
+                onresize_end: function () {
+                }
+            },
+            north: {size: 104}
+        });
+
+        _inner_layout = $('#centerMain').layout({
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            },
+            center: {
+                onresize_end: function () {
+                }
+            },
+            east: {
+                size: 330,
+                closable: true,
+                spacing_open: 5
+            }
+        });
+
+        quick_datagrid("#fxzf_datalist", "#fxzf-search-condition", "$!{rc.contextPath}/fxzf/search/list", [
+            {
+                field: "id",
+                hidden: true
+            }, {
+                field: "detectStation",
+                width: "9%",
+                title: "治超站位置"
+            }, {
+                field: "detectStation",
+                width: "8%",
+                title: "方向"
+            }, {
+                field: "captureTime",
+                title: "过车时间"
+            }, {
+                field: "license",
+                width: "10%",
+                title: "车牌号"
+            }, {
+                field: "licenseColor",
+                width: "7%",
+                title: "车牌颜色",
+                hidden: true
+            }, {
+                field: "axisCount",
+                width: "11%",
+                title: "轴数/总重"
+            }, {
+                field: "weight",
+                title: "总重(吨)",
+                hidden: true
+            }, {
+                field: "overLoad",
+                title: "超限量",
+                width: "7%"
+            }, {
+                field: "overStatus",
+                width: "8%",
+                title: "违法程度"
+            }, {
+                field: "overLoadPercent",
+                title: "超限率",
+                width: "9%",
+                template: '<span style="font-size:14px;font-weight:700">#: data.overLoadPercent #%</span>'
+            }, {
+                field: "lane",
+                width: "5%",
+                title: "车道"
+            }, {
+                field: "overPunish",
+                title: "处罚结果",
+                hidden: true
+            }, {
+                field: "headCarPicdir",
+                hidden: true
+            }, {
+                field: "headLicensePicdir",
+                hidden: true
+            }, {
+                field: "detectStationFlag",
+                hidden: true
+            }, {
+                title: "长*宽*高",
+                hidden: true
+            }, {
+                title: "执法文书",
+                hidden: true,
+                template: "<button class=\"k-button k-button-icontext k-primary\" onclick=\"zfwsItem('#:data.id#')\" id=\"#:data.id#\">执法文书</button>"
+            }, {
+                field: "length",
+                hidden: true
+            }, {
+                field: "width",
+                hidden: true
+            }, {
+                field: "height",
+                hidden: true
+            }], {
+            columnResizeHandleWidth: 6,
+            pageable: true,
+            pageSize: 15,
+            dataBound: function (e) {
+                grid_dataBound(e);
+            }
+        }, {
+            serverSorting: true,
+            editable: "incell"
+        }, [
+            {
+                name: "导出本页",
+                icon: "fa fa-download",
+                onclick: function (obj, grid) {
+                    exportExcelPage();
+                }
+            }, {
+                name: "导出全部",
+                icon: "fa fa-download",
+                onclick: function (obj, grid) {
+                    exportExcelAll();
+                }
+            }]);
+        ## 页面自动刷新,每10s刷新一次
+        refreshTime = "$!{refreshTime}";
+        ## autoflush(refreshTime);
+
+        var tab_to_Active = $('#tab-1');
+        $('#tabstrip').kendoTabStrip().data('kendoTabStrip').activateTab(tab_to_Active);
+    });
+
+    $('#overLoadFlag').click(function () {
+        if ($("input[name='overLoadcheckbox']").is(':checked')) {
+            $('#overLoadFlagValue').val("1,2,3,4,5");
+        } else {
+            $('#overLoadFlagValue').val("");
+        }
+        ##自动刷新表格
+        edited_callback();
+    });
+
+    ##查看告警信息
+    $('#warnFlag').click(function () {
+        if ($("input[name='warncheckbox']").is(':checked')) {
+            $('#warnFlagValue').val("1");
+        } else {
+            $('#warnFlagValue').val("");
+        }
+        ##自动刷新表格
+        edited_callback();
+    });
+
+    ## 重置页面后刷新页面
+    $('#resetForm').click(function () {
+        $('#overLoadFlagValue').val("");
+        $('#overLoadStatus').val("");
+        $('#overLoadPunish').val('');
+        $('#detectionSeclect').val('');
+        $('#inputLicense').val('');
+        $('#datePicker1').val('');
+        $('#datePicker2').val('');
+        $('#warnFlagValue').val('');
+        edited_callback();
+    });
+
+    ##刷新一次表格
+    var timeCount;
+    var autoflag = true;
+    ##切换刷新
+    $('#refresh').click(function () {
+        if (autoflag) {
+            autoflag = false;
+            $('#refresh').text('停止刷新');
+            autoflush();
+        } else {
+            autoflag = true;
+            $('#refresh').text('自动刷新');
+            stopflush();
+        }
+    });
+
+    function autoflush() {
+        var date = parseInt(refreshTime);
+        edited_callback()
+        timeCount = setTimeout("autoflush()", date * 1000);
+    }
+
+    ##停止刷新
+    function stopflush() {
+        clearTimeout(timeCount);
+    }
+
+    ## 初始化后绑定列表
+    var change_oldLicense;
+    function grid_dataBound(e) {
+        var data = e.sender._data;
+        ## 查询结果为空
+        if (data.length != 0) {
+            ## 默认选中第一行
+            var grid = $("#fxzf_datalist").data("kendoGrid");
+            grid.select("tr:eq(3)");
+            ## 计算图片的高度和宽度
+            var node = $('#centerMain').css("height");
+            node = node.substring(0, node.length - 2);
+            var height1 = 2 * (node - 28 - 29 - 29) / 5 + "px";
+            var height2 = 3 * (node - 28 - 29 - 29) / 5 + "px";
+            $('#ftpimageHead').css("height", height1);
+            $('#ftpimageTail').css("height", height2);
+            ##默认显示第一行选中的图片
+            if (0 == data[0].overLoadPunish) {
+                imageShow(data[0].headLicensePicdir, data[0].headCarPicdir, '正常通车');
+            } else {
+                imageShow(data[0].headLicensePicdir, data[0].headCarPicdir, '超限通车');
+            }
+            yhView(data[0].id)
+            sender = e.sender;
+            for (var i = 0; i < data.length; i++) {
+                $(e.sender.tbody[0].childNodes[i]).children().eq(5).bind('dblclick', function () {
+                    grid.editCell(grid.select().children().eq(5));
+                    var data = grid.dataItem(grid.select());
+                    change_oldLicense = data.license;
+                });
+            }
+            for (var i = 0; i < data.length; i++) {
+                $(e.sender.tbody[0].childNodes[i]).children().eq(5).bind('focusout', function () {
+                    var grid = $("#fxzf_datalist").data("kendoGrid");
+                    var data = grid.dataItem(grid.select());
+                    licenseChange(data, change_oldLicense);
+                });
+            }
+
+            ##双击序号弹出对应的过车详细信息
+            for (var i = 0; i < data.length; i++) {
+                $(e.sender.tbody[0].childNodes[i]).children().eq(0).bind('dblclick', function () {
+                    var id = grid.dataItem(grid.select()).id + '';
+                    viewItem(id);
+                });
+            }
+            for (var i = 0; i < data.length; i++) {
+                $(e.sender.tbody[0].childNodes[i]).bind('click', function () {
+                    var headLicensePicdir = $(this).children().eq(15).text();
+                    var headCarPicdir = $(this).children().eq(14).text();
+                    var status = $(this).children().eq(13).text();
+                    imageShow(headLicensePicdir, headCarPicdir, status);
+                    yhId = $(this).children().eq(1).text();
+                    yhView(yhId)
+                });
+
+                ##根据治超站的不同设置不同的颜色
+                var stationFlag = $(e.sender.tbody[0].childNodes[i]).find('td').eq(16).text() + '';
+                var detectionStation = $(e.sender.tbody[0].childNodes[i]).find('td').eq(2).text() + '';
+                if (stationFlag == '1') {
+                    $(e.sender.tbody[0].childNodes[i]).find('td').css("color", "#D30CEE");
+                    $(e.sender.tbody[0].childNodes[i]).find('td').eq(2).text('永嘉治超站');
+                    $(e.sender.tbody[0].childNodes[i]).find('td').eq(3).text('往仙居方向');
+                }
+                if (stationFlag == '2') {
+                    $(e.sender.tbody[0].childNodes[i]).find('td').css("color", "#6B6B75");
+                    $(e.sender.tbody[0].childNodes[i]).find('td').eq(2).text('永嘉治超站');
+                    $(e.sender.tbody[0].childNodes[i]).find('td').eq(3).text('往永嘉方向');
+                }
+
+                ##设置审核处罚连接
+                var id = $(e.sender.tbody[0].childNodes[i]).find('td').eq(1).text() + '';
+
+                ##设置轴数和总重
+                var content1 = $(e.sender.tbody[0].childNodes[i]).find('td').eq(7).text() + '轴/'
+                var content2 = $(e.sender.tbody[0].childNodes[i]).find('td').eq(8).text() + '吨'
+                $(e.sender.tbody[0].childNodes[i]).find('td').eq(7).text(content1 + content2);
+
+                var overloads = $(e.sender.tbody[0].childNodes[i]).find('td').eq(9).text() + '吨';
+                $(e.sender.tbody[0].childNodes[i]).find('td').eq(9).text(overloads);
+
+                ##設置长宽高
+                var length = $(e.sender.tbody[0].childNodes[i]).find('td').eq(19).text();
+                var width = $(e.sender.tbody[0].childNodes[i]).find('td').eq(20).text();
+                var height = $(e.sender.tbody[0].childNodes[i]).find('td').eq(21).text();
+                if (length == '-1') length = '';
+                if (width == '-1') width = '';
+                if (height == '-1') height = '';
+                var lwh = length + '*' + width + '*' + height;
+                var htmllwh = '<span title=\"' + lwh + '\">' + lwh + '</span>'
+                $(e.sender.tbody[0].childNodes[i]).find('td').eq(17).html(htmllwh);
+            }
+
+            ##设置ckeditor
+            ##var id = $(e.sender.tbody[0].childNodes[i]).find('td').eq(1).text();
+            ##var html='<button></button>'
+            ##$(e.sender.tbody[0].childNodes[i]).find('td').eq(17).html();
+        } else {
+            $('#ftpimageHead').html('');
+            $('#ftpimageTail').html('');
+        }
+    }
+
+    ##执法文书
+    function zfwsItem(id) {
+        quick_dialog('zfws_Dlg', '执法文书', '$!{rc.contextPath}/fxzf/search/zfws?id=' + id, 800, 710);
+    }
+
+    ##更新车牌号
+    function licenseChange(data, license) {
+        if (typeof(license) == 'undefined') {
+            license = '';
+        }
+        if (data.license == license) {
+            return 1;
+        }
+        if (data.license.replace(/(^s*)|(s*$)/g, '').length == 0 || data.license == '' || data.license == null) {
+            notify("车牌不可以修改为空", "error");
+            return 1;
+        }
+        $.ajax({
+            url: "$!{rc.contextPath}/fxzf/search/change",
+            dataType: "json",
+            type: "post",
+            data: {
+                license: data.license,
+                oldlicense: license,
+                id: data.id,
+                color: data.licenseColor
+            },
+            success: function (data, textStatus) {
+                if (data.data == 200) {
+                    notify("车牌号修改成功！", "success");
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+            }
+        });
+    }
+
+    ## 查看详细过车信息
+    function viewItem(id) {
+        quick_dialog('view_Dlg', '查看过车信息', '$!{rc.contextPath}/fxzf/search/view?id=' + id, 820, 710);
+    }
+
+    $('form').validator({
+        rules: {
+            beginWeight: function (element) {
+                var data = element.value;
+                var end = $('#endWeight').val();
+                if (end != '') {
+                    if (data <= end) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                return true;
+            },
+            endWeight: function (element) {
+                var data = element.value;
+                var begin = $('#beginWeight').val();
+                if (begin != '') {
+                    if (data >= begin) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                return true;
+            },
+            no: function (element) {
+                var data = element.value;
+                if (!isNaN(data)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        },
+        messages: {
+            beginWeight: "起止重量必须小于等于截止重量",
+            endWeight: "截止重量需大于等于起止重量",
+            no: "请输入数字"
+        },
+        fields: {
+            "condition.beginWeight": "no,beginWeight",
+            "condition.endWeight": "no,endWeight"
+        }
+    });
+
+    ##查看图片
+    function imageShow(licenseCarPicdir, headCarPicdir, status) {
+        var height1 = $('#ftpimageHead').css("height");
+        var height2 = $('#ftpimageTail').css("height");
+        var width = $('#ftpimageHead').css("width");
+        var licensePic = licenseCarPicdir;
+        if (licensePic) {
+            licensePic = licenseCarPicdir.replace(/\#/g, '%23');
+            ;
+        }
+        var headPic = headCarPicdir;
+        if (headPic) {
+            headPic = headCarPicdir.replace(/\#/g, '%23');
+            ;
+        }
+        headCarPicdir = imageServer + headPic;
+        licenseCarPicdir = imageServer + licensePic;
+        ## 查看图片详细路径
+        var imgLicense = '<img title="点击查看大图" height=' + height1 + ' width=' + width + ' src=' + licenseCarPicdir + ' onclick="openImage(' + '\'' + licensePic + '\'' + ')" border="0" onerror="this.src=\'$!{rc.contextPath}/assets/images/img404.jpg\'"></img>'
+        var imgHead = '<img title="点击查看大图" height=' + height2 + ' width=' + width + ' src=' + headCarPicdir + ' onclick="openImage(' + '\'' + headPic + '\'' + ')" border="0" onerror="this.src=\'$!{rc.contextPath}/assets/images/img404.jpg\'"></img>'
+        $('#ftpimageHead').html(imgLicense);
+        $('#ftpimageTail').html(imgHead);
+    }
+
+    function yhView(yhId) {
+        $.ajax({
+            url: "$!{rc.contextPath}/fxzf/search/yhView",
+            dataType: "json",
+            type: "post",
+            data: {id: yhId},
+            success: function (data, textStatus) {
+                if (data.status == "success") {
+                    var result = data.data;
+                    console.log(result);
+                    var html = '<table width="100%" height="98%" class="ui-view">'
+                            + '<tr>'
+                            + '<td class="label">业户名称：</td>'
+                            + '<td class="cont">' + isblank(result.yhName) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">业户地址：</td>'
+                            + '<td class="cont">' + isblank(result.yhAddress) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">电话：</td>'
+                            + '<td class="cont">' + isblank(result.telephoneNo) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">手机：</td>'
+                            + '<td class="cont">' + isblank(result.cellphoneNo) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">邮编：</td>'
+                            + '<td class="cont">' + isblank(result.postalNo) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">电子邮箱：</td>'
+                            + '<td class="cont">' + isblank(result.email) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">行政区划编码：</td>'
+                            + '<td class="cont">' + isblank(result.regionCode) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">行政区划名称：</td>'
+                            + '<td class="cont">' + isblank(result.regionName) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">法人代表：</td>'
+                            + '<td class="cont">' + isblank(result.legalPersion) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">法人代表电话：</td>'
+                            + '<td class="cont">' + isblank(result.legalTelephone) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">法人代表证件号：</td>'
+                            + '<td class="cont">' + isblank(result.legalCertificate) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">经营状态：</td>'
+                            + '<td class="cont">' + isblank(result.operationState) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">经营类型：</td>'
+                            + '<td class="cont">' + isblank(result.operationType) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">负责人：</td>'
+                            + '<td class="cont">' + isblank(result.principalPersion) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">经营范围：</td>'
+                            + '<td class="cont">' + isblank(result.operationArea) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">经济类型：</td>'
+                            + '<td class="cont">' + isblank(result.economicType) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">经营许可证号：</td>'
+                            + '<td class="cont">' + isblank(result.certificateNo) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">经办人：</td>'
+                            + '<td class="cont">' + isblank(result.agentPersion) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">有效期起：</td>'
+                            + '<td class="cont">' + isblank(result.indateBegin) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">有效期止：</td>'
+                            + '<td class="cont">' + isblank(result.indateEnd) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">发证日期：</td>'
+                            + '<td class="cont">' + isblank(result.businessLicenseDate) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">发证机关：</td>'
+                            + '<td class="cont">' + isblank(result.commerceDepartment) + '</td>'
+                            + '</tr>'
+                            + '<tr>'
+                            + '<td class="label">户籍地运管机构：</td>'
+                            + '<td class="cont">' + isblank(result.domicilePipe) + '</td>'
+                            + '</tr>'
+                            + '</table>';
+                    $('#yhShowView').html(html);
+                }else {
+                    $('#yhShowView').html('<span style="text-align:center; color:#F35A03" colspan="4">对不起,没有找到对应的业户信息！</span>');
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {}
+        });
+    }
+
+    function isblank(param){
+        if(typeof param =="undefined"){
+            param="--";
+        }
+        return param;
+    }
+
+    function openImage(carPicdir) {
+        window.open(imageServer + carPicdir);
+    }
+
+    ## 审核信息
+    function mesCheck(id) {
+        quick_dialog('check_Dlg', '信息审核', '$!{rc.contextPath}/fxzf/search/check?id=' + id + '&flag=list', 1000, 480);
+    }
+
+    ## 关联处罚
+    function unionCheck(id) {
+        quick_dialog('union_Dlg', '关联处罚', '$!{rc.contextPath}/fxzf/search/union?id=' + id + '&flag=list', 650, 240);
+    }
+
+    ## 回调函数
+    function edited_callback() {
+        var grid = $("#fxzf_datalist").data("kendoGrid");
+        grid.dataSource.read();
+    }
+
+    ## 获取治超站信息列表
+    var tree;
+    function GeneratorTree() {
+        $.ajax({
+            url: "$!{rc.contextPath}/fxzf/search/detectionStation",
+            dataType: "json",
+            type: "post",
+            data: {},
+            success: function (data, textStatus) {
+                var setting = {
+                    check: {
+                        enable: true,
+                        chkboxType: {"Y": "ps", "N": "s"}
+                    },
+                    data: {
+                        simpleData: {enable: true}
+                    },
+                    callback: {
+                        onCheck: treeClick
+                    }
+                };
+                var onode = data.data;
+                var znodes = [];
+                var node = new Object();
+                node.id = onode.id;
+                node.pId = onode.pid;
+                node.value = onode.value;
+                node.name = onode.name;
+                node.icon = "$!{rc.contextPath}/assets/images/level0.png";
+                znodes.push(node);
+                for (var i = 0; i < onode.zczList.length; i++) {
+                    var adata = onode.zczList[i];
+                    var anode = new Object();
+                    anode.id = adata.id;
+                    anode.pId = adata.pid;
+                    anode.value = adata.value;
+                    anode.name = adata.name;
+                    anode.icon = "$!{rc.contextPath}/assets/images/level1.png";
+                    znodes.push(anode);
+                    for (var j = 0; j < adata.zczList.length; j++) {
+                        var bdata = adata.zczList[j];
+                        var bnode = new Object();
+                        bnode.id = bdata.id;
+                        bnode.pId = bdata.pid;
+                        bnode.value = bdata.value;
+                        bnode.name = bdata.name;
+                        bnode.icon = "$!{rc.contextPath}/assets/images/level2.png";
+                        znodes.push(bnode);
+                    }
+                }
+                tree = $.fn.zTree.init($('#tree'), setting, znodes);
+                tree.expandAll(true);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+            }
+        });
+    }
+
+    ## 显示治超站树结构
+    function showTree() {
+        var node = $('#detectionSelectName');
+        var offset = $('#detectionSelectName').offset();
+        $("#treeContent").css({
+            left: offset.left + "px",
+            top: offset.top + node.outerHeight() + "px"
+        }).slideDown("fast");
+    }
+
+    ## 隐藏治超站树结构
+    function hideTree() {
+        $("#treeContent").fadeOut("fast");
+    }
+    $('#centerMain').click(function () {
+        hideTree();
+    });
+    $('.ui-search-name').click(function () {
+        hideTree();
+    });
+    $('#overLoadStatusName,#beginWeight,#endWeight,#chargeFlag').click(function () {
+        hideTree();
+    });
+    $('#tr_flag').click(function () {
+        hideTree();
+    });
+
+    ## 选择树结果
+    function treeClick(event, treeId, treeNode, clickFlag) {
+        var nodes = tree.getCheckedNodes(true);
+        if (nodes.length == 0) {
+            $('#detectionSelect').val('');
+            $('#detectionSelectName').val('');
+            hideTree();
+        } else {
+            var detectionStation = '';
+            var detectionName = '';
+            for (var i = 0; i < nodes.length; i++) {
+                var node = nodes[i];
+                if (node.level == 1) {
+                    detectionStation = detectionStation + node.value + ',';
+                    detectionName = detectionName + node.name + ',';
+                }
+            }
+            detectionStation = detectionStation.substring(0, detectionStation.length - 1);
+            detectionName = detectionName.substring(0, detectionName.length - 1);
+            $('#detectionSelect').val(detectionStation);
+            $('#detectionSelectName').val(detectionName);
+        }
+    }
+
+    ## 获取违法程度
+    function overLoadStatus() {
+        $.ajax({
+            url: "$!{rc.contextPath}/fxzf/search/overLoadStatus",
+            dataType: "json",
+            type: "post",
+            data: {},
+            success: function (data, textStatus) {
+                var html = '<select id="overLoadStatus" multiple="multipe" name="condition.overStatus" class="ui-combobox"><option></option>';
+                for (var i = 0; i < data.data.length; i++) {
+                    var status = data.data[i].split(":");
+                    html = html + '<option value="' + status[0] + '">' + status[1] + '</option>';
+                }
+                html = html + '</select>';
+                $("#overLoadStatusName").html(html);
+                $("#overLoadStatus").hcMultiSelect();
+                $("#overLoadStatus").change(function () {
+                ##去除只看超限,查看选中的违法程度
+                    $('#overLoadFlag').prop("checked", false);
+                    $('#overLoadFlagValue').val("");
+                })
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+            }
+        });
+    }
+
+    ## 获取处罚结果
+    function overLoadPunish() {
+        $.ajax({
+            url: "$!{rc.contextPath}/fxzf/search/overLoadPunish",
+            dataType: "json",
+            type: "post",
+            data: {},
+            success: function (data, textStatus) {
+                var html = '<select id="overLoadPunish"  multiple="multipe" name="condition.overPunish" class="ui-combobox"><option></option>';
+                for (var i = 0; i < data.data.length; i++) {
+                    var punish = data.data[i].split(":");
+                    html = html + '<option value="' + punish[0] + '">' + punish[1] + '</option>';
+                }
+                html = html + '</select>';
+                $("#overLoadPunishName").html(html);
+                $("#overLoadPunish").hcMultiSelect();
+            ##去除只看超限,查看选中的违法等级
+                $("#overLoadPunish").change(function () {
+                    $('#overLoadFlag').prop("checked", false);
+                    $('#overLoadFlagValue').val("");
+                })
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+            }
+        });
+    }
+
+    ## 导出本页
+    function exportExcelPage(obj, grid) {
+        var total = sender.pager.dataSource._total;
+        var pageNo = sender.pager.dataSource._page;
+        if (total == 0) {
+            notify("列表数据为空,不允许导出", "warn");
+            return;
+        }
+        if (total > 20 * (pageNo - 1)) {
+            total = total - (pageNo - 1) * 20;
+        }
+        var license = $('#inputLicense').val();
+        license = encodeURI(encodeURI(license));
+        var detectStation = $('#detectionSeclect').val();
+        var overLoadStatus = $('#overLoadStatus').val();
+        var overLoadPunish = $('#overLoadPunish').val();
+        var begin = '';
+        var end = '';
+        var warnFlag = $('#warnFlagValue').val();
+        if ($("input[type='checkbox']").is(':checked')) {
+        ## 选中违法信息获取全部违章信息
+            overLoadStatus = "1,2,3,4,5";
+        }
+        if ($("#datePicker2").data("kendoDateTimePicker").value() != null) {
+            end = $("#datePicker2").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+        }
+        if ($("#datePicker1").data("kendoDateTimePicker").value() != null) {
+            begin = $("#datePicker1").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+        }
+        window.location.href = "$!{rc.contextPath}/fxzf/search/exportPage?pageNo=" + pageNo + "&condition.captureTime=" + begin +
+                "&condition.backTime=" + end + "&condition.detectStation=" + detectStation +
+                "&condition.overStatus=" + overLoadStatus + "&condition.overPunish=" + overLoadPunish + "&condition.license=" + license +
+                "&condition.warnFlag=" + warnFlag;
+    }
+
+    ## 导出全部
+    function exportExcelAll() {
+        var total = sender.pager.dataSource._total;
+        if (total == 0) {
+            notify("列表数据为空,不允许导出", "warn");
+            return;
+        } else if (total > 2000 && total < 65535) {
+            if (!confirm("列表数据超过2000条,确定导出吗?"))return;
+        }
+        if (total >= 65535) {
+            notify("导出的数据不可以超出65535条记录", 'warn')
+        } else {
+            var detectStation = $('#detectionSeclect').val();
+            var overLoadStatus = $('#overLoadStatus').val();
+            var overLoadPunish = $('#overLoadPunish').val();
+            var begin = '';
+            var end = '';
+            var license = $('#inputLicense').val();
+            var warnFlag = $('#warnFlagValue').val();
+            license = encodeURI(encodeURI(license));
+            if ($("input[type='checkbox']").is(':checked')) {
+            ## 选中违法信息获取全部违章信息
+                overLoadStatus = "1,2,3,4,5";
+            }
+            if ($("#datePicker2").data("kendoDateTimePicker").value() != null) {
+                end = $("#datePicker2").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+            }
+            if ($("#datePicker1").data("kendoDateTimePicker").value() != null) {
+                begin = $("#datePicker1").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+            }
+            window.location.href = "$!{rc.contextPath}/fxzf/search/exportAll?condition.captureTime=" + begin +
+                    "&condition.backTime=" + end + "&condition.detectStation=" + detectStation +
+                    "&condition.overStatus=" + overLoadStatus + "&condition.overPunish=" + overLoadPunish + "&condition.license=" + license +
+                    "&condition.warnFlag=" + warnFlag;
+        }
+    }
+</script>
+</body>
+<style>
+    span {
+        font-family: tahoma, arial, "宋体", "Microsoft Yahei", \5b8b\4f53;
+        font-size: 12px;
+    }
+
+    .ui-layout-pane-center {
+        overflow: inherit;
+    }
+
+    .k-tabstrip-items .k-state-default .k-link, .k-panelbar>li.k-state-default>.k-link {
+        /*color: #0f8abb;*/
+        vertical-align: middle;
+        color: #04668e;
+        font-weight:bold;
+    }
+</style>
+</html>

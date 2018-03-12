@@ -1,0 +1,35 @@
+#parse("platform/_header.vm")
+<link href="$!{_platform_assets_url}/css/ztree/zTreeStyle.css" rel="stylesheet">
+<script src="$!{_platform_assets_url}/js/jquery.ztree.all-3.5.min.js"></script>
+</head>
+<body>
+	<div id="plat_menu_select_container">
+		<ul id="plat_menu_select" class="ztree"></ul>
+	</div>
+<script type="text/javascript">
+	var ser;
+    if ("$!{dlgId}" == "") {
+        ser = get_el_in_main_frame('$!{el}').data("kendoComplexeSelect");
+    } else {
+        ser = get_el_in_dialog("$!{dlgId}", '$!{el}').data("kendoComplexeSelect");
+    }
+	$(document).ready(function(){
+		var setting = {
+			callback: {
+				onClick : function(event, treeId, treeNode) {
+					var name = treeNode.name;
+					if(name.length>10){
+        				name = name.substring(0,10)+"...";
+        			}
+					ser.add(treeNode.id,name.replace("</span>", "").replace(/<span.*>/, ""));
+					close_dialog("menu_select_dlg");
+				}
+			}
+		};
+		var nodes = $!{menuJson};
+		var menu_tree = $.fn.zTree.init($("#plat_menu_select"), setting, nodes);
+		menu_tree.expandAll(true);
+	});
+</script>
+</body>
+</html>

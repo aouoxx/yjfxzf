@@ -1,0 +1,511 @@
+#parse("platform/_header.vm")
+#parse("platform/_head.vm")
+<link href="$!{_platform_assets_url}/css/ztree/zTreeStyle.css" rel="stylesheet">
+<script src="$!{_platform_assets_url}/js/jquery.ztree.all-3.5.min.js"></script>
+<link rel="stylesheet" href="$!{rc.contextPath}/assets/css/monitor.css">
+</head>
+<body>
+<form>
+	<input type="hidden" id="stationFlag" />
+</form>
+<div class="ui-layout-north">
+	<div class="ui-header-title">
+		<span class="ui-header-date" id="date"></span>
+		<span style="position: absolute;left: 172px;font-size: 14px;">您好：<span id="username" style="cursor: pointer;"></span>  ,欢迎登陆！</span>
+		<span class="ui-header-text" id="title">永嘉非现执法监控系统</span>
+		<span class="backicon" id="backicon" style="display:none;">返回主页面</span>
+	</div>
+	
+</div>
+
+<div class="ui-layout-west" style="background-color: #ccecf9;" id="department_tree_container">
+	<div class="ui-left-header">
+		<i class="catalogicon"></i>
+		机构树
+		<span style="margin-left:50px;font-size:14px;"><input type="checkbox" id="checkAll" onclick="checkAll(this);"/>全选<span>
+	</div>
+  	<ul id="tree" class="ui-left-ztree ztree"></ul>
+</div>
+
+<div class="ui-layout-center" id="subMain">
+    <div class="ui-layout-north ui-right-title" id="subMainNorth">
+    	<div class="count-info">
+			<div class="info1">
+				<div class="guide"></div>
+				<div class="count-datas">
+					<div class="datas-t"> 当天实时违法过车数量:&nbsp;&nbsp;<span class="fc"></span></div>
+					<div class="datas-state">
+						<table width="100%" class="state-item">
+							<tr>
+								<td>特别严重&nbsp;&nbsp;(<span class="fc"></span>)</td>
+								<td>严重&nbsp;&nbsp;(<span class="fc"></span>)</td>
+								<td>较重&nbsp;&nbsp;(<span class="fc"></span>)</td>
+								<td>一般&nbsp;&nbsp;(<span class="fc"></span>)</td>
+								<td>轻微&nbsp;&nbsp;(<span class="fc"></span>)</td>
+							</tr>
+						</table>
+					</div>              
+				</div>
+				<div class="count-num">
+					截止昨日总过车数量&nbsp;&nbsp;&nbsp;(<span class="fc">0</span>)<br>
+		 			截止当前总违法过车数量&nbsp;&nbsp;&nbsp;(<span class="fc">0</span>)
+				</div>
+			</div>
+			<div class="info2">
+				<div class="info2-message">
+					<ul>
+					<marquee id="marquee" behavior="scroll" direction="up" scrollamount="1" 
+					onmouseover="this.stop();" onmouseout="this.start();" height="80">
+					</marquee>
+					</ul>
+				</div>
+			</div>
+		</div>
+    </div>
+  	<div class="ui-layout-center ui-right-content" id="subMainCenter">
+  		<div class="content-info">
+  				<div class="view-content">
+  					<div class="view-conts view-cont-f">
+  						<ul>
+  							<li class="view-cont-item mright"></li>
+  							<li class="view-cont-item mleft"></li>
+  							<li class="view-cont-item mright"></li>
+  							<li class="view-cont-item mleft"></li>
+  						</ul>
+  					</div>
+  					<div class="view-conts view-cont-s"  style="display:none;">
+  						<ul>
+  							<li class="view-cont-item mright"></li>
+  							<li class="view-cont-item mleft"></li>
+  							<li class="view-cont-item mright"></li>
+  							<li class="view-cont-item mleft"></li>
+  							<li class="view-cont-item mright"></li>
+  							<li class="view-cont-item mleft"></li>
+  						</ul>
+  					</div>
+  					<div class="view-conts view-cont-n" style="display:none;">
+  						<ul>
+  							<li class="view-cont-item mright"></li>
+  							<li class="view-cont-item mright"></li>
+  							<li class="view-cont-item"></li>
+  							<li class="view-cont-item mright"></li>
+  							<li class="view-cont-item mright"></li>
+  							<li class="view-cont-item"></li>
+  							<li class="view-cont-item mright"></li>
+  							<li class="view-cont-item mright"></li>
+  							<li class="view-cont-item"></li>
+  						</ul>
+  					</div>
+  				</div>
+  				<div class="view-select">
+  					<div class="view-item view-four current">
+  						<ul>
+  							<li>四</li>
+  							<li>宫</li>
+  							<li>格</li>
+  						</ul>
+  					</div>
+  					<div class="view-item view-six">
+  						<ul>
+  							<li>六</li>
+  							<li>宫</li>
+  							<li>格</li>
+  						</ul>		
+  					</div>
+  					<div class="view-item view-nine">
+  						<ul>
+  							<li>九</li>
+  							<li>宫</li>
+  							<li>格</li>
+  						</ul>
+  					</div>
+  				</div>
+  		</div>
+    </div>
+    <div class="notices-w" id="notices-w">
+		<div class="notices-title">
+			通知消息
+			<i class="flodicon" onclick="fadeclose();"></i>
+		</div>
+			<div class="notices-contents">
+				<ul id="msgContent">
+				 </ul>
+			 </div>
+		</div>
+	</div>
+	
+	<div class="notices-w-min" id="notices-w-min">
+		<div class="notices-title">
+			<i class="unflodicon" onclick="fadeopen();"></i>
+		</div>
+		</div>
+	</div>
+	
+	<div id="newMessageDIV" style="display:none;"></div>
+</div>
+    #parse("platform/_footer.vm")
+<script>
+    var _iframe_layout,checkNodes;
+    var CHeight = document.body.clientHeight;
+    $(function () {
+    	var username='$!{username}';
+		$('#username').text(username);
+		$('#username').click(function(){
+			quick_dialog('password_dlg','修改用户密码','$!{rc.contextPath}/xtgl/user/password',500,200);
+		});
+    	$("#frame").css("display","none");
+		_iframe_layout = $('body').layout({
+    	 center__maskContents: true,
+          defaults: {
+            resizable: false,
+            closable: false,
+            spacing_open: 0
+          },
+          north: {
+        	  size: 40
+          },
+          west: {
+            size: 210,
+            closable: true,
+          },
+        });
+              
+        _inner_layout = $("#subMain").layout({
+          defaults: {
+            resizable: false,
+            closable: false,
+            spacing_open: 0
+          },
+          north: {
+        	 size: 195 
+          } ,
+          center: {
+          }
+        })
+        
+        	
+	    var weeks = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+		var day = new Date();
+		var month = day.getMonth()+1;
+		var date = day.getDate();
+		if(month<10){month = "0"+month;}
+		if(date<10){date = "0"+date;}
+		var dayStr = day.getFullYear()+"-"+month+"-"+date+"  "+weeks[day.getDay()] ;
+		$("#date").html(dayStr);
+        
+        
+        var tree = $.fn.zTree.init($("#tree"), {
+			check:{enable: true,chkboxType:{ "Y" : "s", "N" : "s" }},
+            data: {
+				key : {
+					name : "name" 
+				},
+                simpleData: {
+                    enable: true,
+                    pIdKey: "pid",
+                    rootPId: 0
+                }
+            },
+            view: {
+                selectedMulti: false
+            }, callback: {
+                onCheck: checkOne,
+                onClick: function zTreeOnClick(event, treeId, treeNode) {
+                	if(!treeNode.isParent){
+                		showItem(treeNode.id,treeNode.name);
+                	}
+                }
+            }
+        }, $!{result});
+
+        ##展开树节点
+##		tree.expandAll(true);
+		
+    	initData();
+    	initTree();
+    	$("#checkAll").click();
+##    	showAll();
+
+		##初始化显示最近的5条告警记录
+		var marqueeListTotal = $!{marqueeListTotal};
+		for(var i=0;i<marqueeListTotal.length;i++){
+			fullMarquee(marqueeListTotal[i],marqueeListTotal[i].overLoadString);
+		}
+    });
+
+  	$(".view-four").click(function(){
+    	$(".view-item").removeClass("current");
+    	$(this).addClass("current");
+    	$(".view-conts").css('display','none');
+    	$(".view-cont-f").css('display','block');
+    	viewConts(".view-cont-f",4);
+    });
+    $(".view-six").click(function(){
+    	$(".view-item").removeClass("current");
+    	$(this).addClass("current");
+    	$(".view-conts").css('display','none');
+    	$(".view-cont-s").css('display','block');
+    	viewConts(".view-cont-s",6);
+    });
+    $(".view-nine").click(function(){
+    	$(".view-item").removeClass("current");
+    	$(this).addClass("current");
+    	$(".view-conts").css('display','none');
+    	$(".view-cont-n").css('display','block');
+    	viewConts(".view-cont-n",9);
+    });
+    
+	function viewConts(element,size){
+		var treeObj = $.fn.zTree.getZTreeObj("tree");
+		var nodes = treeObj.getCheckedNodes(true);
+		##清空页面内容
+		$(".view-cont-item").empty();
+		var selectNode = [];
+		if(nodes.length>0){
+			for(var i=0;i<nodes.length;i++){
+				if(!nodes[i].isParent){
+					selectNode.push(nodes[i]);
+				}
+			}
+		}
+		if(selectNode.length<=size){size = selectNode.length;}
+		if(selectNode.length>0){
+			for(var i=0;i<size;i++){
+				ajaxData($(element).find("li").eq(i),selectNode[i]);
+			}
+		}
+		
+	}
+	
+	##获取每个治超点数据
+	function ajaxData(element,node){
+		$.ajax({   
+	        type: "post",
+	        url: "$!{rc.contextPath}/fxzf/monitor/getfxzfcount",
+	        data: {"fxzf.detectStation":node.id},   
+	        dataType: "json",
+	        async:false,
+	        success: function(data){
+	        	if(data.status = "success"&&null!=data.data)
+	        	{	
+	        		var imgSrc = "$!{rc.contextPath}/assets/images/monitor/";
+	        		if(node.id=='1'||node.id=='5'){
+	        			imgSrc = imgSrc + "line-three.png";
+	        		}else if(node.id=='2'){
+	        			imgSrc = imgSrc + "line-two.png";
+	        		}else if(node.id=='3'||node.id=='4'){
+	        			imgSrc = imgSrc + "line-four.png";
+	        		}else{
+	        			imgSrc = "";
+	        		}
+	        		var content = "<div class='view-line' id='"+node.id+"' onclick=\"showItem('"+node.id+"','"+node.name+"')\">"+
+	        					  "<div class='view-line-title'><div class='title-left'>"+node.name+"</div>"+
+	        					  "<div class='title-right'>当天实时违法过车数量：<span class='fc'>"+data.data.dayIllegalCount+"</span></div></div>"+
+	        					  "<div class='view-line-info'><table width='100%' class='state-item'><tr>"+
+	        					  "<td>特别严重  (<span class='fc'>"+data.data.overloadCount[4]+"</span>)</td>"+
+	        					  "<td>严重  (<span class='fc'>"+data.data.overloadCount[3]+"</span>)</td>"+
+	        					  "<td>较重  (<span class='fc'>"+data.data.overloadCount[2]+"</span>)</td>"+
+	        					  "<td>一般  (<span class='fc'>"+data.data.overloadCount[1]+"</span>)</td>"+
+	        					  "<td>轻微  (<span class='fc'>"+data.data.overloadCount[0]+"</span>)</td></tr></table>"+
+	        					  "</div><div class='view-line-img'><img src='"+imgSrc+"'></div></div>";
+	        		element.empty();
+	        		element.append(content);
+	        	}
+	        }
+        })
+	}
+	
+	
+	##显示具体治超点监控页面
+	function showItem(detectStation,detectStationName){
+		$("#title").empty();
+		$("#title").html("永嘉非现执法监控系统("+detectStationName+")");
+		
+		$("#subMainNorth").css("display","none");
+		$("#subMainCenter").css("display","none");
+		$("#subMain").append("<iframe  id='_role_frame' scrolling='auto' style='width:100%;height:100%;' src='about:blank' frameborder='no' ></iframe>");
+		
+		var treeObj = $.fn.zTree.getZTreeObj("tree");
+		var nodes = treeObj.getCheckedNodes(true);
+		checkNodes = [];
+		if(nodes.length>0){
+			for(var i=0;i<nodes.length;i++){
+				if(!nodes[i].isParent){
+					checkNodes.push(nodes[i]);
+				}
+			}
+		}
+		
+		$("#backicon").css("display","block");
+		$("#stationFlag").val(detectStation);
+		var url = "$!{rc.contextPath}/fxzf/monitor/list?detestation="+detectStation;
+		$("#_role_frame").attr("src", url);
+	}
+	
+	##返回操作
+	$("#backicon").click(function(){
+##		var url = "$!{rc.contextPath}/fxzf/monitor/init";
+##		if(null!=checkNodes && checkNodes.length>0){
+##			var treeNode = "";
+##			for(var i=0;i<checkNodes.length;i++){
+##				treeNode = treeNode + checkNodes[i].id +",";
+##			}
+##			url = url+"?treeNode="+treeNode;
+##		}
+##		window.location.href=url;
+		
+		$("#subMainNorth").css("display","block");
+		$("#subMainCenter").css("display","block");
+		$("#_role_frame").remove();
+		$("#backicon").css("display","none");
+		$("#title").empty();
+		$("#title").html("永嘉非现执法监控系统");
+		
+	})
+	
+	
+	##获取所有治超点统计数据
+	function initData(){
+		$.ajax({   
+	        type: "post",
+	        url: "$!{rc.contextPath}/fxzf/monitor/getfxzfcount",
+	        data: {},   
+	        dataType: "json",
+	        async:false,
+	        success: function(data){
+	        	if(data.status = "success"&&null!=data.data)
+	        	{	
+	        		$(".count-info").find(".fc").eq(0).html(data.data.dayIllegalCount);
+	        		$(".count-info").find(".fc").eq(1).html(data.data.overloadCount[4]);
+	        		$(".count-info").find(".fc").eq(2).html(data.data.overloadCount[3]);
+	        		$(".count-info").find(".fc").eq(3).html(data.data.overloadCount[2]);
+	        		$(".count-info").find(".fc").eq(4).html(data.data.overloadCount[1]);
+	        		$(".count-info").find(".fc").eq(5).html(data.data.overloadCount[0]);
+        			$(".count-info").find(".fc").eq(6).html(data.data.detectCount);
+	        		$(".count-info").find(".fc").eq(7).html(data.data.illegalCount);
+	        	}
+	        }
+        })
+	}
+	
+	##根据选中树节点加载页面
+	function initTree(){
+		var nodes ='$!{treeNode}';
+		var treeNode = eval(nodes);
+		if(null!=treeNode && treeNode.length>0){
+			var treeObj = $.fn.zTree.getZTreeObj("tree");
+			for (var i=0;i < treeNode.length; i++) {
+				var node =  treeObj.getNodeByParam("id",treeNode[i]);
+				treeObj.checkNode(node, true, true,true);
+			}
+		}else{
+			
+		}
+	}
+	
+	function checkAll(obj){
+		var treeObj = $.fn.zTree.getZTreeObj("tree");
+		treeObj.checkAllNodes(obj.checked);
+		if(obj.checked){
+			var current = $(".current").attr("class");
+			if(current.indexOf('view-six')>=0){
+				$(".view-six").click();
+			}else if(current.indexOf('view-nine')>=0){
+				$(".view-nine").click();
+			}else{
+				$(".view-four").click();
+			}
+		}else{
+			$(".view-line").empty();
+		}
+	}
+	
+	
+	##选中树节点触发事件
+	function checkOne(event, treeId, treeNode){
+		var current = $(".current").attr("class");
+		if(current.indexOf('view-six')>=0){
+			$(".view-six").click();
+		}else if(current.indexOf('view-nine')>=0){
+			$(".view-nine").click();
+		}else{
+			$(".view-four").click();
+		}
+		var treeObj = $.fn.zTree.getZTreeObj("tree");
+		var nodes = treeObj.getCheckedNodes(false);
+		if(nodes.length>0){
+			$("#checkAll").prop("checked",false);
+		}else{
+			$("#checkAll").prop("checked",true);
+		}
+	}
+	
+	 function showAll(msg){
+  	 	var fxzf = eval('(' + msg + ')');
+  	 	var personRole = '$!{personRole}';
+  	 	if(null !=fxzf && ""!=fxzf.license && ""!=fxzf.lane &&""!=fxzf.detectStation){
+  	 		//判断人员是否具有数据权限
+  	 		if(personRole.indexOf(fxzf.detectStation+",")>=0){
+				if(null!=window.frames["_role_frame"] && undefined !=window.frames["_role_frame"] ){
+					var flag=$('#stationFlag').val()+'';
+					if('1'==flag || '5'==flag){
+						window.frames["_role_frame"].show3(msg);
+					}else if('2'==flag){
+						window.frames["_role_frame"].show2(msg);
+					}else if('3'==flag || '4'==flag){
+						window.frames["_role_frame"].show4(msg);
+					}
+				}
+				##监控总页面违法过车次数累积
+				var overloadData = [];
+				#foreach($!{data} in $!{overloadData})
+					overloadData.push("$!{data.name}");
+				#end
+				var overloadStatusStr = overloadData[fxzf.overLoadStatus];
+				
+				##当天实时违法过车数量
+				var count =  $(".count-info").find(".fc");
+				count.eq(7).html(parseInt(count.eq(7).html())+1);
+				count.eq(0).html(parseInt(count.eq(0).html())+1);
+				count.eq(6-fxzf.overLoadStatus).html(parseInt(count.eq(6-fxzf.overLoadStatus).html())+1);
+				
+				##违法过车信息滚屏
+				if(fxzf.overLoadStatus>0){
+				fullMarquee(fxzf,overloadStatusStr);
+				var detail = $("#"+fxzf.detectStation).find(".fc");
+				detail.eq(0).html(parseInt(detail.eq(0).html())+1);
+				detail.eq(6-fxzf.overLoadStatus).html(parseInt(detail.eq(6-fxzf.overLoadStatus).html())+1);
+				}
+			}
+		}
+	 }
+	
+	##违法过车信息滚屏
+	function fullMarquee(fxzf,overloadStatusStr){
+		var li = "";
+		if(""!=fxzf.license){
+			li += "<li style='cursor: pointer;' onclick=\"view('"+fxzf.id+"');\">"+
+				   "<span class='li-t'>车牌号  <b> ("+fxzf.license+")</b></span>"+
+				   "<span class='li-t'>轴数  <b> ("+fxzf.axisCount+"轴)</b></span>"+
+				   "<span class='li-t'>总重  <b> ("+fxzf.weight+"吨)</b></span>"+
+				   "<span class='li-t'>超重率  <b> ("+fxzf.overLoadPercent+"%)</b></span>"+
+				   "<span class='li-t'>超限等级  <b> ("+overloadStatusStr+")</b></span>"+
+				   "<span class='li-c'>情报板："+
+				   "<span class='fr'>"+fxzf.xxnr+"</span></span>"+
+				   "</li>";
+		}
+		var marquee = $("#marquee").find("li");
+		if(marquee.length>=5){
+			marquee.eq(0).remove();
+		}
+		$("#marquee").append(li);
+	}
+	
+	##查看过车信息详情
+ 	function view(id){
+ 		quick_dialog('view_Dlg','查看过车信息','$!{rc.contextPath}/fxzf/search/view?id='+id,800,500);
+ 	}
+	
+</script>
+</body>
+</html>

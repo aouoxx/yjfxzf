@@ -1,0 +1,208 @@
+#if($_type)#else#set($_type="edit")#end
+#parse("platform/_header.vm")
+</head>
+<body>
+<form class="ui-dialog-form" id="xtgl_zhgl_jgxx_$!{_type}_form" action="$!{rc.contextPath}/xtgl/zhgl/jgxx/$!{_type}" method="post">
+	<input type="hidden" name="jgxx.id" value="$!{jgxx.id}" />
+	    <table width="100%">
+			<tr>
+                <td class="label">
+					<span class="ui-form-required">*</span>机构名称：
+				</td>
+                <td>
+    				<input class="k-textbox"  name="jgxx.jgmc" value="$!{jgxx.jgmc}" data-rule="机构名称:required;length[~25]" />
+    			</td>
+                <td class="label">
+					机构简称：
+				</td>
+                <td>
+    				<input class="k-textbox"  name="jgxx.jgjc" value="$!{jgxx.jgjc}" data-rule="length[~10];"/>
+    			</td>
+    			<td></td>
+			</tr>
+			<tr>
+                <td class="label">
+					组织机构代码：
+				</td>
+                <td>
+    				<input class="k-textbox"  name="jgxx.zzjgdm" value="$!{jgxx.zzjgdm}" data-rule="组织机构代码:length[1~10];" />
+    			</td>
+                <td class="label">
+					机构分类：
+				</td>
+                <td>
+    				#dic_select2("XTGL_JGXX_JGDJ","jgxx.jgdj","$!{jgxx.jgdj}","ui-combobox","")
+    			</td>
+    			<td></td>
+			</tr>
+			<tr>
+                <td class="label">
+					<span class="ui-form-required">*</span>上级机构：
+				</td>
+                <td >
+    				<select name="jgxx.parent.id" id="fatherId"></select>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+			</tr>
+			<tr>
+                <td class="label">
+					<span class="ui-form-required">*</span>行政区划：
+				</td>
+                <td colspan="3">
+    				<span id="xzqh"></span>
+    			</td>
+    			<td></td>
+			</tr>
+			<tr>
+                <td class="label">
+					负责人：
+				</td>
+                <td>
+    				<input class="k-textbox"  name="jgxx.fzr" value="$!{jgxx.fzr}" />
+    			</td>
+                <td class="label">
+					联系电话：
+				</td>
+                <td>
+    				<input class="k-textbox"  name="jgxx.fzrlxfs" value="$!{jgxx.fzrlxfs}" data-rule="lxfs;" data-rule-lxfs="[/^(((\d{3,4}\-)?\d{7,8})|(1[3458]\d{9}))$/,'请检查联系电话']"/>
+    			</td>
+    			<td></td>
+			</tr>
+			<tr>
+                <td class="label">
+					传真：
+				</td>
+                <td>
+    				<input class="k-textbox"  name="jgxx.cz" value="$!{jgxx.cz}" data-rule="cz;" data-rule-cz="[/^((\d{3,4}\-)?\d{7,8}(\-\d{1,4})?)$/,'请检查传真号码']"/>
+    			</td>
+                <td class="label">
+					邮编：
+				</td>
+                <td>
+    				<input class="k-textbox"  name="jgxx.yb" value="$!{jgxx.yb}" data-rule="youbian;" data-rule-youbian="[/^\d{6}$/,'邮编由6位数字组成']"/>
+    			</td>
+    			<td></td>
+			</tr>
+			
+##			<tr>
+##				<td class="label">经度：</td>
+##	            <td><input name="jgxx.jd" class="k-textbox" value="$!{jgxx.jd}"  data-rule="经度: required;length[~100];"></td>
+##	            <td class="label">纬度：</td>
+##	            <td><input name="jgxx.wd" class="k-textbox" value="$!{jgxx.wd}"  data-rule="纬度: required;length[~100];">
+##	            </td>
+##	            <td><button type="button" id="getLonAndLat" class="k-primary">定位</button></td>
+##        	</tr>
+		
+			<tr>
+                <td class="label">
+					详细地址：
+				</td>
+                <td colspan="3">
+    				<input class="k-textbox"  name="jgxx.xxdz" value="$!{jgxx.xxdz}" data-rule="length[~50];"/>
+    			</td>
+    			<td></td>
+			</tr>
+			<tr>
+                <td class="label">
+					备注：
+				</td>
+                <td colspan="3">
+    				<textarea class="k-textbox"   name="jgxx.bz" data-rule="length[~50];">$!{jgxx.bz}</textarea>
+    			</td>
+               	<td></td>
+			</tr>
+		
+		
+		
+		</table>
+  <div class="actions">
+        <button class="k-primary hc_btn" type="submit" id="save"><i class="fa fa-save"></i>保 存</button>
+        <button class="hc_btn cancel" onclick="close_dialog('jgxx_$!{_type}_dlg')" type="button"><i class="fa fa-close"></i>取 消</button>
+    </div>
+ 
+</form>
+
+    #parse("platform/_footer.vm")
+<script src="$!{rc.contextPath}/assets/js/xtgl/zhgl/jgxx.js" type="text/javascript"></script>
+<script src="$!{rc.contextPath}/assets/js/xtgl/xzqh.js" type="text/javascript"></script>
+<script type="text/javascript">
+	$('form').validator({
+        rules: {
+            
+        },
+        messages: {
+            required: "请填写{0}",
+            email: "邮箱地址不合法"
+        },
+        fields: {
+ 			'jgxx.parent.id': '上级机构:required;',
+ 			'#xzqh_city': '行政区划:required;'
+        },
+        valid: function(form){
+			var xzqh=$("input[name='jgxx.xzqhdm']").val();
+			if(xzqh ==""){
+        		notify("请选择行政区划", "warn");
+        		return;
+    		}
+			form_btn_submit('#save','#xtgl_zhgl_jgxx_$!{_type}_form',function(res){
+    				notify("操作成功", "success");
+					window.parent.frames["_main_frame"].edited_callback();
+					close_dialog('jgxx_$!{_type}_dlg');
+			})
+        }
+    });
+
+	
+	$(function(){
+    	$("#getLonAndLat").hcButton({
+			click: function(e) {
+				quick_dialog("position_dlg", "选取经纬度", "$!{rc.contextPath}/gis/gis?dlgId=jgxx_$!{_type}_dlg&isDrawOnePoint=true", 900, 550);
+            }
+		});
+    })
+    function gisLoadEnd(){
+    	var jd = $("input[name='jgxx.jd']").val();
+    	var wd = $("input[name='jgxx.wd']").val();
+   		if(null!=jd&&""!=jd&&null!=wd&&""!=wd)
+   		{
+   			get_fun_in_dialog("position_dlg").showLocationByLonLat(jd,wd,'','','','../assets/gis/images/gis/yuan.png',6,false);
+   		}
+		get_fun_in_dialog("position_dlg").drawGeometryAndShow["point"].activate();
+	}
+	
+	
+	function drawOnePoint_callback(jd,wd){
+		$("input[name='jgxx.jd']").attr("value","");
+		$("input[name='jgxx.wd']").attr("value","");
+		$("input[name='jgxx.jd']").attr("value",jd.toFixed(6));
+		$("input[name='jgxx.wd']").attr("value",wd.toFixed(6));
+		close_dialog('position_dlg');
+	}
+
+	
+	$("form .k-textbox").bind({
+		mouseover: function(e) {
+			if ($(this).hasClass("n-invalid")) {
+				var msg_box = $(this).siblings(".msg-box").get(0);
+				$(msg_box).find(".n-error").show();
+			}
+		},
+		mouseout: function(e){
+			if ($(this).hasClass("n-invalid")) {
+				$(this).siblings(".msg-box").find(".n-error").hide();
+			}
+		}
+	});
+	
+	
+    $.xzqhSelect('$!{rc.contextPath}', 'xzqh', 'jgxx.xzqhdm', '', '$!{jgxx.xzqhdm}',true);
+    
+	$(function(){
+		selectJgxx("fatherId","jgxx_$!{_type}_dlg","$!{jgxx.parent.id}","$!{jgxx.parent.jgmc}")
+		
+	});
+</script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+#parse("platform/_header.vm")
+<script src="$!{rc.contextPath}/assets/js/ckeditor/ckeditor.js"></script>	
+</head>
+<body>
+   <div class="ui-layout-north">
+   </div>
+##   <table>
+##   	<tr><td rowspan></tr>
+##   </table>
+   <div class="ui-layout-center">
+   		<textarea name="ckeditor" id="ckeditor" > </textarea>
+   </div>
+</body>
+<script type="text/javascript">
+var doc;
+$(function(){
+ _iframe_layout = $('body').layout({
+        defaults: {
+            resizable: false,
+            closable: false,
+            spacing_open: 0
+            },
+        center: {
+            onresize_end: function () {}
+            },
+        north: {size:0}
+        });
+  ##'Save',
+   doc = CKEDITOR.replace('ckeditor',{
+  		extraPlugins:'templateButton',
+	  	toolbar:
+	  			[
+			 	{ name: 'print',items:['-','Preview','-','Print','-','Templates','-','Source']},
+			 	{ name: 'paragraph', items : [ '-','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock' ] },
+		   		{ name: 'template', items : ['templateButton'] },
+			    
+			    { name: 'styles', items : ['Font','FontSize' ] },
+			    { name: 'basicstyles', items : [ 'Bold','Italic','Underline'] },
+			    ##{ name: 'insert', items : ['Table','HorizontalRule','SpecialChar' ] },
+			    { name: 'colors', items : [ 'TextColor','BGColor','Table' ] },
+			    '/',
+			    { name: 'colors',items : [  ]}
+			    
+				],
+		language:'zh-cn',
+		height:570		
+	  });
+	  
+	var content=
+	     '<p style="text-align: center;"><span style="font-size:20px"><strong>执法文书</strong></span></p>'
+	     	+'<table align="center" border="1" cellpadding="1" cellspacing="0" style="width:100%;text-align:center">'
+			+'<tbody>'
+			+'<tr><td style="width:10%">执法地点</td><td colspan="3" style="width:30%">&nbsp;</td><td style="width:10%">执法时间</td><td colspan="3" style="width:50%">&nbsp;</td></tr>'
+			+'<tr><td rowspan="3" style="width:10%">执法人员</td><td colspan="2" style="width:20%">&nbsp;</td><td rowspan="3" style="width:10%">执法证号</td><td colspan="2" style="width:30%">&nbsp;</td><td rowspan="3" style="width:10%">记录人</td><td rowspan="3" style="width:20%">&nbsp;</td></tr>'
+			+'<tr><td colspan="2" style="width:30%">&nbsp;</td><td colspan="2" style="width:30%">&nbsp;</td></tr>'
+			+'<tr><td colspan="2" style="width:30%">&nbsp;</td><td colspan="2" style="width:30%">&nbsp;</td></tr>'
+			+'<tr><td rowspan="5" style="width:10%">现场人员基本情况</td><td style="width:10%">姓名</td><td colspan="3" style="width:35%">&nbsp;</td><td style="width:10%">项目名称</td><td colspan="2" style="width:35%">&nbsp;</td></tr>'
+			+'<tr><td style="width:10%">身份证号</td><td colspan="3" style="width:35%">&nbsp;</td><td style="width:10%">与案件关系</td><td colspan="2" style="width:35%">&nbsp;</td></tr>'
+			+'<tr><td style="width:10%">单位及职务</td><td colspan="3" style="width:35%">&nbsp;</td><td style="width:10%">联系电话</td><td colspan="2" style="width:35%">&nbsp;</td></tr>'
+			+'<tr><td style="width:10%">联系地址</td><td colspan="6" style="width:80%">&nbsp;</td></tr>'
+			+'<tr><td style="width:10%">车(船)号</td><td colspan="3" style="width:35%">&nbsp;</td><td style="width:10%">车(船)型</td><td colspan="2" style="width:35%">&nbsp;</td></tr>'
+			+'<tr><td rowspan="3" style="width:10%">主要内容</td><td colspan="7" style="height:200px; text-align:left; width:90%">&nbsp;</td></tr>'
+			+'<tr><td colspan="7" style="text-align:left; width:90%">备注：</td></tr>'
+			+'<tr><td colspan="7" style="text-align:left; width:90%">执法人员签名：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 时间：&nbsp;&nbsp;&nbsp;</td></tr>'
+			+'</tbody></table>'
+ 	CKEDITOR.instances.ckeditor.setData(content);
+ 	
+  });
+  
+  function fillContent(type){
+ 		alert(type);
+ 	}
+</script>
+
+</html>

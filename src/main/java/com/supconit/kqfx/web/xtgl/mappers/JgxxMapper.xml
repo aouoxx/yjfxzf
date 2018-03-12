@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://hc.supconit.com/mybatis-3-mapper.dtd">
+
+<!-- 学习可参看：http://www.mybatis.org/core/zh/index.html -->
+
+<mapper namespace="com.supconit.kqfx.web.xtgl.entities.Jgxx">
+
+	<resultMap type="com.supconit.kqfx.web.xtgl.entities.Jgxx" id="JgxxResultMap">
+		<id property="id" column="ID" />
+		<result property="name" column="JGMC" />
+		<result property="pid" column="PID" />
+		
+	</resultMap>
+	<select id="selectAllJgxx" resultMap="JgxxResultMap" lang="velocity" parameterType="com.supconit.kqfx.web.xtgl.entities.Jgxx">
+		
+		<![CDATA[
+		select * from T_XTGL_ZHGL_JGXX J
+		
+		#where()
+				
+				 #if($_parameter.jgmc && $_parameter.jgmc != '')
+					AND J.JGMC #set($_name ='%' +  $_parameter.jgmc +'%')
+						LIKE @{_name,jdbcType=VARCHAR}
+				#end
+				
+					AND J.DELETED = 0
+			#end					
+		]]>
+	</select>
+	
+</mapper>

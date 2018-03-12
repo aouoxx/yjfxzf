@@ -1,0 +1,198 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+#bread_crumbs2("WARNINGCONFIG")
+ <form class="ui-dialog-form">
+ <fieldset class="warn-style" style="margin-top:1%; width:58%; margin-left: 23%;">
+		<table width="100%">
+		    <tbody>
+		    	 <tr>
+		    	  	<td colspan="3"  class="mark" align="left"><div class="mark-text">称重精度下浮百分比</div></td>
+		    	 </tr>
+				 <tr style="height: 45px;">
+					<td rowspan="2" class="marklogo0"></td>
+			  		<td class="titile">下浮百分比：</td>
+			  		<td> 
+						<input type="hidden" name="condition.configs[7].code" value="DOWN_FLOW" />	
+						<input type="text" name="condition.configs[7].value" id="downflow" class="k-textbox"/>&nbsp;&nbsp;%
+			  		<span class="w-mark-text">（过车数据称重结果按照该比例下浮）</span>
+			  		</td>
+				</tr>
+			</tbody>
+		</table>
+	</fieldset>
+	<fieldset class="warn-style" style="margin-top:1%; width:58%; margin-left: 23%;">
+		<table width="100%">
+		    <tbody>
+		    	<tr> <td colspan="3"  class="mark" align="left"><div class="mark-text">总重超限告警阀值</div></td> </tr>
+				<tr>
+				  	<td rowspan="2" class="marklogo1"></td>
+			  		<td class="titile">超限率大于：</td>
+			  		<td> 
+			  			<input type="hidden" name="condition.configs[0].code" value="OVERLOAD_PERCENT" />
+			  			<input type="text" name="condition.configs[0].value" id="parcent" class="k-textbox"/>&nbsp;&nbsp;%
+			  			<span class="w-mark-text">（超限率大于该设定阀值将触发告警通知）</span>
+			  		</td>
+				</tr>
+				<tr>
+			  		<td class="titile">总重大于：</td>
+			  		<td> 
+			  		    <input type="hidden" name="condition.configs[1].code" value="OVERLOAD_WEIGHT" />
+			  		    <input type="text" name="condition.configs[1].value" id="weight" class="k-textbox"/>&nbsp;&nbsp;吨 
+			  		    <span class="w-mark-text">（总重大于该设定阀值将触发告警通知）</span>
+			  		</td>
+			  	  </tr>
+	    	 </tbody>
+	     </table>
+	</fieldset> 
+	<fieldset class="warn-style" style="margin-top:1%; width:58%; margin-left: 23%;">
+		<table width="100%">
+		    <tbody>
+		    	<tr> <td colspan="3" class="mark" align="left"><div class="mark-text">长宽高超限告警阀值</div></td> </tr>
+				<tr>
+					<td rowspan="3" class="marklogo2"></td>
+			  		<td class="titile">长度大于：</td>
+			  		<td> 
+						<input type="hidden" name="condition.configs[2].code" value="LENGTH" />	
+						<input type="text" name="condition.configs[2].value" id="length" class="k-textbox"/>&nbsp;&nbsp;米
+						<span class="w-mark-text">（长度大于该设定阀值将触发告警通知）</span>
+			  		</td>
+				</tr>
+				<tr>
+			  		<td class="titile">宽度大于：</td>
+			  		<td> 
+			  		   <input type="hidden" name="condition.configs[3].code" value="WIDTH" />
+			  		   <input type="text" name="condition.configs[3].value" id="width" class="k-textbox"/>&nbsp;&nbsp;米 
+			  		   <span class="w-mark-text">（宽度大于该设定阀值将触发告警通知）</span>
+			  		</td>
+				</tr>
+				<tr>
+			  		<td class="titile">高度大于：</td>
+			  		<td> 
+			  		   <input type="hidden" name="condition.configs[4].code" value="HEIGH" />
+			  		   <input type="text" name="condition.configs[4].value" id="height" class="k-textbox"/>&nbsp;&nbsp;米 
+			  		   <span class="w-mark-text">（高度大于该设定阀值将触发告警通知）</span>
+			  		</td>
+				</tr>
+	    	</tbody>
+	    </table>
+	</fieldset>
+	<fieldset class="warn-style" style="margin-top:1%; width:58%; margin-left: 23%;">
+		<table width="100%">
+		    <tbody>
+		    	<tr> <td colspan="3" class="mark" align="left"><div class="mark-text">告警时间间隔<div></td> </tr>
+				<tr> 
+					<td rowspan="2" class="marklogo3"></td> 
+					<td  class="titile">再次超限告警时间间隔：</td>
+			  		<td> 
+			  		    <input type="hidden" name="condition.configs[5].code" value="WARN_AGAIN_TIME" />
+						<input type="text" name="condition.configs[5].value" id='warn' class="k-textbox"/>&nbsp;&nbsp;小时
+						<span class="w-mark-text">（设置再次告警的时间间隔）</span>
+			  		</td>
+				</tr>
+				<tr>
+			  		<td  class="titile">情报板告警停留时间：</td>
+			  		<td> 
+			  		   <input type="hidden" name="condition.configs[6].code" value="QBB_STAY_TIME" />    
+			  		   <input type="text" name="condition.configs[6].value" id='qbb' class="k-textbox"/>&nbsp;&nbsp;分钟
+			  		   <span class="w-mark-text">（设置告警信息显示在情报板上的停留时间）</span>
+			  		</td>
+				</tr>
+	    	</tbody>
+	    </table>
+	</fieldset> 
+	<div class="actions">
+	 	<button class="k-primary hc_btn blsave k-button" type="submit" data-role="button" role="button" aria-disabled="false" tabindex="0">确 定</button>
+    </div>
+  </form> 
+	  
+</div>
+#parse("platform/_footer.vm")
+<script>
+	var parcent,weight,length,height,width,warn,qbb,downflow;
+	var flag=0;
+	$(function(){
+		parcent = $!{OVERLOAD_PERCENT}; $('#parcent').val(parcent);
+		weight = $!{OVERLOAD_WEIGHT}; $('#weight').val(weight);
+		height = $!{HEIGHT}; $('#height').val(height);
+		length=$!{LENGTH};   $('#length').val(length);
+		width=$!{WIDTH};     $('#width').val(width);
+		warn = $!{WARN_AGAIN_TIME}; $('#warn').val(warn);
+		qbb = $!{QBB_STAY_TIME}; $('#qbb').val(qbb);
+		downflow=$!{DOWN_FLOW};  $('#downflow').val(downflow);
+	})
+	
+	$('form').validator({
+        rules: { },
+        messages:{ },
+        fields: {
+        	"condition.configs[0].value":{
+        					rule:"required;integer[+]",
+         					msg:{required:"请输入超限阀值，必须为正整数"}
+        	},
+			"condition.configs[1].value":{
+        					rule:"required;integer[+]",
+         					msg:{required:"请输入总重阀值，必须为正整数"}
+        	},
+        	"condition.configs[2].value":{
+        					rule:"required;integer[+]",
+         					msg:{required:"请输入长度阀值，必须为正整数"}
+        	},
+        	"condition.configs[3].value":{
+        					rule:"required;integer[+]",
+         					msg:{required:"请输入宽度阀值，必须为正整数"}
+        	},
+			"condition.configs[4].value":{
+        					rule:"required;integer[+]",
+         					msg:{required:"请输入高度阀值，必须为正整数"}
+        	},
+        	"condition.configs[5].value":{
+        					rule:"required;integer[+]",
+         					msg:{required:"请输入情报板再次告警时间间隔，必须为正整数"}
+        	},
+        	"condition.configs[6].value":{
+        					rule:"required;integer[+]",
+         					msg:{required:"请输入情报板告警停留时间，必须为正整数"}
+        	},
+        	"condition.configs[7].value":{
+        					rule:"required;range[0~99]",
+         					msg:{required:"下浮百分比，必须为正整数"}
+        	}        	
+        },
+        valid: function(form){
+         if($('#parcent').val()!=parcent||$('#weight').val()!=weight||
+			$('#length').val()!=length||$('#width').val()!=width||$('#height').val()!=height||
+         	$('#warn').val()!=warn||$('#qbb').val()!=qbb||$('#downflow').val()!=downflow
+         ){
+	        var flag= confirm("是否确定修改阀值信息");
+	        if(flag){
+	            $.ajax({
+	                url: "$!{rc.contextPath}/fxzf/warn/config/config",
+	                data: $(form).serialize(),
+					type: 'post',
+	                success: function(data){notify("阀值修改成功");}
+				  });
+	           }
+         }else{
+         	notify("无修改操作","warn");
+        }     
+      }
+    });		
+</script>
+</body>
+<style>
+fieldset{
+	margin-top:5%;
+	margin-left: 44%;
+	border: groove;
+}	
+.mark{ 
+	width: 100px; 
+	text-align: center;
+}
+.titile{ text-align:right; }
+.ui-dialog-form .k-textbox {
+	width: 80%;
+}
+</style>
+</html>

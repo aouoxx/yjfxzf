@@ -1,0 +1,417 @@
+##<!DOCTYPE html>
+##<html>
+##<head>
+##	<meta charset="UTF-8">
+##	<title>台州非现场监控系统-二车道</title>
+## 引入文件头部及css
+#parse("platform/_header.vm")
+#parse("platform/_head.vm")
+<link rel="stylesheet" href="$!{rc.contextPath}/assets/css/monitor.css">
+</head>
+<body>
+<!-- <div class="header">
+	<div class="header-title">
+		<div class="head-date" id="date"></div>
+		<div class="head-tit">$!{data.name}</div>
+		<div class="head-bridge">台州非现执法监控系统</div>
+	</div>
+</div> -->
+<div class="conts">
+	<div class="count-info">
+		<div class="info1">
+			<div class="guide"><img src="$!{rc.contextPath}/assets/images/monitor/guide.png" alt=""></div>
+			<div class="count-datas">
+				<div class="datas-t"> 当天实时违法过车数量:&nbsp;&nbsp;<span class="fc"  id="dayIllegalCount">237</span></div>
+				<div class="datas-state">
+					<table width="100%" class="state-item">
+						<tr>
+							<td>特别严重&nbsp;&nbsp;(<span class="fc" id="status5">34</span>)</td>
+							<td>严重&nbsp;&nbsp;(<span class="fc" id="status4">32</span>)</td>
+							<td>较重&nbsp;&nbsp;(<span class="fc" id="status3">323</span>)</td>
+							<td>一般&nbsp;&nbsp;(<span class="fc" id="status2">323</span>)</td>
+							<td>轻微&nbsp;&nbsp;(<span class="fc" id="status1">213</span>)</td>
+						</tr>
+					</table>
+				</div>              
+			</div>
+			<div class="count-num">
+				截止昨日治超点总过车数量&nbsp;&nbsp;&nbsp;(<span class="fc" id="detectCount">201335</span>)<br>
+ 				截止当前治超点总违法过车数量&nbsp;&nbsp;&nbsp;(<span class="fc" id="illegalCount">541623</span>)
+			</div>
+		</div>
+		<div class="info2">
+			<div class="info2-message">
+				<ul>
+				<marquee behavior="scroll" id="marquee" direction="up" scrollamount="1" 
+				onmouseover="this.stop();" onmouseout="this.start();" height="80">
+					
+				</marquee>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="roadsigns">
+		<div class="roaddic">
+			<div class="indicator-l">往椒江区方向</div>
+			<div class="indicator-c" id="moitorOpenButton">打开正常过车模拟信息</div>
+			<div class="indicator-r">椒江二桥方向</div>
+		</div>
+		<div class="roadline-4">
+			<div class="roadline-info">
+				<div class="move-car">
+					<ul>
+##						<li class="car line4" id="line4" style="display:none">
+##							<img src="$!{rc.contextPath}/assets/images/monitor/car.png" alt="">
+##						</li>
+##						<li class="car line3" id="line3" style="display:none">
+##							<img src="$!{rc.contextPath}/assets/images/monitor/car.png" alt="">
+##						</li>
+##						<li class="car line2" id="line2" style="display:none">
+##							<img src="$!{rc.contextPath}/assets/images/monitor/car.png" alt="">
+##						</li>
+##						<li class="car line1" id="line1" style="display:none">
+##							<img src="$!{rc.contextPath}/assets/images/monitor/car.png" alt="">
+##						</li>
+					</ul>	
+				</div>
+				<div class="roadline-tips">
+					<ul class="tips1">
+						<li class="line">&nbsp;</li>
+						<li class="line">&nbsp;</li>
+						<li class="line">&nbsp;</li>
+						<li class="line">&nbsp;</li>
+					</ul>
+					<ul class="tips2">
+						<li class="tips2-li line4">&nbsp;
+							<div class="ainfo ainfo-line4">
+								<ul class="ainfo-msg">
+									<li class="msgitem" id="licenseNo4"><span>车&nbsp;牌&nbsp;号</span><b>( )</b></li>
+									<li class="msgitem" id="axisNum4"><span>轴&nbsp;&nbsp;&nbsp;&nbsp;数</span><b>( )</b></li>
+									<li class="msgitem" id="totalWeight4"><span>总&nbsp;&nbsp;&nbsp;&nbsp;重</span><b>( )</b></li>
+									<li class="msgitem" id="overWeightParcent4"><span>超&nbsp;重&nbsp;率</span><b>( )</b></li>
+									<li class="msgitem" id="overLoadStatus4"><span>超限等级</span><b>( )</b></li>
+								</ul>
+							</div>
+						</li>
+						<li class="tips2-li line3">&nbsp;
+							<div class="ainfo ainfo-line3">
+								<ul class="ainfo-msg">
+									<li class="msgitem" id="licenseNo3"><span>车&nbsp;牌&nbsp;号</span><b>( )</b></li>
+									<li class="msgitem" id="axisNum3"><span>轴&nbsp;&nbsp;&nbsp;&nbsp;数</span><b>( )</b></li>
+									<li class="msgitem" id="totalWeight3"><span>总&nbsp;&nbsp;&nbsp;&nbsp;重</span><b>( )</b></li>
+									<li class="msgitem" id="overWeightParcent3"><span>超&nbsp;重&nbsp;率</span><b>( )</b></li>
+									<li class="msgitem" id="overLoadStatus3"><span>超限等级</span><b>( )</b></li>
+								</ul>
+							</div>
+						</li>
+						<li class="tips2-li line2">&nbsp;
+							<div class="ainfo ainfo-line2">
+								<ul class="ainfo-msg">
+									<li class="msgitem" id="licenseNo2"><span>车&nbsp;牌&nbsp;号</span><b>( )</b></li>
+									<li class="msgitem" id="axisNum2"><span>轴&nbsp;&nbsp;&nbsp;&nbsp;数</span><b>( )</b></li>
+									<li class="msgitem" id="totalWeight2"><span>总&nbsp;&nbsp;&nbsp;&nbsp;重</span><b>( )</b></li>
+									<li class="msgitem" id="overWeightParcent2"><span>超&nbsp;重&nbsp;率</span><b>( )</b></li>
+									<li class="msgitem" id="overLoadStatus2"><span>超限等级</span><b>( )</b></li>
+								</ul>
+							</div>
+						</li>
+						<li class="tips2-li line1">&nbsp;
+							<div class="ainfo ainfo-line1">
+								<ul class="ainfo-msg">
+									<li class="msgitem" id="licenseNo1"><span>车&nbsp;牌&nbsp;号</span><b>( )</b></li>
+									<li class="msgitem" id="axisNum1"><span>轴&nbsp;&nbsp;&nbsp;&nbsp;数</span><b>( )</b></li>
+									<li class="msgitem" id="totalWeight1"><span>总&nbsp;&nbsp;&nbsp;&nbsp;重</span><b>( )</b></li>
+									<li class="msgitem" id="overWeightParcent1"><span>超&nbsp;重&nbsp;率</span><b>( )</b></li>
+									<li class="msgitem" id="overLoadStatus1"><span>超限等级</span><b>( )</b></li>
+								</ul>
+							</div>
+							<div class="tips01"></div>
+							<div class="tips02"></div>
+						</li>
+
+					</ul>
+					<ul class="tips3">
+						<li class="line">&nbsp;</li>
+						<li class="line">&nbsp;</li>
+						<li class="line">&nbsp;</li>
+						<li class="line">&nbsp;</li>
+					</ul>
+					<ul class="tips4">
+						<li class="line">车道4</li>
+						<li class="line">车道3</li>
+						<li class="line">车道2</li>
+						<li class="line">车道1</li>
+					</ul>
+				</div>
+				<div class="road-camera">
+					<div class="road-hov">
+						<ul>
+							<li class="camera line4-camera">&nbsp;
+								<div class="camera-panel">
+									<div class="panel-t">全景图</div>
+									<div class="panel-c"><img id="carImg4" src="" alt=""></div>
+									<div class="panel-t">车牌图</div>
+									<div class="panel-c"><img id="licenseImg4" src="" alt=""></div>
+								</div>
+								<div class="tips03"></div>
+								<div class="tips04"></div>
+							</li>
+							<li class="camera line3-camera">&nbsp;
+								<div class="camera-panel">
+									<div class="panel-t">全景图</div>
+									<div class="panel-c"><img id="carImg3" src="" alt=""></div>
+									<div class="panel-t">车牌图</div>
+									<div class="panel-c"><img id="licenseImg3" src="" alt=""></div>
+								</div>			
+							</li>
+							<li class="camera line2-camera">&nbsp;
+								<div class="camera-panel">
+									<div class="panel-t">全景图</div>
+									<div class="panel-c"><img id="carImg2" src="" alt=""></div>
+									<div class="panel-t">车牌图</div>
+									<div class="panel-c"><img id="licenseImg2" src="" alt=""></div>
+								</div>
+							</li>
+							<li class="camera line1-camera">&nbsp;
+								<div class="camera-panel">
+									<div class="panel-t">全景图</div>
+									<div class="panel-c"><img id="carImg1" src="" alt=""></div>
+									<div class="panel-t">车牌图</div>
+									<div class="panel-c"><img id="licenseImg1" src="" alt=""></div>
+								</div>
+
+							</li>
+							<li class="camera line0-camera">&nbsp;
+								<div class="tips05"></div>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="road-board">
+					<div class="board-b">
+						<div class="board-content">
+						</div>
+					</div>
+					<div class="tips06"></div>
+				</div>
+				<div class="roadline-s">74省道</div>
+			</div>
+		</div>
+		<div class="road-equiment">
+			<div class="road-eqs">
+				<div class="road-eq1"></div>
+				<div class="road-eq2"></div>
+				<div class="road-eq3"></div>
+			</div>	
+		</div>
+	</div> 
+</div>
+##引入footer
+#parse("platform/_footer.vm")	
+<script type="text/javascript">
+	## 查看正常车辆
+	 var flag = 0;
+	 $('#moitorOpenButton').click(function(){
+	 	if(flag==1)
+	 	{
+	 		$('#moitorOpenButton').text('打开正常过车模拟信息');
+	 		flag=0;
+	 		notify("仅模拟,记录超限车辆的过车信息","warn");
+	 	}else{
+	 		$('#moitorOpenButton').text('关闭正常过车模拟信息');
+	 		flag=1;
+	 		notify("模拟所有过车信息,仅记录显示违章车辆信息");
+	 	}
+	 })
+  	 function show4(msg){
+		##console.info(msg);
+  	 	var fxzf = eval('(' + msg + ')');
+		##var fxzf = {"axisCount":2,"captureTime":1441780854000,"carDirection":1,"carModel":3,"carPicdir":"20150918110755586_3_1_蓝浙J0GY37.jpg","xxnr":"您的车辆已超限,请停车检查","detectStation":"2","id":"99906399529342269E4212AF2A38C199","lane":1,"license":"浙J0GY37","licenseColor":"蓝","licensePicdir":"20150918110755586_3_0_蓝浙J0GY37.jpg","overLoad":6,"overLoadPercent":30,"overLoadPunish":1,"overLoadStatus":2,"picFlag":0,"speed":40,"weight":26};
+  	 	var detect = '$!{data.code}';
+  	 	if(null !=fxzf && ""!=fxzf.license && ""!=fxzf.lane &&""!=fxzf.detectStation){
+  	 		if(detect == fxzf.detectStation){
+		   		var speed = 8000;
+		   		if(fxzf.speed != ""){
+		   			speed = 300000/fxzf.speed;
+		   		}
+				##车辆信息
+				var msgitem = $(".ainfo-line"+fxzf.lane).find(".msgitem");
+				var overloadData = [];
+				#foreach($!{data} in $!{overloadData})
+					overloadData.push("$!{data.name}");
+				#end
+				var overloadStatusStr = overloadData[fxzf.overLoadStatus];
+				if(fxzf.overLoadStatus>0){
+				msgitem.eq(0).find("b").html("("+fxzf.license+")");
+				msgitem.eq(1).find("b").html("("+fxzf.axisCount+"轴)");
+				msgitem.eq(2).find("b").html("("+fxzf.weight+"吨)");
+				msgitem.eq(3).find("b").html("("+fxzf.overLoadPercent+"%)");
+				msgitem.eq(4).find("b").html("("+overloadStatusStr+")");
+				var img = $(".line"+fxzf.lane+"-camera").find("img");
+				##全景图
+				img.eq(0).attr("src","$!{imageServerAddr}"+fxzf.carPicdir);
+				##车牌图
+				img.eq(1).attr("src","$!{imageServerAddr}"+fxzf.licensePicdir);
+				##情报板内容
+				$(".board-content").html(fxzf.xxnr);
+				}
+				var time = new Date().getTime();
+		   		if(flag==1||fxzf.overLoadStatus>0){
+					lineInfo(fxzf,time);
+				}
+		   		$("#"+fxzf.id+time).animate(
+				{left: '+=1200px'},speed,function(){
+					$("#"+fxzf.id+time).remove();
+					var msgitem0 = "("+fxzf.license+")";
+					if(msgitem0 == msgitem.eq(0).find("b").html()){
+						$(".tips2-li.line"+fxzf.lane).removeClass("tips2-li-hover");
+						$(".camera.line"+fxzf.lane+"-camera").removeClass("camera-hover");
+					}
+				});
+				
+				if(fxzf.overLoadStatus>0){
+					##当天实时违法过车数量
+					$("#illegalCount").html(parseInt($("#illegalCount").html())+1);
+					$("#dayIllegalCount").html(parseInt($("#dayIllegalCount").html())+1);
+					$("#status"+fxzf.overLoadStatus).html(parseInt($("#status"+fxzf.overLoadStatus).html())+1);
+					fullMarquee(fxzf,overloadStatusStr);
+				}
+			}
+		}
+##		autoFlush();
+	 }
+	 
+	 
+	##违法过车信息滚屏
+	function fullMarquee(fxzf,overloadStatusStr){
+		var li = "";
+		if(""!=fxzf.license){
+			li += "<li style='cursor: pointer;' onclick=\"view('"+fxzf.id+"');\">"+
+				   "<span class='li-t'>车牌号  <b> ("+fxzf.license+")</b></span>"+
+				   "<span class='li-t'>轴数  <b> ("+fxzf.axisCount+"轴)</b></span>"+
+				   "<span class='li-t'>总重  <b> ("+fxzf.weight+"吨)</b></span>"+
+				   "<span class='li-t'>超重率  <b> ("+fxzf.overLoadPercent+"%)</b></span>"+
+				   "<span class='li-t'>超限等级  <b> ("+overloadStatusStr+")</b></span>"+
+				   "<span class='li-c'>情报板："+
+				   "<span class='fr'>"+fxzf.xxnr+"</span></span>"+
+				   "</li>";
+		}
+		var marquee = $("#marquee").find("li");
+		if(marquee.length>=5){
+			marquee.eq(0).remove();
+		}
+		$("#marquee").append(li);
+	}
+	
+	function lineInfo(fxzf,time){
+		var li = "";
+		if(""!=fxzf.license){
+			var lineClass = "car line"+fxzf.lane;
+			li += "<li class='"+lineClass+"'  id='"+fxzf.id+""+time+"' >"+
+				   "<img src='$!{rc.contextPath}/assets/images/monitor/car.png' alt=''>"+
+				   "</li>";
+		}
+		$(".move-car").find("ul").append(li);
+		if(fxzf.overLoadStatus>0){
+		$(".tips2-li.line"+fxzf.lane).addClass("tips2-li-hover");
+		$(".camera.line"+fxzf.lane+"-camera").addClass("camera-hover");
+		}
+	}
+
+	$(document).ready(function(){
+		##日期
+		var weeks = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+		var day = new Date();
+		var month = day.getMonth()+1;
+		var date = day.getDate();
+		if(month<10){month = "0"+month;}
+		if(date<10){date = "0"+date;}
+		var dayStr = day.getFullYear()+"-"+month+"-"+date+"  "+weeks[day.getDay()] ;
+		$("#date").html(dayStr);
+		
+		##清空marquee
+		##$("#marquee").empty();
+		
+		##过车信息统计
+		getFxzfCount();
+		
+		var detect = '$!{data.code}';
+		##二桥北75省道方向
+		if('4' == detect){
+  	 		$(".roadline-s").empty();
+  	 		$(".roadline-s").html("75省道");	
+  	 		$(".indicator-l").empty();
+  	 		$(".indicator-l").html("椒北方向");
+  	 		$(".indicator-r").empty();
+  	 		$(".indicator-r").html("椒江二桥方向");
+  	 	##二桥北74省道方向			
+  	 	}else if('3' == detect){
+  	 		$(".roadline-s").empty();
+  	 		$(".roadline-s").html("74省道");	
+  	 		$(".indicator-l").empty();
+  	 		$(".indicator-l").html("椒北方向");
+  	 		$(".indicator-r").empty();
+  	 		$(".indicator-r").html("椒江二桥方向");	
+  	 	}
+		##show4();
+		##autoFlush();
+		
+		##初始化显示滚动信息和最后一条记录
+		var marqueeList = $!{marqueeList};
+		for(var i=0;i<marqueeList.length;i++){
+			fullMarquee(marqueeList[i],marqueeList[i].overLoadString);
+		}
+		##初始化显示车道最后一条超限记录
+		var laneList = $!{laneList};
+		for(var i=1;i<=laneList.length;i++){
+			var lane = laneList[i-1];
+			$("#licenseNo"+i).find("b").html("("+lane.license+")");
+			$("#axisNum"+i).find("b").html("("+lane.axisCount+"轴)");
+			$("#totalWeight"+i).find("b").html("("+lane.weight+"吨)");
+			$("#overWeightParcent"+i).find("b").html("("+lane.overLoadPercent+"%)");
+			$("#overLoadStatus"+i).find("b").html("("+lane.overLoadString+")");
+			##全景图
+			$("#carImg"+i).attr("src","$!{imageServerAddr}"+lane.carPicdir);
+			##车牌图
+			$("#licenseImg"+i).attr("src","$!{imageServerAddr}"+lane.licensePicdir);
+		}
+		##初始化情报内容
+		var qbbxxnr = '$!{qbbContent}';
+		$(".board-content").html(qbbxxnr);
+ 	});
+ 	
+ 	
+ 	function getFxzfCount(){
+ 	 	var detect = '$!{data.code}';
+ 	 	$.ajax({   
+	        type: "post",
+	        url: "$!{rc.contextPath}/fxzf/monitor/getfxzfcount",
+	        data: {"fxzf.detectStation":detect},   
+	        dataType: "json",
+	        async:false,
+	        success: function(data){
+	        	if(data.status = "success")
+	        	{
+	        		$("#illegalCount").html(data.data.illegalCount);
+	        		$("#detectCount").html(data.data.detectCount);
+	        		$("#dayIllegalCount").html(data.data.dayIllegalCount);
+	        		var overloadCount = data.data.overloadCount;
+	        		for(var i=0;i<overloadCount.length;i++){
+	        			$("#status"+(i+1)).html(overloadCount[i]);
+	        		}
+	        	}
+	        }
+        })
+ 	}
+ 	
+ 	##查看过车信息详情
+ 	function view(id){
+ 		quick_dialog('view_Dlg','查看过车信息','$!{rc.contextPath}/fxzf/search/view?id='+id,800,500);
+ 	}
+ 	
+ 	function autoFlush(){
+ 		setTimeout("show4()",10000);
+ 	}
+</script>
+</body>
+</html>

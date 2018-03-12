@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.supconit.kqfx.web.device.entities.DeviceData">
+
+	<resultMap type="com.supconit.kqfx.web.device.entities.DeviceData" id="DeviceDataResultMap">
+		<result property="indexCode" column="DEVICEID"/>
+		<result property="deviceKey" column="DEVICEKEY"/>
+		<result property="deviceState" column="DEVICESTATE" />
+		<result property="exceptionReason" column="EXCEPTIONREASON"/>
+		<result property="checkTime" column="CHECKTIME"/>
+	</resultMap>
+	
+	<sql id="TABLE_NAME" lang="velocity">T_DEVICE_DATA</sql>
+    
+    <select id="getList" parameterType="com.supconit.kqfx.web.device.entities.DeviceData" resultMap="DeviceDataResultMap" lang="velocity">
+    	SELECT * FROM 
+    	<include refid="TABLE_NAME"/>
+    </select>		
+    
+    <select id="countNomarlStatues" parameterType="com.supconit.kqfx.web.device.entities.DeviceData" resultType="int" lang="velocity">
+    	SELECT COUNT(1) FROM
+    	<include refid="TABLE_NAME"/>
+    	<![CDATA[
+  			#where()
+				#if($_parameter.beforeTime && $_parameter.beforeTime != '')
+				   AND CHECKTIME > @{_parameter.beforeTime,jdbcType=TIMESTAMP}
+			    #end
+			    #if($_parameter.nowTime && $_parameter.nowTime != '')
+				   AND CHECKTIME < @{_parameter.nowTime,jdbcType=TIMESTAMP}
+			    #end
+			    #if($_parameter.indexCode && $_parameter.indexCode != '')
+				   AND DEVICEID = @{_parameter.indexCode,jdbcType=VARCHAR}
+			    #end
+		    #end
+  		]]>
+    </select>
+    
+    <select id="getDeviceKey" parameterType="string" resultType="string" lang="velocity">
+    	SELECT DISTINCT(DEVICEKEY) FROM 
+    	<include refid="TABLE_NAME"/>
+    	 WHERE indexCode = @{_parameter,jdbcType=VARCHAR}
+    </select>
+    
+    <!-- 添加设备状态 -->
+    <insert id="insert" parameterType="com.supconit.kqfx.web.device.entities.DeviceData" lang="velocity"
+            databaseId="oracle">
+        INSERT INTO
+        <include refid="TABLE_NAME"/>
+        (
+            DEVICEID,
+            DEVICEKEY,
+            DEVICESTATE,
+            EXCEPTIONREASON,
+            CHECKTIME
+        ) VALUES (
+            @{_parameter.indexCode,jdbcType=VARCHAR},
+            @{_parameter.deviceKey,jdbcType=VARCHAR},
+            @{_parameter.deviceState,jdbcType=VARCHAR},
+            @{_parameter.exceptionReason,jdbcType=VARCHAR},
+            @{_parameter.checkTime,jdbcType=TIMESTAMP}
+        )
+    </insert>
+    <!-- 批量添加设备状态 -->
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO
+        <include refid="TABLE_NAME"/>
+        (
+            DEVICEID,
+            DEVICEKEY,
+            DEVICESTATE,
+            EXCEPTIONREASON,
+            CHECKTIME
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (SELECT
+                #{item.indexCode,jdbcType=VARCHAR},
+                #{item.deviceKey,jdbcType=VARCHAR},
+                #{item.deviceState,jdbcType=VARCHAR},
+                #{item.exceptionReason,jdbcType=VARCHAR},
+                #{item.checkTime,jdbcType=TIMESTAMP}
+            FROM DUAL)
+        </foreach>
+    </insert>
+    	
+</mapper>

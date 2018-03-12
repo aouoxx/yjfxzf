@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.supconit.kqfx.web.analysis.entities.OverLoad">
+
+	<resultMap type="com.supconit.kqfx.web.analysis.entities.OverLoad" id="OverLoadResultMap">
+		<id property="id" column="ID" />
+		<result property="detectStation" column="DETECT_STATION" />
+		<result property="overload" column="OVERLOAD"/>
+		<result property="cars" column="CARS"/>
+		<result property="tjDate" column="TJ_DATE"/>
+		<result property="updateTime" column="UPDATE_TIME"/>
+	</resultMap>
+	
+	<sql id="TABLE_NAME" lang="velocity">T_FXZF_OVERLOAD</sql>
+	<sql id="SELECT_PRE" lang="velocity">SELECT * FROM <include refid="TABLE_NAME"/></sql>
+	<sql id="COUNT_PRE" lang="velocity">SELECT COUNT(1) FROM <include refid="TABLE_NAME"/></sql>
+
+	
+	<select id="getById" resultMap="OverLoadResultMap" parameterType="string" lang="velocity">
+		<include refid="SELECT_PRE" />
+				WHERE ID = @{_parameter, jdbcType=VARCHAR}
+	</select>
+	
+	<select id="selectPager" lang="velocity" resultMap="OverLoadResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+		<include refid="SELECT_PRE"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+		#order($_parameter.condition,"UPDATE_TIME DESC")
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	</select>
+
+	<select id="countPager" lang="velocity" resultType="long">
+		<include refid="COUNT_PRE"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+	</select>
+	
+	<sql id="SEARCH_CONDITION_SQL" lang="velocity">
+		<![CDATA[
+		#where()
+		    #if($_parameter.condition.detectStation && $_parameter.condition.detectStation != '')
+			   AND DETECT_STATION = @{_parameter.condition.detectStation,jdbcType=VARCHAR}
+		    #end
+		    #if($_parameter.condition.station && $_parameter.condition.station != '')
+			   AND (
+ 					#repeat( $_parameter.condition.detects $code "," " DETECT_STATION IN (" ")" )
+		    			@{code,jdbcType=VARCHAR}
+					#end
+				   )
+		    #end
+		    #if($_parameter.condition.tjDate && $_parameter.condition.tjDate != '')
+				AND TJ_DATE >= @{_parameter.condition.tjDate,jdbcType=TIMESTAMP}
+		    #end
+		    #if($_parameter.condition.updateTime && $_parameter.condition.updateTime != '')
+			   AND TJ_DATE <= @{_parameter.condition.updateTime,jdbcType=TIMESTAMP}
+		    #end
+		 #end
+		]]>	
+	</sql>
+	
+	<sql id="INSERT_SQL" lang="velocity">
+		INSERT INTO <include refid="TABLE_NAME"/>(
+		#if($_databaseId == 'oracle') ID,#end
+								 DETECT_STATION
+								,OVERLOAD
+								,CARS
+								,TJ_DATE
+								,UPDATE_TIME
+		) VALUES (
+		#if($_databaseId == 'oracle') @{_parameter.id,jdbcType=VARCHAR},#end
+								 @{_parameter.detectStation,jdbcType=VARCHAR}
+								,@{_parameter.overload,jdbcType=VARCHAR}
+								,@{_parameter.cars,jdbcType=NUMERIC}
+								,@{_parameter.tjDate,jdbcType=TIMESTAMP}
+								,@{_parameter.updateTime,jdbcType=TIMESTAMP}
+								
+	)
+	</sql>
+	
+	<resultMap type="com.supconit.kqfx.web.analysis.entities.OverLoad" id="OverLoadMapResultMap">
+		<result property="tjDate" column="TJ_DATE"/>
+		<result property="over55" column ="A"/>
+		<result property="over70" column ="B"/>
+		<result property="over100" column ="C"/>
+	</resultMap>
+	
+	
+	
+	
+	<select id="getByDetectionStation" parameterType="com.supconit.kqfx.web.analysis.entities.OverLoad"  lang="velocity" resultMap="OverLoadMapResultMap">
+		<include refid="SELECTTJ_PRE"/>
+	</select>
+	
+	<sql id="SELECTTJ_PRE">
+		SELECT TJ_DATE,
+		   SUM(decode(OVERLOAD, '0', CARS,null)) as A,
+		   SUM(decode(OVERLOAD, '1', CARS,null)) as B,
+		   SUM(decode(OVERLOAD, '2', CARS,null)) as C,
+		   SUM(decode(OVERLOAD, '3', CARS,null)) as D
+		FROM 
+		<include refid="TABLE_NAME"/>
+		<include refid="SEARCH_BYDETECION_SQL"/>
+		GROUP BY  TJ_DATE
+		ORDER BY TJ_DATE DESC
+	</sql>
+	
+	<sql id="SEARCH_BYDETECION_SQL" lang="velocity">
+		<![CDATA[
+			#where()
+				#if($_parameter.detectStation && $_parameter.detectStation != '')
+				   AND DETECT_STATION = @{_parameter.detectStation,jdbcType=VARCHAR}
+			    #end
+			    #if($_parameter.station && $_parameter.station != '')
+			    AND (
+ 					#repeat( $_parameter.detects $code "," " DETECT_STATION IN (" ")" )
+		    			@{code,jdbcType=VARCHAR}
+					#end
+				   )
+		    	#end
+			    #if($_parameter.tjDate && $_parameter.tjDate != '')
+				   AND TJ_DATE >= @{_parameter.tjDate,jdbcType=TIMESTAMP}
+			    #end
+			    #if($_parameter.updateTime && $_parameter.updateTime != '')
+				   AND TJ_DATE <= @{_parameter.updateTime,jdbcType=TIMESTAMP}
+			    #end
+		    #end
+		]]>	
+	</sql>
+	
+	
+	
+	
+	
+	
+	<select id="selectTjPager"  lang="velocity" resultMap="OverLoadMapResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+		<include refid="PAGERTJ_PRE"/>
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	</select>
+	
+	<sql id="PAGERTJ_PRE">
+			SELECT TJ_DATE,
+			   SUM(decode(OVERLOAD, '0', CARS,null)) as A,
+			   SUM(decode(OVERLOAD, '1', CARS,null)) as B,
+			   SUM(decode(OVERLOAD, '2', CARS,null)) as C,
+			   SUM(decode(OVERLOAD, '3', CARS,null)) as D
+			FROM 
+			<include refid="TABLE_NAME"/>
+			<include refid="SEARCH_CONDITION_SQL"/>
+			GROUP BY  TJ_DATE
+			ORDER BY TJ_DATE DESC
+	</sql>
+	
+	<select id="countTjPager" lang="velocity" resultType="long">
+		SELECT COUNT(DISTINCT TJ_DATE)
+		FROM 
+		<include refid="TABLE_NAME"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+	</select>
+	
+	
+	
+	
+	
+	<insert id="insert" parameterType="com.supconit.kqfx.web.analysis.entities.OverLoad" 
+		keyProperty="ID" keyColumn="ID" 		lang="velocity" databaseId="oracle">
+		  <include refid="INSERT_SQL" />
+	</insert>
+	<insert id="insert" parameterType="com.supconit.kqfx.web.analysis.entities.OverLoad" 
+		keyProperty="ID" keyColumn="ID" 		 lang="velocity">
+        <include refid="INSERT_SQL"/>
+        <selectKey keyProperty="ID" resultType="string" order="AFTER"><include refid="_PUBLIC_V.SELECT_KEY"/> </selectKey>    </insert>
+    
+	<update id="update" parameterType="com.supconit.kqfx.web.analysis.entities.OverLoad" lang="velocity">
+		UPDATE <include refid="TABLE_NAME"/> 
+		#mset()
+		<![CDATA[
+			#if($_parameter.detectStation) DETECT_STATION = @{_parameter.detectStation,jdbcType=VARCHAR},#end
+			#if($_parameter.overload) OVERLOAD = @{_parameter.overload,jdbcType=VARCHAR},#end
+			#if($_parameter.cars) CARS = @{_parameter.cars,jdbcType=NUMERIC},#end
+			#if($_parameter.tjDate) TJ_DATE = @{_parameter.tjDate,jdbcType=TIMESTAMP},#end
+			#if($_parameter.updateTime) UPDATE_TIME = @{_parameter.updateTime,jdbcType=TIMESTAMP},#end
+		]]>
+		#end
+		WHERE ID = @{_parameter.id,jdbcType=VARCHAR}
+	</update>
+	
+	<delete id="deleteById" parameterType="string" lang="velocity">
+		DELETE FROM <include refid="TABLE_NAME" /> WHERE ID = @{_parameter,jdbcType=VARCHAR}
+	</delete>
+    		
+</mapper>

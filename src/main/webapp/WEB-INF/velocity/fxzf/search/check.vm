@@ -1,0 +1,189 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+<form id="check" class="ui-dialog-form nice-validator n-default">
+	<input type="hidden" name="condition.id" value="$!{condition.id}" />
+	<input type="hidden" name="flag" value="$!{flag}" id="flag" />
+ 	<div class="piece-title">
+		##<span class="piece-name">信息审核&nbsp;->&nbsp;</span>
+		<span class="piece-name-title">审核</span>
+	</div>
+	<div class="piece-container">
+	  <div class="piece-box">
+	    ##<div class="piece-inside-title"><div class="font">审核</div>
+		<div class="piece-content">
+			<div class="piece-item piece-item-noborder">
+				  <table width="100%">
+			        <tr>
+						<td class="label"><span class="ui-form-required">*</span>是否通过：</td>
+			            <td class="ui-search-c" style="width: 175px;" id="checkPass">
+			            	 <input type="radio" name="result"  value="通过" id="pass"/>&nbsp;&nbsp;通过
+			            	 <input type="radio" name="result"  value="不通过" id="nopass"/>&nbsp;&nbsp;不通过
+			            	 <input type="hidden" name="condition.overLoadPunish" id="overLoadPunish" />
+			            </td>
+					</tr>
+					<tr>
+						<td class="label">审核意见：</td>
+			            <td class="ui-search-c" >
+			            	<textarea name="condition.punishOpintion" style="width: 60%; height:100px"></textarea>
+			            </td>
+					</tr>
+					<tr id="passKey">
+				  		<td colspan='2' ><div class="piece-inside-title">审核通过</div></td>
+				  	</tr>
+					<tr id="passValue">
+						<td class="label">处罚单ID：</td>
+						<td class="ui-search-c"><input type="text" name="condition.punishId" class="k-textbox" id="punishId" style="  width: 90%;"/></td>
+			        </tr>
+			        <tr id="nopassKey">
+				  		<td colspan='2' ><div class="piece-inside-title">审核不通过</div></td>
+				  	</tr>
+					<tr id="nopassValue">
+						<td class="label"><span class="ui-form-required">*</span>不通过原因：</td>
+						<td style="height:50px;">
+						#dic_select2("PUNISHREASON","condition.punishReason","condition_illustrate","ui-combobox","condition_punishReason") </td>
+					</tr>     
+			    </table>
+			   </div>
+			  </div>
+			</div>
+		  </div>
+	<div class="actions">
+        <button class="k-primary hc_btn save-s" type="submit">保存</button>
+        <button class="hc_btn cancel close-s"  type="button" id="close">取 消</button>
+    </div>
+</form>
+
+
+#parse("platform/_footer.vm")
+</body>
+ 
+
+
+<script>
+
+$(function(){
+	$('#nopassKey').css("display","none");
+	$('#nopassValue').css("display","none");
+	$('#passKey').css("display","none");
+	$('#passValue').css("display","none");
+});
+
+$('#pass').click(function(){
+	var passResult = $('#checkPass input[name="result"]:checked ').val();
+	$('#overLoadPunish').val(passResult);
+	$('#passKey').css("display","table-row");
+	$('#passValue').css("display","table-row");
+	$('#nopassKey').css("display","none");
+	$('#nopassValue').css("display","none");
+});
+
+$('#nopass').click(function(){
+	var passResult = $('#checkPass input[name="result"]:checked ').val();
+	$('#overLoadPunish').val(3);
+	$('#nopassKey').css("display","table-row");
+	$('#nopassValue').css("display","table-row");
+	$('#passKey').css("display","none");
+	$('#passValue').css("display","none");
+});
+
+
+$('form').validator({
+        rules: {
+        },
+        messages:{
+        },
+        fields: {
+        
+        },
+        valid: function(form){
+        	var passResult = $('#checkPass input[name="result"]:checked ').val();
+        	
+        	if(passResult=='通过'){
+        		var result = $('#punishId').val();
+        		if(result==null||result==''){
+					##审核通过
+        			$('#overLoadPunish').val(3);
+        		}else{
+					##已处罚
+        			$('#overLoadPunish').val(4);
+        		}
+	        }else if (passResult=='不通过') {
+					##审核不通过
+	        		$('#overLoadPunish').val(2);
+	        		var reason = $('#condition_punishReason').val();
+	        		if(reason==''||reason=='undefined'||typeof(reason)=='undefined'){
+	        			notify("请选择不通过原因","warn");
+	        			return ;
+	        		}
+	        }else{
+	        		passResult='';
+	        }
+	        
+	        if(passResult==''){
+	        		notify("请选择是否通过审核","warn");
+	        		return ;
+	        	}else{
+	        	  $.ajax({
+	                url: "$!{rc.contextPath}/fxzf/search/check",
+	                data: $('form').serialize(),
+					type: 'post',
+	                success: function(data){
+	                	var result = data.data;
+	                	notify("信息审核完成");
+	                	##判断是告警历史中对记录进行处理还是过车记录中对信息进行处理
+	                	var flag = $('#flag').val();
+	                	if(flag=='view'){
+	                		## 审批结果标志：2 审核不通过 3 审核通过 4已处罚
+		                	var mark = $('#overLoadPunish').val();
+	                		if(mark==2){
+	                			##审核不通过
+	                			get_fun_in_dialog('warn_dlg').notPass(result);
+	                			close_dialog('check_Dlg');
+	                			close_dialog('warn_dlg');
+	                		quick_dialog('warn_dlg','查看告警详情','$!{rc.contextPath}/fxzf/warn/history/view?id='+result+'&flag=view',940,620);
+	                		}else  if(mark==3){
+	                			##审核通过未处罚
+	                			get_fun_in_dialog('warn_dlg').havePassed();
+	                			close_dialog('check_Dlg');
+	                			close_dialog('warn_dlg');
+	                			quick_dialog('warn_dlg','查看告警详情','$!{rc.contextPath}/fxzf/warn/history/view?id='+result+'&flag=view',940,688);
+	                		}else if(mark==4){
+	                			##审核通过已处罚
+	                			get_fun_in_dialog('warn_dlg').havePunish(result);
+	                			close_dialog('check_Dlg');
+	                			close_dialog('warn_dlg');
+	                		quick_dialog('warn_dlg','查看告警详情','$!{rc.contextPath}/fxzf/warn/history/view?id='+result+'&flag=view',940,688);
+	                		}
+	                	}
+	                	else{
+	                		window.parent.frames["_main_frame"].edited_callback();
+	                	}      	
+	    				close_dialog('check_Dlg');
+	                },
+	                error:function(data){
+	                
+	                }
+	            	});
+	        	}
+        }
+      });
+  
+$('#close').click(function(){
+	close_dialog('check_Dlg');
+})
+
+</script>
+<style>
+.ui-dialog-form .label {
+  text-align: right;
+  color: #4b4b4b;
+  width: 1px;
+}
+
+.k-combobox {
+  min-width: 3em;
+  width: 25%;
+}
+</style>
+</html>

@@ -1,0 +1,143 @@
+#parse("platform/_header.vm")
+<style>
+form {margin-left:10px; margin-right:10px;}
+.ui-title{ margin-bottom:0;}
+.ui-table { margin-top:6px; width:100%;}
+.ui-table .ui-input-cms{width:100%;}
+.ui-table td .btn .iconfont{ margin-right:0;}
+.ui-table-noborder {border:0px;}
+.select-small {width :160px;}
+.select-small-80 {width:80px;}
+.ui-textarea-small-160 {width:160px;height:86px;}
+.fieldset-legend {text-align:left;margin-left:10px;margin-top:5px;}
+.ui-label{width:100px;}
+</style>
+</head>
+<body>
+<div class="boder-no flexigrid">
+<input type="hidden" id="qbbid" value="$!{cms.id}"/>
+<form class="ui-form" id="qbbxxfb">
+<fieldset>
+	<legend class="fieldset-legend"><span id="station"> </span>治超站播放列表</legend>
+  <table class="ui-table">
+    <thead>
+      <tr>
+        <th>内容</th>
+        <th>出字方式</th>
+        <th>字体</th>
+        <th>颜色</th>
+        <th>发布类型</th>
+      </tr>
+    </thead>
+    <!-- 表头可选 -->
+    <tbody id="tbody">
+       <tr>
+        <td><input class="k-textbox ui-input-cms" type="text" id="CNT1" readonly="readonly"></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="WAY_VALUE1" readonly="readonly"></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="FONT_VALUE1" readonly="readonly"></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="COLOR_VALUE1" readonly="readonly"></td>
+      </tr>
+       <tr>
+        <td><input class="k-textbox ui-input-cms" type="text" id="CNT2" readonly="readonly"></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="WAY_VALUE2" readonly="readonly"></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="FONT_VALUE2" readonly="readonly"></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="COLOR_VALUE2" readonly="readonly"></td>
+      </tr>
+       <tr>
+        <td><input class="k-textbox ui-input-cms" type="text" id="CNT3" readonly="readonly"></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="WAY_VALUE3" readonly="readonly"></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="FONT_VALUE3" readonly="readonly"></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="COLOR_VALUE3" readonly="readonly"></td>
+      </tr>
+       <tr>
+        <td><input class="k-textbox ui-input-cms" type="text" id="CNT4" readonly="readonly"></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="WAY_VALUE4" readonly="readonly"></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="FONT_VALUE4" readonly="readonly"></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="COLOR_VALUE4" readonly="readonly"></td>
+      </tr>
+       <tr>
+        <td><input class="k-textbox ui-input-cms" type="text" id="CNT5" readonly="readonly"></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="WAY_VALUE5" readonly="readonly"></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="FONT_VALUE5" readonly="readonly"></td>
+        <td><input class="k-textbox ui-input-cms" type="text" id="COLOR_VALUE5" readonly="readonly"></td>
+      </tr>
+    </tbody>
+  </table>
+</fieldset> 
+<fieldset>
+	<legend class="fieldset-legend">基础信息</legend>
+	<table class="ui-table" width="100%">
+        <tr>
+			<td class="label">停留时间(分钟)：</td>
+            <td>
+                <input class="k-textbox" style="width:100%;" type="text" name="remainTime" id="remainTime" "/>
+            </td>
+            <td class="label">轮询时间(秒)：</td>
+            <td>
+                <input class="k-textbox" style="width:100%;" type="text" name="circleTime" id="circleTime" "/>
+            </td>
+        </tr>
+        <tr>
+        	<td class="label">情报板位置:</td>
+            <td>
+            	<input class="k-textbox" style="width:100%;" type="text" name="location" id="location" "/>
+            </td>
+            <td class="label">发布时间:</td>
+            <td>
+            	<input class="k-textbox" style="width:100%;" type="text" name="publishTime" id="publishTime" "/>
+            </td>
+        </tr>
+   </table>
+</fieldset>
+
+
+
+</form>   
+     
+</div>
+#parse("platform/_footer.vm")
+<script type="text/javascript">
+
+$(function(){
+	var qbblist=$!{list};
+	var html='';
+	for(var i=1;i<=qbblist.length;i++){
+	 html=html+'<tr>'
+        +'<td><input class="k-textbox ui-input-cms" type="text" id="CNT'+i+'" style="width:200px" readonly="readonly"></td>'
+        +'<td><input class="k-textbox ui-input-cms" type="text" id="WAY_VALUE'+i+'" readonly="readonly"></td>'
+        +'<td><input class="k-textbox ui-input-cms" type="text" id="FONT_VALUE'+i+'" readonly="readonly"></td>'
+        +'<td><input class="k-textbox ui-input-cms" type="text" id="COLOR_VALUE'+i+'" readonly="readonly"></td>'
+        +'<td><input class="k-textbox ui-input-cms" type="text" id="TYPE_VALUE'+i+'" readonly="readonly"></td>'
+      +'</tr>';
+     }
+     $('#tbody').html(html);
+	for(var i=1;i<=qbblist.length;i++){
+		var qbb = qbblist[i-1];
+		$("#CNT"+i).val(qbb.xxnr);
+		$("#WAY_VALUE"+i).val(qbb.czfs);
+		$("#FONT_VALUE"+i).val(qbb.font);
+		$("#COLOR_VALUE"+i).val(qbb.color);
+		$("#TYPE_VALUE"+i).val(qbb.type);
+		if(qbb.type=='默认信息'){
+			$('#remainTime').val("无限期");
+			$('#circleTime').val(qbb.circleTime/10);
+			$('#location').val(qbb.locationStr);
+			$('#station').text(qbb.locationStr);
+			$('#publishTime').val(qbb.publishTimeString);
+		}else{
+			$('#remainTime').val(qbb.remainTime);
+			$('#circleTime').val(qbb.circleTime/10);
+			$('#location').val(qbb.locationStr);
+			$('#station').text(qbb.locationStr);
+			$('#publishTime').val(qbb.publishTimeString);
+		}
+		
+	}
+})
+
+function toEdit( num ){
+
+}
+</script>
+</body>
+</html>

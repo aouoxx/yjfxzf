@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+  
+   <mapper namespace="com.supconit.kqfx.web.fxzf.warn.entities.WarnHistory">
+  
+   <sql id="TABLE_NAME" lang="velocity">T_WARN_HISTORY</sql>
+   
+   <resultMap type="com.supconit.kqfx.web.fxzf.warn.entities.WarnHistory" id="WarnHistoryResultMap">
+			 <result property="id" column="ID" />
+			 <result property="warnType" column="WARN_TYPE" />
+			 <result property="license" column="LICENSE" />
+			 <result property="plateColor" column="PLATE_COLOR" />
+		     <result property="warnInfo" column="WARN_INFO" />
+		     <result property="warnTime" column="WARN_TIME" />
+		     <result property="deleted" column="DELETED" />
+		     <result property="fxzfId" column="FXZF_ID"/>
+		     <association property="fxzf" column="FXZF_ID" select="getFxzf" />
+	</resultMap>
+	
+	 <resultMap type="com.supconit.kqfx.web.fxzf.warn.entities.WarnHistory" id="WarnHistoryResultMapQBB">
+			 <result property="id" column="ID" />
+			 <result property="warnType" column="WARN_TYPE" />
+			 <result property="license" column="LICENSE" />
+			 <result property="plateColor" column="PLATE_COLOR" />
+		     <result property="warnInfo" column="WARN_INFO" />
+		     <result property="warnTime" column="WARN_TIME" />
+		     <result property="deleted" column="DELETED" />
+		     <result property="fxzfId" column="FXZF_ID"/>
+	</resultMap>
+   
+   
+   <resultMap type="com.supconit.kqfx.web.fxzf.warn.entities.WarnHistory" id="WarnHistoryExportResultMap">
+			 <result property="id" column="ID" />
+			 <result property="warnType" column="WARN_TYPE" />
+			 <result property="license" column="LICENSE" />
+			 <result property="plateColor" column="PLATE_COLOR" />
+		     <result property="warnInfo" column="WARN_INFO" />
+		     <result property="warnTime" column="WARN_TIME" />
+		     <result property="deleted" column="DELETED" />
+		     <result property="fxzfId" column="FXZF_ID"/>
+   </resultMap>
+   
+   
+   <resultMap type="com.supconit.kqfx.web.fxzf.warn.entities.WarnHistory" id="WarnHistoryResultMapSearch">
+			 <result property="id" column="ID" />
+			 <result property="warnType" column="WARN_TYPE" />
+			 <result property="license" column="LICENSE" />
+			 <result property="plateColor" column="PLATE_COLOR" />
+		     <result property="warnInfo" column="WARN_INFO" />
+		     <result property="warnTime" column="WARN_TIME" />
+		     <result property="deleted" column="DELETED" />
+	</resultMap>
+   
+   <resultMap type="com.supconit.kqfx.web.fxzf.search.entities.Fxzf" id="FxzfResultMap">
+			<result property="id" column="ID" />
+			 <result property="detectStation" column="DETECT_STATION" />
+			 <result property="lane" column="LANE" />
+		     <result property="weight" column="WEIGHT" />
+		     <result property="speed" column="SPEED" />
+			 <result property="axisCount" column="AXIS_COUNT" />
+			 <result property="overLoadStatus" column="OVERLOAD_STATUS" />
+			 <result property="overLoadPercent" column="OVERLOAD_PERCENT" />
+			 <result property="carModel" column="CAR_MODEL" />
+		     <result property="captureTime" column="CAPTURE_TIME"/>
+			 <result property="license" column="LICENSE" />
+			 <result property="licenseColor" column="LICENSE_COLOR" />
+			 
+			 <result property="headLicense" column="HEAD_LICENSE" />
+			 <result property="headLicenseZxdD" column="HEAD_LICENSE_ZXD" />
+			 <result property="headLicenseColor" column="HEAD_LICENSE_COLOR" />
+			 <result property="headLicensePicdir" column="HEAD_LICENSE_PICDIR" />
+			 <result property="headCarPicdir" column="HEAD_CAR_PICDIR" />
+			
+			 <result property="tailLicense" column="TAIL_LICENSE" />
+			 <result property="tailLicenseZxdD" column="TAIL_LICENSE_ZXD" />
+			 <result property="tailLicenseColor" column="TAIL_LICENSE_COLOR" />
+			 <result property="tailLicensePicdir" column="TAIL_LICENSE_PICDIR" />
+			 <result property="tailCarPicdir" column="TAIL_CAR_PICDIR" />
+			 
+			 
+			 <result property="carDirection" column="CAR_DIRECTION" />
+		     <result property="overLoadPunish" column="OVERLOAD_PUNISH" />
+		     <result property="punishId" column="PUNISH_ID" />
+		     <result property="punishOpintion" column="PUNISH_OPINION" />
+		     <result property="punishReason" column="PUNISH_REASON" />
+		     <result property="picFlag" column="PIC_FLAG" />
+		     <result property="warnFlag" column="WARN_FLAG" />
+		     <result property="overLoad" column="OVERLOAD"/>
+	</resultMap>
+   
+   <select id="getFxzf" resultMap="FxzfResultMap" parameterType="string" lang="velocity">
+		SELECT * FROM T_FXZF
+				WHERE ID = @{_parameter, jdbcType=VARCHAR}	
+	</select>
+	
+	<select id="getWarnByFxzfId" resultMap="FxzfResultMap" parameterType="string" lang="velocity">
+		SELECT * FROM T_FXZF
+				WHERE FXZF_ID = @{_parameter, jdbcType=VARCHAR}	
+	</select>
+   
+   <select id="findAgainTimeData" resultMap="WarnHistoryResultMap"
+		parameterType="java.util.Map" lang="velocity">
+		SELECT * FROM T_WARN_HISTORY
+		<![CDATA[
+		#where()
+			#if($_parameter.license && $_parameter.license != '')
+				AND LICENSE = @{_parameter.license, jdbcType=VARCHAR}
+			#end
+			#if($_parameter.plateColor && $_parameter.plateColor != '')
+				AND PLATE_COLOR = @{_parameter.plateColor, jdbcType=VARCHAR}
+			#end
+			#if($_parameter.againTime && $_parameter.againTime != '')
+				AND ROUND(TO_NUMBER(sysdate - WARN_TIME)*24) < @{_parameter.againTime, jdbcType=NUMERIC}
+			#end
+			AND DELETED = 0
+			ORDER BY  WARN_TIME DESC
+		#end
+		]]>
+	</select>
+	
+	
+	
+	<select id="getWarnHistoryQbb" resultMap="WarnHistoryResultMapQBB"
+		parameterType="com.supconit.kqfx.web.fxzf.search.entities.Fxzf" lang="velocity">
+		SELECT * FROM T_WARN_HISTORY
+		<![CDATA[
+		#where()
+			#if($_parameter.license && $_parameter.license != '')
+				AND LICENSE = @{_parameter.license, jdbcType=VARCHAR}
+			#end
+			#if($_parameter.licenseColor && $_parameter.licenseColor != '')
+				AND PLATE_COLOR = @{_parameter.licenseColor, jdbcType=VARCHAR}
+			#end
+			#if($_parameter.id && $_parameter.id != '')
+				AND FXZF_ID = @{_parameter.id,jdbcType=VARCHAR}
+			#end
+			AND DELETED = 0
+			AND WARN_TYPE = 1
+		#end
+		]]>
+	</select>
+	
+	
+	<select id="AnalysisDayWarnByCondition" parameterType="com.supconit.kqfx.web.fxzf.warn.entities.WarnHistory"  resultType="com.supconit.kqfx.web.fxzf.warn.entities.WarnHistory" lang="velocity">
+		   SELECT A.ANALYSIS_TIME as warnTime,
+			   SUM(decode(B.DETECT_STATION, '1', 1,0)) as detectOne,
+			   SUM(decode(B.DETECT_STATION, '2', 1,0)) as detectTwo,
+			   SUM(decode(B.DETECT_STATION, '3', 1,0)) as detectThree,
+			   SUM(decode(B.DETECT_STATION, '4', 1,0)) as detectFour,
+			   SUM(decode(B.DETECT_STATION, '5', 1,0)) as detectFive
+			FROM (select t.*,to_date(to_char(t.warn_time,'yyyy-MM-dd'),'yyyy-mm-dd hh24:mi:ss') as ANALYSIS_TIME from T_WARN_HISTORY t) A
+			LEFT JOIN T_FXZF B ON A.FXZF_ID = B.ID
+			<![CDATA[
+				#where()
+					#if($_parameter.beginDate && $_parameter.beginDate != '')
+							AND  A.ANALYSIS_TIME >= @{_parameter.beginDate,jdbcType=TIMESTAMP}
+					#end
+					#if($_parameter.endDate && $_parameter.endDate != '')
+							AND  A.ANALYSIS_TIME <= @{_parameter.endDate,jdbcType=TIMESTAMP}
+					#end
+					#if($_parameter.detects)
+					     #repeat($_parameter.detects  $_detect "," "AND B.DETECT_STATION IN (" ")" )
+						    @{_detect,jdbcType=VARCHAR}
+						 #end
+					#end
+				#end
+				GROUP BY A.ANALYSIS_TIME
+				ORDER BY A.ANALYSIS_TIME DESC
+			]]>
+	</select>
+   
+   <select id="selectPager" lang="velocity" resultMap="WarnHistoryResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+			SELECT * FROM 
+		<include refid="TABLE_NAME"/> 
+		<include refid="SEARCH_CONDITION_SQL_LOG"/>
+		    #order($_parameter.condition,"WARN_TIME DESC")
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	 </select>
+     
+     <sql id="SEARCH_CONDITION_SQL_LOG" lang="velocity">
+		<![CDATA[
+		#where()
+			#if($_parameter.condition.license && $_parameter.condition.license != '')
+				AND LICENSE #set($_license = '%' + $_parameter.condition.license + '%')
+						LIKE @{_license,jdbcType=VARCHAR}
+			#end
+			#if($_parameter.condition.plateColor && $_parameter.condition.plateColor != '')
+				AND PLATE_COLOR = @{_parameter.condition.plateColor, jdbcType=VARCHAR}
+			#end
+			 #if($_parameter.condition.warnTime && $_parameter.condition.captureTime != '')
+			   AND WARN_TIME > @{_parameter.condition.warnTime,jdbcType=TIMESTAMP}
+		    #end
+		    #if($_parameter.condition.backTime && $_parameter.condition.backTime != '')
+			   AND WARN_TIME < @{_parameter.condition.backTime,jdbcType=TIMESTAMP}
+		    #end
+		    #if($_parameter.condition.overType && $_parameter.condition.overType != '')
+			   AND (
+ 					 #repeat( $_parameter.condition.type $type "," " WARN_TYPE IN (" ")" )
+						    @{type,jdbcType=NUMERIC}
+					 #end
+				   )
+		    #end
+		    AND DELETED = 0
+		#end
+		]]>
+	</sql>
+	<select id="countPager" lang="velocity" resultType="long">
+		<include refid="COUNT_PRE" />
+		<include refid="SEARCH_CONDITION_SQL_LOG"/>
+	</select>
+	<sql id="COUNT_PRE" lang="velocity">SELECT COUNT(1) FROM <include refid="TABLE_NAME"/></sql>
+   
+   
+   
+    <select id="selectPagerExport" lang="velocity" resultMap="WarnHistoryExportResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+			SELECT * FROM 
+		<include refid="TABLE_NAME"/> 
+		<include refid="SEARCH_CONDITION_SQL_LOG"/>
+		    #order($_parameter.condition,"WARN_TIME DESC")
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	 </select>
+     
+	<select id="countPagerExport" lang="velocity" resultType="long">
+		<include refid="COUNT_PRE" />
+		<include refid="SEARCH_CONDITION_SQL_LOG"/>
+	</select>
+   
+   
+   
+    <sql id="INSERT_SQL" lang="velocity">
+		INSERT INTO T_WARN_HISTORY(
+		#if($_databaseId == 'oracle') ID,#end
+								 WARN_TYPE
+								,LICENSE
+								,PLATE_COLOR
+								,WARN_INFO
+								,WARN_TIME
+								,DELETED
+								,FXZF_ID
+		) VALUES (
+		#if($_databaseId == 'oracle') @{_parameter.id,jdbcType=VARCHAR},#end
+								 @{_parameter.warnType,jdbcType=NUMERIC}
+								,@{_parameter.license,jdbcType=VARCHAR}
+								,@{_parameter.plateColor,jdbcType=VARCHAR}
+								,@{_parameter.warnInfo,jdbcType=VARCHAR}
+								,@{_parameter.warnTime,jdbcType=TIMESTAMP}
+								,@{_parameter.deleted,jdbcType=NUMERIC}
+								,@{_parameter.fxzfId,jdbcType=VARCHAR}
+	)
+	</sql>
+	
+	<insert id="insert" parameterType="com.supconit.kqfx.web.fxzf.warn.entities.WarnHistory" 
+		keyProperty="ID" keyColumn="ID" 		lang="velocity" databaseId="oracle">
+		  <include refid="INSERT_SQL" />
+	</insert>
+   
+    <update id="update" parameterType="com.supconit.kqfx.web.fxzf.warn.entities.WarnHistory" lang="velocity">
+		UPDATE <include refid="TABLE_NAME"/> 
+		#mset()
+		<![CDATA[
+			#if($_parameter.license)LICENSE = @{_parameter.license,jdbcType=VARCHAR},#end
+		]]>
+		#end
+		WHERE FXZF_ID = @{_parameter.fxzfId,jdbcType=VARCHAR}
+	</update>
+   
+   
+   <select id="getById" parameterType="String" resultMap="WarnHistoryResultMap" lang="velocity">
+  		SELECT * FROM 
+  		<include refid="TABLE_NAME"/> 
+  		WHERE ID = @{_parameter, jdbcType=VARCHAR}
+  	</select>
+   </mapper>

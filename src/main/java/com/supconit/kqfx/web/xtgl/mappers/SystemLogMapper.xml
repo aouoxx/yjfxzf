@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.supconit.kqfx.web.xtgl.entities.SystemLog">
+
+	<resultMap type="com.supconit.kqfx.web.xtgl.entities.SystemLog" id="SystemLogResultMap">
+		<id property="id" column="ID" />
+			<result property="moduleCode" column="MODULE_CODE" />
+			<result property="operateType" column="OPERATE_TYPE" />
+			<result property="operateContent" column="OPERATE_CONTENT" />
+			<result property="operateUser" column="OPERATE_USER" />
+			<result property="operateIp" column="OPERATE_IP" />
+			<result property="operateTime" column="OPERATE_TIME" />
+			<association property="user" column="OPERATE_USER" select="getByUserId" />
+	</resultMap>
+	
+	<resultMap type="com.supconit.kqfx.web.xtgl.entities.ExtUser" id="ExtUserResultMap">
+		<id property="id" column="ID" />
+			<result property="personId" column="PERSON_ID"/>
+			<result property="username" column="USERNAME"/>
+	</resultMap>
+	<select id="getByUserId" resultMap="ExtUserResultMap"
+		parameterType="string" lang="velocity">
+		SELECT ID,PERSON_ID,USERNAME FROM HO_USER WHERE ID
+		= @{_parameter, jdbcType=NUMERIC}
+	</select>
+	
+	<sql id="TABLE_NAME" lang="velocity">T_XTGL_SYSTEMLOG</sql>
+	<sql id="SELECT_PRE" lang="velocity">SELECT * FROM <include refid="TABLE_NAME"/></sql>
+	<sql id="COUNT_PRE" lang="velocity">SELECT COUNT(1) FROM <include refid="TABLE_NAME"/></sql>
+
+	<sql id="SEARCH_CONDITION_SQL" lang="velocity">
+		<![CDATA[
+		#where()
+			#if($_parameter.condition.menu)
+				#if($_parameter.condition.menu.lft && $_parameter.condition.menu.lft != '' && $_parameter.condition.menu.rgt && $_parameter.condition.menu.rgt != '')
+					AND MODULE_CODE IN (select code from ho_menu where lft between $_parameter.condition.menu.lft and $_parameter.condition.menu.rgt)
+				#end
+			#end
+			#if($_parameter.condition.operateType && $_parameter.condition.operateType != '')
+				AND OPERATE_TYPE = @{_parameter.condition.operateType,jdbcType=VARCHAR}
+			#end
+			#if($_parameter.condition.operateUser && $_parameter.condition.operateUser != '')
+				AND OPERATE_USER IN ( SELECT ID FROM HO_USER WHERE PERSON_ID = $_parameter.condition.operateUser)
+			#end
+			#if($_parameter.condition.startTime && $_parameter.condition.startTime != '' && $_parameter.condition.endTime && $_parameter.condition.endTime != '')
+				AND OPERATE_TIME BETWEEN @{_parameter.condition.startTime,jdbcType=TIMESTAMP} AND @{_parameter.condition.endTime,jdbcType=TIMESTAMP}
+			#elseif($_parameter.condition.startTime && $_parameter.condition.startTime != '')
+				AND OPERATE_TIME > @{_parameter.condition.startTime,jdbcType=TIMESTAMP}
+			#elseif($_parameter.condition.endTime && $_parameter.condition.endTime != '')
+				AND OPERATE_TIME < @{_parameter.condition.endTime,jdbcType=TIMESTAMP}			
+			#end
+		#end
+		]]>	
+	</sql>
+	
+	<select id="getById" resultMap="SystemLogResultMap" parameterType="string" lang="velocity">
+		<include refid="SELECT_PRE" />
+				WHERE ID = @{_parameter, jdbcType=VARCHAR}
+	</select>
+	
+	<select id="selectPager" lang="velocity" resultMap="SystemLogResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+		<include refid="SELECT_PRE"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+		#order($_parameter.condition,"OPERATE_TIME DESC")
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	</select>
+	
+	<select id="selectPager" lang="velocity" resultMap="SystemLogResultMap" databaseId="sqlserver">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+		SELECT * 
+		<include refid="_PUBLIC_V.ROW_NUMBER_OVER" /> 
+		#order($_parameter.condition,"OPERATE_TIME DESC")
+		<include refid="_PUBLIC_V.AS_ROW_NUM" />
+		FROM <include refid="TABLE_NAME"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	</select>
+
+	<select id="countPager" lang="velocity" resultType="long">
+		<include refid="COUNT_PRE"/><include refid="SEARCH_CONDITION_SQL"/>
+	</select>
+	
+	<sql id="INSERT_SQL" lang="velocity">
+		INSERT INTO <include refid="TABLE_NAME"/>(
+				ID
+				,MODULE_CODE
+				,OPERATE_TYPE
+				,OPERATE_CONTENT
+				,OPERATE_USER
+				,OPERATE_IP
+				,OPERATE_TIME
+			) VALUES (
+				@{_parameter.id,jdbcType=VARCHAR}
+				,@{_parameter.moduleCode,jdbcType=VARCHAR}
+				,@{_parameter.operateType,jdbcType=VARCHAR}
+				,@{_parameter.operateContent,jdbcType=VARCHAR}
+				,@{_parameter.operateUser,jdbcType=NUMERIC}
+				,@{_parameter.operateIp,jdbcType=VARCHAR}
+				,@{_parameter.operateTime,jdbcType=TIMESTAMP}
+			)
+	</sql>
+	
+	<insert id="insert" parameterType="com.supconit.kqfx.web.xtgl.entities.SystemLog" 
+				lang="velocity" databaseId="oracle">
+		        <include refid="INSERT_SQL" />
+	</insert>
+	<insert id="insert" parameterType="com.supconit.kqfx.web.xtgl.entities.SystemLog" 
+				 lang="velocity">
+        <include refid="INSERT_SQL"/>
+            </insert>
+    
+	<update id="update" parameterType="com.supconit.kqfx.web.xtgl.entities.SystemLog" lang="velocity">
+		UPDATE <include refid="TABLE_NAME"/> 
+		#mset()
+		<![CDATA[
+			#if($_parameter.moduleCode)MODULE_CODE = @{_parameter.moduleCode,jdbcType=VARCHAR},#end
+			#if($_parameter.operateType)OPERATE_TYPE = @{_parameter.operateType,jdbcType=VARCHAR},#end
+			#if($_parameter.operateContent)OPERATE_CONTENT = @{_parameter.operateContent,jdbcType=VARCHAR},#end
+			#if($_parameter.operateUser)OPERATE_USER = @{_parameter.operateUser,jdbcType=NUMERIC},#end
+			#if($_parameter.operateIp)OPERATE_IP = @{_parameter.operateIp,jdbcType=VARCHAR},#end
+			#if($_parameter.operateTime)OPERATE_TIME = @{_parameter.operateTime,jdbcType=TIMESTAMP},#end
+		]]>
+		#end
+		WHERE ID = @{_parameter.id,jdbcType=VARCHAR}
+	</update>
+	
+	<delete id="deleteById" parameterType="string" lang="velocity">
+		<!-- DELETE FROM <include refid="TABLE_NAME" /> WHERE ID = @{_parameter,jdbcType=NUMERIC} -->
+	</delete>
+    		
+</mapper>

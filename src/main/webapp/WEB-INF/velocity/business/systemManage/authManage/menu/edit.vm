@@ -1,0 +1,122 @@
+#set($_title = "新增部门 - " + $_site_name)
+#parse("platform/_header.vm")
+</head>
+<body>
+
+<form method="post" id="plat_auth_menu_edit_form" action="$!{rc.contextPath}/platform/authorization/menu/add" class="ui-dialog-form">
+	<input type="hidden" name="menu.id" value="$!{menu.id}" />
+    <table width="100%">
+        <tr>
+            <td class="label"><span class="ui-form-required">*</span>菜单编码：</td>
+            <td><input name="menu.code" class="k-textbox" value="$!{menu.code}"></td>
+            <td class="label"><span class="ui-form-required">*</span>菜单名称：</td>
+            <td><input name="menu.name" class="k-textbox" value="$!{menu.name}"></td>
+            <td></td>
+        </tr>
+		<tr>
+            <td class="label"><span class="ui-form-required">*</span>上级菜单：</td>
+            <td><select name="menu.pid" id="pid"></select></td>
+			<td class="label">图标样式：</td>
+            <td><input name="menu.showIcon" class="k-textbox" value="$!{menu.showIcon}"></td>
+            <td></td>
+        </tr>
+		<tr>
+            <td class="label">排序值：</td>
+            <td><input name="menu.sortValue" class="k-textbox" value="$!{menu.sortValue}"></td>
+			<td class="label">是否隐藏：</td>
+            <td><input name="menu.display" type="checkbox" #if($menu.display == false) checked="checked" #{end}></td>
+            <td></td>
+        </tr>
+		<tr>
+            <td class="label">菜单URL：</td>
+            <td colspan="3"><input name="menu.linkUrl" class="k-textbox" value="$!{menu.linkUrl}"></td>
+            <td></td>
+        </tr>
+		<tr>
+            <td class="label">控制URL：<br>(一行一个)</td>
+            <td colspan="3"><textarea name="menu.resources" class="k-textbox">$!{menu.resources}</textarea></td>
+            <td></td>
+        </tr>
+		<tr>
+            <td class="label">备注：</td>
+            <td colspan="3"><textarea name="menu.description" class="k-textbox">$!{menu.description}</textarea></td>
+            <td></td>
+        </tr>
+    </table>
+    <div class="actions">
+        <button class="k-primary hc_btn" type="submit" id="save"><i class="fa fa-save"></i>保 存</button>
+        <button class="hc_btn cancel" onclick="close_dialog('menu_edit_dlg')" type="button"><i class="fa fa-close"></i>取 消</button>
+    </div>
+</form>
+
+    #parse("platform/_footer.vm")
+	
+<script>
+	$('form').validator({
+        rules: {
+            
+        },
+        messages: {
+            required: "请填写{0}",
+            email: "邮箱地址不合法"
+        },
+        fields: {
+            'menu.code': '菜单编码:required;length[~128];',
+            'menu.name': '菜单名称:required;length[~255];',
+            'menu.pid': '上级菜单:required;',
+			'menu.showIcon': '图标样式:length[~32];',
+			'menu.sortValue': '排序值:integer;length[~11];',
+			'menu.linkUrl': '菜单URL:length[~255];',
+			'menu.description': '备注:length[~512];'
+        },
+		msgClass: "n-bottom",
+        valid: function(form){
+           form_btn_submit('#save','#plat_auth_menu_edit_form',function(res){
+    				notify("操作成功", "success");
+					window.parent.frames["_main_frame"].callback();
+					close_dialog('menu_edit_dlg');
+			})
+        }
+    });
+	$("form .k-textbox").bind({
+		mouseover: function(e) {
+			if ($(this).hasClass("n-invalid")) {
+				var msg_box = $(this).siblings(".msg-box").get(0);
+				$(msg_box).find(".n-error").show();
+			}
+		},
+		mouseout: function(e){
+			if ($(this).hasClass("n-invalid")) {
+				$(this).siblings(".msg-box").find(".n-error").hide();
+			}
+		}
+	});
+	$(document).ready(function(){
+		$("#pid").kendoComplexeSelect({
+            validate : true,
+            multiple: false,
+            selectClick: function (e) {
+                _select_menu("#pid", "menu_edit_dlg", false);
+            },
+            onRemove: function () {
+                
+            },
+            onAdd: function (item) {
+                
+            }
+        });
+		//所属菜单初始化
+		var id = $!{menu.pid};
+		var name = '$!{menu.parent.name}';
+		if(id > 0){
+    		var ser = get_el_in_dialog('menu_edit_dlg', '#pid').data("kendoComplexeSelect");
+            ser.add(id, name.replace("</span>", "").replace(/<span.*>/, ""));
+		}
+    });
+	
+	function _select_menu(el, dlgId, multiple) {
+        quick_dialog("menu_select_dlg", "选择菜单", "xtgl/qxgl/menu/select?el=" + encodeURIComponent(el) + "&dlgId=" + dlgId + "&multiple=" + (multiple || false), 300, 480);
+    }
+</script>
+</body>
+</html>

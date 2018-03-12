@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.supconit.kqfx.web.fxzf.notify.entities.Notify">
+  
+   <sql id="TABLE_NAME" lang="velocity">T_NOTIFY_INFO</sql>
+  
+   <resultMap type="com.supconit.kqfx.web.fxzf.notify.entities.Notify" id="NotifyResultMap">
+			 <result property="id" column="ID" />
+			 <result property="title" column="TITLE" />
+			 <result property="content" column="CONTENT" />
+			 <result property="type" column="TYPE" />
+			 <result property="range" column="RANGE" />
+			 <result property="carrier" column="CARRIER" />
+			 <result property="updateTime" column="UPDATETIME" />
+			 <result property="endDateTime" column="ENDDATETIME" />
+	</resultMap>
+  
+    <select id="selectPager" lang="velocity" resultMap="NotifyResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+			SELECT * FROM 
+		<include refid="TABLE_NAME"/> 
+		<include refid="SEARCH_CONDITION_SQL_LOG"/>
+		    #order($_parameter.condition,"updateTime DESC")
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	 </select>
+     
+     <sql id="SEARCH_CONDITION_SQL_LOG" lang="velocity">
+     <![CDATA[
+		#where()
+		
+			#if($_parameter.condition.content && $_parameter.condition.content != '')
+			   AND CONTENT  #set($_content = '%' + $_parameter.condition.content + '%')
+						LIKE @{_content,jdbcType=VARCHAR}
+		    #end
+		    #if($_parameter.condition.type && $_parameter.condition.type != '')
+			   AND TYPE = @{_parameter.condition.type,jdbcType=VARCHAR}
+		    #end
+		    #if($_parameter.condition.range && $_parameter.condition.range != '')
+			   AND RANGE #set($_range = '%' + $_parameter.condition.range + '%')
+						LIKE @{_range,jdbcType=VARCHAR}
+		    #end
+		     #if($_parameter.condition.carrier && $_parameter.condition.carrier != '')
+			   AND CARRIER #set($_carrier = '%' + $_parameter.condition.carrier + '%')
+						LIKE @{_carrier,jdbcType=VARCHAR}
+		    #end
+			  #if($_parameter.condition.updateTime && $_parameter.condition.updateTime != '')
+			   AND UPDATETIME > @{_parameter.condition.updateTime,jdbcType=TIMESTAMP}
+		    #end
+		     #if($_parameter.condition.backTime && $_parameter.condition.backTime != '')
+			   AND UPDATETIME < @{_parameter.condition.backTime,jdbcType=TIMESTAMP}
+		    #end
+		#end
+		]]>
+	</sql>
+	<select id="countPager" lang="velocity" resultType="long">
+		<include refid="COUNT_PRE" />
+		<include refid="SEARCH_CONDITION_SQL_LOG"/>
+	</select>
+	<sql id="COUNT_PRE" lang="velocity">SELECT COUNT(1) FROM <include refid="TABLE_NAME"/></sql>
+	
+	<sql id="INSERT_SQL" lang="velocity">
+		INSERT INTO <include refid="TABLE_NAME"/>(
+		#if($_databaseId == 'oracle') ID,#end
+								 TITLE
+								,CONTENT
+								,TYPE
+								,RANGE
+								,CARRIER
+								,UPDATETIME
+								,ENDDATETIME
+		) VALUES (
+		#if($_databaseId == 'oracle') @{_parameter.id,jdbcType=VARCHAR},#end
+								@{_parameter.title,jdbcType=VARCHAR}
+								,@{_parameter.content,jdbcType=VARCHAR}
+								,@{_parameter.type,jdbcType=VARCHAR}
+								,@{_parameter.range,jdbcType=VARCHAR}
+								,@{_parameter.carrier,jdbcType=VARCHAR}
+								,@{_parameter.updateTime,jdbcType=TIMESTAMP}
+								,@{_parameter.endDateTime,jdbcType=TIMESTAMP}
+	)
+	</sql>
+	
+	<insert id="insert" parameterType="com.supconit.kqfx.web.fxzf.notify.entities.Notify" 
+		keyProperty="ID" keyColumn="ID" 		lang="velocity" databaseId="oracle">
+		  <include refid="INSERT_SQL" />
+	</insert>
+	<insert id="insert" parameterType="com.supconit.kqfx.web.fxzf.notify.entities.Notify" 
+		keyProperty="ID" keyColumn="ID" 		 lang="velocity">
+        <include refid="INSERT_SQL"/>
+        <selectKey keyProperty="ID" resultType="string" order="AFTER"><include refid="_PUBLIC_V.SELECT_KEY"/> </selectKey>    </insert>
+	
+	<sql id="SELECT_PRE" lang="velocity">SELECT * FROM <include refid="TABLE_NAME"/></sql>
+	
+	<select id="getById" resultMap="NotifyResultMap" parameterType="string" lang="velocity">
+	<include refid="SELECT_PRE" />
+			WHERE ID = @{_parameter, jdbcType=VARCHAR}
+	</select>
+	
+	
+  
+  </mapper>

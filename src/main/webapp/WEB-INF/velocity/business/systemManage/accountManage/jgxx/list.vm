@@ -1,0 +1,239 @@
+#parse("platform/_header.vm")
+<link href="$!{_platform_assets_url}/css/ztree/zTreeStyle.css" rel="stylesheet">
+<script src="$!{_platform_assets_url}/js/jquery.ztree.all-3.5.min.js"></script>
+</head>
+<body>
+<div class="ui-layout-north">
+    #bread_crumbs2("XTGL_ZHGL_JGXX")
+</div>
+<div class="ui-layout-west" style="border-right:solid 1px #e1e5e6;" id="department_tree_container">
+
+    <div class="ui-layout-north">
+        <div class="k-header k-grid-toolbar" style="padding-left:10px;">机构簇</div>
+    </div>
+    <div class="ui-layout-center">
+        <ul id="tree" class="ztree"></ul>
+    </div>
+</div>
+
+<div class="ui-layout-center" id="subMain">
+    <div class="ui-layout-north">
+        <div class="ui-search-container">
+            <form class="ui-form" id="search_form">
+                <input type="hidden" id="jgid" name="condition.pid"/>
+                <table width="100%">
+                    <tr>
+                        <td>
+                            <table class="ui-search-table">
+                                <tr>
+                                    <td class="ui-search-name first">负责人：</td>
+                                    <td class="ui-search-c"><input name="condition.fzr" class="k-textbox" type="text">
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td width="150" valign="top" style="padding-top:4px;">
+                            <button type="submit" class="hc_btn k-primary" id="queryBtn"><i class="fa fa-search"></i>查询
+                            </button>
+                        </td>
+                        <td></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <div class="ui-layout-center">
+        <div id="grid"></div>
+    </div>
+</div>
+
+    #parse("platform/_footer.vm")
+<script>
+    var _iframe_layout;
+    $(function () {
+        _iframe_layout = $('body').layout({
+            center__maskContents: true,
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 5
+            },
+            west: {
+                size: 300,
+                closable: true,
+            }, north: {
+                size: 34
+            }
+        });
+
+        _left_layout = $("#department_tree_container").layout({
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            }
+        });
+
+        _inner_layout = $("#subMain").layout({
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            },
+            center: {
+                onresize_end: function () {
+                    var grid = $("#grid").data("kendoGrid");
+                    grid.resize();
+                }
+            }
+        })
+
+        var tree = $.fn.zTree.init($("#tree"), {
+        ##			check:{enable: true,chkboxType:{ "Y" : "s", "N" : "s" }},
+            data: {
+                key: {
+                    name: "jgmc"
+                },
+                simpleData: {
+                    enable: true,
+                    pIdKey: "pid",
+                    rootPId: 0
+
+                }
+            },
+            view: {
+                selectedMulti: false
+            }, callback: {
+                onClick: function (event, treeId, node) {
+                    $("#jgid").val(node.id);
+                    var grid = $("#grid").data("kendoGrid");
+                    grid.dataSource.read();
+                }
+            }
+        }, $!{jgxxJson});
+
+    ##展开树节点
+        var expandNodes = tree.getNodesByParam("jgdj", "1", null);
+        tree.expandAll(true);
+    ##		$.each(expandNodes,function(i,node){
+    ##			tree.expandNode(node, true, false, true, false);
+    ##		});
+
+        quick_datagrid("#grid", "#search_form", "$!{rc.contextPath}/xtgl/zhgl/jgxx/querylist", [
+                    {
+                        field: "jgmc",
+                        title: "机构名称",
+                        sortable: true,
+                        attributes: {
+                            style: "text-align: left;"
+                        },
+                        template: "<a href=\"javascript:void(0)\" title=\"查看机构的详细信息\" onclick=\"quick_dialog('jgxx_view_dlg','查看机构的详细信息','$!{rc.contextPath}/xtgl/zhgl/jgxx/view?id=#: data.id #',780,340)\">#: data.jgmc #</a>"
+                    }, {
+                        field: "jgjc",
+                        title: "机构简称",
+                        sortable: true,
+                        attributes: {
+                            style: "text-align: left;"
+                        }
+                    },
+                    {
+                        field: "parentJgmc",
+                        title: "上级机构",
+                        attributes: {
+                            style: "text-align: left;"
+                        }
+                    },
+                    {
+                        field: "fzr",
+                        title: "负责人"
+                    },
+                    {
+                        field: "fzrlxfs",
+                        title: "联系电话"
+                    },
+                    {
+                        field: "xxdz",
+                        title: "详细地址",
+                        attributes: {
+                            style: "text-align: left;"
+                        }
+                    },
+                    {
+                        field: "bz",
+                        sortable: false,
+                        title: "备注",
+                        attributes: {
+                            style: "text-align: left;"
+                        }
+                    }
+                ], {
+                    sortable: false,
+                    pageable: true
+                }, {
+                    serverSorting: true
+                },
+                [
+                ##				 #hc_grid_buttons("XTGL_ZHGL_JGXX")#end
+                    {
+                        name: "添加",
+                        icon: "fa fa-plus",
+                        onclick: function (obj, grid) {
+                            var row = grid.select();
+                            var pid = "";
+                            var pname = "";
+                            if (row & row.length > 0) {
+                                var data = grid.dataItem(row);
+                                if (data) {
+                                    pid = data.id;
+                                }
+                            } else {
+                                pid = $("#jgid").val();
+                            }
+                            quick_dialog("jgxx_add_dlg", "添加机构", "$!{rc.contextPath}/xtgl/zhgl/jgxx/add?pid=" + pid, 780, 440, obj);
+                        }
+                    }, {
+                        name: "修改",
+                        icon: "fa fa-pencil",
+                        onclick: function (obj, grid) {
+                            var row = grid.select();
+                            if (null == row || row.length == 0) {
+                                notify("你还没有选择要修改的机构", "warn");
+                                return;
+                            }
+                            var data = grid.dataItem(row);
+                            if (data.id == 1) {
+                                notify("顶级机构树不允许修改", "warn");
+                                return;
+                            }
+                            quick_dialog("jgxx_edit_dlg", "修改机构", "$!{rc.contextPath}/xtgl/zhgl/jgxx/edit?id=" + data.id, 780, 440, obj);
+                        }
+                    }, {
+                        name: "删除",
+                        icon: "fa fa-remove",
+                        onclick: function (obj, grid) {
+                            var row = grid.select();
+                            if (null == row || row.length == 0) {
+                                notify("你还没有选择要删除的机构", "warn");
+                                return;
+                            }
+                            var data = grid.dataItem(row);
+                            if (data.id == 1) {
+                                notify("顶级机构树不允许删除", "warn");
+                                return;
+                            }
+                            if (!confirm("确定删除 【" + data.jgmc + "】 吗？"))return;
+                            quick_ajax("$!{rc.contextPath}/xtgl/zhgl/jgxx/delete", {id: data.id}, edited_callback, obj, grid);
+                            edited_callback();
+                        }
+                    }
+                ]);
+        });
+
+    function edited_callback() {
+        var t = new Date();
+        window.location.href = "$!{rc.contextPath}/xtgl/zhgl/jgxx/list?_t=" + t.getTime();
+    }
+
+</script>
+</body>
+</html>

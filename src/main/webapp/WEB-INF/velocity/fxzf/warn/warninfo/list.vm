@@ -1,0 +1,118 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+#bread_crumbs2("FXZF_WARN_INFO")
+<form method="post" action="$!{rc.contextPath}/fxzf/warn/warninfo/edit" class="ui-dialog-form" style="width:100%;">
+    <table width="80%" class="warn-model">
+		#foreach($!info in $!typeInfo)
+			<tr style="height: 80px;">
+				<td style="25%"></td>
+                <td class="label" style="width:35%"><span class="ui-form-required">*</span>$!{info.name}：</td>
+				<td colspan="3" >
+					<input type="hidden" id="id$!{velocityCount}" name="warnInfoId" value=""/>
+					<input type="hidden" id="detectStation$!{velocityCount}" name="detectStation" value=""/>
+					<input type="hidden" id="warnType$!{velocityCount}" name="warnType" value=""/>
+					#if($!{velocityCount} <= 5)
+						<input type="hidden" id="temp$!{velocityCount}" name="qbbTempletId" value=""/>
+						<textarea id="type$!{velocityCount}" name="templetInfo" readonly  data-rule="告警模板:required;length[~200];"  class="k-textbox" ></textarea>
+					#else
+						<textarea  id="txarea$!{velocityCount}"  name="templetInfo" data-rule="告警模板:required;length[~200];" class="k-textbox" ></textarea>
+					#end
+				</td>	
+				<td>
+					<input class="hc_btn k-primary k-button" style="width:35%;height:25px;" onclick="selectTemplet(this,'$!{velocityCount}');" value="模板选取">
+				</td>
+            </tr>
+		#end
+		<tr>
+			<td ></td>
+			<td class="label" style="color:red;">备注：</td>
+			<td colspan="3" >情报板告警模板选取按照@*@格式匹配,请勿删除@符号！</td>
+			<td></td>
+		</tr>
+    </table>
+	
+    <div class="actions">
+        <button class="k-primary hc_btn blsave" type="submit" >确定</button>
+    </div>
+</form>
+</div>
+#parse("platform/_footer.vm")
+<script>
+	$('form').validator({
+        rules: {
+            
+        },
+        messages: {
+            required: "请填写{0}"
+        },
+        fields: {
+        },
+		msgClass: "n-bottom",
+        valid: function(form){
+            $.ajax({
+                url: "$!{rc.contextPath}/fxzf/warn/warninfo/edit",
+                data: $(form).serialize(),
+				type: 'post',
+                success: function(data){
+    				if(data.status=="error"){
+        				notify(data.message, "warn");
+        			}else if(data.status=="success"){
+        				notify("保存成功", "success");
+						window.location.href="$!{rc.contextPath}/fxzf/warn/warninfo/list?_t="+new Date().getTime();
+        			}
+                }
+            });
+        }
+    });
+	$("form .k-textbox").bind({
+		mouseover: function(e) {
+			if ($(this).hasClass("n-invalid")) {
+				var msg_box = $(this).siblings(".msg-box").get(0);
+				$(msg_box).find(".n-error").show();
+			}
+		},
+		mouseout: function(e){
+			if ($(this).hasClass("n-invalid")) {
+				$(this).siblings(".msg-box").find(".n-error").hide();
+			}
+		}
+	});
+	
+	function setSelectTemp(content,way,font,color,id,count){
+    	if(count && count !="undefined")
+    	{
+    		$("#temp"+count).val(id);
+			$("#type"+count).val("内容："+content+"  出字方式:"+way+"  字体："+font+"  颜色："+color);
+    	}
+	}
+	
+    function selectTemplet(obj,count){
+    	var t = new Date();
+    	if(count<=5)
+    	{
+	    	quick_dialog("_select_qbbmbxx", "选择模板信息", "${rc.contextPath}/fxzf/qbb/qbbmbxx/select?flag=1&count="+count+"&t="+ t.getTime(),700, 520);
+    	}else{
+    		var content = encodeURI(encodeURI($("#txarea"+count).val().replace(/\+/g,"-")));
+    		quick_dialog("_select_qbbmbxx", "选择模板信息", "${rc.contextPath}/fxzf/qbb/qbbmbxx/app-select?count="+count+"&content="+content+"&t="+ t.getTime(),300, 360);
+    	}
+    }
+    
+    function fillAppContent(count,content){
+    	$("#txarea"+count).val(content);
+    }
+	
+	$(function(){
+		var result = eval(eval('$!warnInfoList'));
+		console.log(result);
+		$.each(result,function(i,item){
+			$("#id"+(i+1)).val(item.id);
+			$("#detectStation"+(i+1)).val(item.detectStation);
+			$("#warnType"+(i+1)).val(item.warnType);
+			$("#temp"+(i+1)).val(item.qbbTempletId);
+			$("textarea[name='templetInfo']").eq(i).val(item.templetInfo);
+		})
+	});
+</script>
+</body>
+</html>

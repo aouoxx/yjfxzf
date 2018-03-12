@@ -1,0 +1,167 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+	<div style="position: absolute;right: 20px;top: 12px;">
+		<button id="print" class="hc_btn k-primary search-btn"><i class="fa fa-print"></i>打 印</button>
+	</div>
+    <table >
+    	<input type="hidden" value="$!{condition.fxzf.overLoadPunish}" id="hiddenPunish" />
+    	<input type="hidden" value="$!{condition.fxzf.id}" id="fxzfId" />
+    	<input type="hidden" value="$!{condition.fxzf.punishId}" id="punishId" />
+    	<input type="hidden" value="$!{condition.fxzf.punishReason}" id="punishReason" />
+    	<input type="hidden" value="$!{condition.fxzf.headLicensePicdir}" id="headLicense" / />
+    	<input type="hidden" value="$!{condition.fxzf.headCarPicdir}" id="headCar" />
+    	<input type="hidden" value="$!{condition.fxzf.tailLicensePicdir}" id="tailLicense" />
+    	<input type="hidden" value="$!{condition.fxzf.tailCarPicdir}" id="tailCar" />
+    	
+    	<tr class="tr">
+    		 <td class="label" colspan="4" style="font-weight:bold;text-align:left;">关联过车记录</td>
+    	</tr>
+        <tr class="tr">
+            <td class="label">车牌号：</td>
+            <td style="height: 30px;"><span>$!{condition.license}</span></td>
+            <td class="label">车牌颜色：</td>
+            <td style="height: 30px;"><span>$!{condition.plateColor}</span></td>
+        </tr>
+        <tr class="tr">
+         	<td class="label">所属治超站：</td>
+            <td style="height: 30px;"><span>$!{condition.fxzf.detectStation}</span></td>
+            <td class="label">过车时间：</td>
+            <td style="height: 30px;"><span>$!{date}</span></td>
+        </tr>
+         <tr id="trPunish" class="tr">
+        	 <td class="label">车道号：</td>
+            <td style="height: 30px;"><span>$!{condition.fxzf.lane}</span></td>
+        	<td class="label">处罚结果：</td>
+            <td style="height: 30px;"><span id="Punish"></span></td>
+        </tr>    
+        <tr class="tr">
+            <td class="label">轴数：</td>
+            <td style="height: 30px;"><span>$!{condition.fxzf.axisCount}</span></td>
+             <td class="label"> 总重(吨)：</td>
+            <td style="height: 35px;"><span>$!{condition.fxzf.weight}</span></td>
+        </tr>
+        <tr class="tr">
+        	<td class="label">超限率：</td>
+            <td style="height: 30px;"><span>$!{condition.fxzf.overLoadPercent} %</span></td>
+        	<td class="label">超限等级：</td>
+            <td style="height: 30px;"><span>$!{condition.fxzf.overStatus}</span></td>
+        </tr>
+         <tr class="tr">
+            <td class="label">长*宽*高：</td>
+            <td style="height: 35px;"><span>$!{condition.fxzf.length}*$!{condition.fxzf.width}*$!{condition.fxzf.height}</span></td>
+            <td class="label">速度(km/h)：</td>
+            <td style="height: 30px;"><span>$!{condition.fxzf.speed}</span></td>
+        </tr>
+         <tr class="tr">
+            <td class="label" colspan="2" style="text-align:center;" >车头车牌图</td>
+            <td class="label" colspan="2" style="text-align:center;" >车尾车牌图</td>
+        </tr>
+        <tr>
+        	<td colspan="2" id="headimageLicnese"></td>
+        	<td colspan="2" id="tailimageLicnese"></td>
+        </tr>
+        <tr>
+        	 <td class="label" colspan="2" style="text-align:center;" >车头全景图</td>
+        	 <td class="label" colspan="2" style="text-align:center;" >车尾全景图</td>
+        </tr>
+        <tr  class="tr">
+       		<div id="imageBig" onmouseout="clearImage();" style="position:absolute;right:11%;top:0%;"></div>
+            <td colspan="2" id="headimageCar"></td>
+            <td colspan="2" id="tailimageCar"></td>
+        </tr>
+        <tr id="content" class="tr">
+        	<td class="label">告警内容：</td>
+            <td colspan="3" style="height: 50px;"><span>$!{condition.warnInfo}</span></td>
+        </tr>
+    </table>
+    #parse("platform/_footer.vm")
+</body>
+<script type="text/javascript">
+$("body").css({"padding":"10px","height":"auto"});
+$("table").addClass("ui-view");
+$("table").find("tr:odd").addClass("odd");
+$("table").find("tr:even").addClass("even");
+
+var imageServer;
+$(function(){
+	##设置全局图片地址
+	imageServer="$!{imageServerAddr}";
+
+	##加载图片
+	var headLicensePicdir = imageServer+$('#headLicense').val();
+	var tailLicnesePicdir = imageServer+$('#tailLicense').val();
+	
+	var headCarPicdir = imageServer+$('#headCar').val();
+	var tailCarPicdir = imageServer+$('#tailCar').val();
+	
+	var headimgLicenese ='<img  border="0" style="width:90%;height:50px;margin-left: 1.5%;" src='+headLicensePicdir+' onerror="this.src=\'$!{rc.contextPath}/assets/images/img404.jpg\'"></img>';
+	var tailimgLicenese ='<img  border="0" style="width:90%;height:50px;margin-left: 1.5%;" src='+tailLicnesePicdir+' onerror="this.src=\'$!{rc.contextPath}/assets/images/img404.jpg\'"></img>';
+	var headimgCar ='<img  border="0" style="width:95%;height:180px;" onmouseover="imageBigShow('+'\''+headCarPicdir+'\''+');" src='+headCarPicdir+' onerror="this.src=\'$!{rc.contextPath}/assets/images/img404.jpg\'" ></img>';
+	var tailimgCar ='<img  border="0" style="width:95%;height:180px;" onmouseover="imageBigShow('+'\''+tailCarPicdir+'\''+');" src='+tailCarPicdir+' onerror="this.src=\'$!{rc.contextPath}/assets/images/img404.jpg\'" ></img>';
+
+	$('#headimageLicnese').html(headimgLicenese);
+	$('#headimageCar').html(headimgCar);
+	$('#tailimageLicnese').html(tailimgLicenese)
+	$('#tailimageCar').html(tailimgCar)
+      
+    var flag= $('#hiddenPunish').val();
+    var id = $('#fxzfId').val();
+   	var result='';
+   	if('0'==flag)
+    {
+       result="正常通车";
+       $('#Punish').html(result);
+   	 }
+   	 if('1'==flag)
+   	 {
+   	 	result="未处罚";
+   	 	$('#Punish').html(result);
+   	 }
+   	 if('2'==flag)
+   	 {
+   	 	result="已处罚";
+   	 	$('#Punish').html(result);
+   	 }
+   	
+});
+
+var flag =1;
+## 鼠标移动到图片上显示大图
+function imageBigShow(carPicdir){
+		var image = '<img height="450px" width="600px" src='+carPicdir+' border="0" onerror="this.src=\'$!{rc.contextPath}/assets/images/img404.jpg\'"></img>'
+		$('#imageBig').html(image);
+	}
+## 鼠标从大图离开,清除大图显示
+function clearImage(){
+	$('#imageBig').html('');
+}
+
+##打印本页
+$('#print').click(function(){
+	$('#print').hide();
+	window.print();
+});
+     
+</script>
+
+<style>
+.ui-view td.label {
+	width: 18%;
+}
+.ui-view td.cont {
+	width: 30%;
+}
+.ui-view td {
+	border-bottom: 1px solid #e6e6e6;
+}
+.dcl{
+	color: #df7d00;
+}
+.ysh{
+	color: #3fa01a;
+}
+
+</style>
+
+</html>

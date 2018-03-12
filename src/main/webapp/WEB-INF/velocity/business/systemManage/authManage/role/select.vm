@@ -1,0 +1,122 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+#parse("platform/_footer.vm")  
+	<div id="plat_menu_select_container">
+		<ul id="plat_menu_select" class="ztree"></ul>
+	</div>
+	#if($!multiple)
+	<div class="ui-dialog-form">
+    	<div class="actions">
+		<button class="k-primary hc_btn" onclick="choose()" type="button">确定</button>
+    	</div>
+    </div>
+	#end
+<script type="text/javascript">
+	var ser;
+    if ("$!{dlgId}" == "") {
+        ser = get_el_in_main_frame('$!{el}').data("kendoComplexeSelect");
+    } else {
+        ser = get_el_in_dialog("$!{dlgId}", '$!{el}').data("kendoComplexeSelect");
+    }
+	
+	$(document).ready(function(){
+		var setting = {
+			#if($!multiple)
+				check:{enable: true,chkboxType:{ "Y" : "s", "N" : "s" }},
+			#end
+    			data : {
+    				key : {
+    					name : "name"
+    				}
+    			},
+              callback: {
+        			onClick: function(event, treeId, treeNode) {
+						#if(!$!multiple)
+            				ser.add(treeNode.id, treeNode.name.replace("</span>", "").replace(/<span.*>/, ""));
+							close_dialog('auth_role_select_dlg');
+    						resetfocus(ser);
+						#end
+        			}
+        		}
+        };
+		var zNodes = $!{roleJson};  
+
+		if(zNodes){
+			var items = ser._old;
+			var selected = "";
+			if(items){
+				for(var i = 0 ; i < items.length ;i++)
+				{
+					selected = selected + items[i]+",";
+					
+				}
+			}
+			var resc_nodes = function(n){
+    			if(n){
+    				if(selected.indexOf(n.id +",")>=0){
+    					#if($!multiple)
+							n.checked = true;
+						#else
+						#end
+    				}
+    				if(n.children && n.children.length > 0){
+    					for(var i = 0 ; i < n.children.length ; i++){
+    						resc_nodes(n.children[i]);
+    					}
+    				}
+    			}else return;
+    		};
+    		resc_nodes(zNodes);
+		}
+			
+		$.fn.zTree.init($("#plat_menu_select"), setting,zNodes).expandAll(true);
+	});
+	
+	function choose(){
+		var select = ser.value();
+		if(!select) select = [];
+		var select_copy = [];
+		var selectedItems = {};
+		for(var i =0;i<select.length;i++)
+		{
+			selectedItems[select[i]] = "";
+			select_copy.push(select[i]);
+		}
+		
+		var treeObj = $.fn.zTree.getZTreeObj("plat_menu_select");
+		var nodes = treeObj.getCheckedNodes(true);
+		var noCheckNodes = treeObj.getCheckedNodes(false);
+		if(nodes&&nodes.length>0){
+			for(var i = 0 ; i < nodes.length ;i++){
+				selectedItems[nodes[i].id] = nodes[i].name;
+			}
+		}
+		
+		if(noCheckNodes&&noCheckNodes.length>0)
+		{
+			for(var i=0;i<noCheckNodes.length;i++)
+			{
+				delete selectedItems[noCheckNodes[i].id];
+			}
+		}
+		
+		 $.each(selectedItems, function (idx, it) {
+		 	if(it){
+				ser.add(idx, it);
+			}
+          });
+          $.each(select_copy, function(idx, it){
+            if(it){
+              var is_exist = selectedItems[it] ? true : (selectedItems[it]=="" ? true : false)
+              if(!is_exist){
+                ser.remove(it);
+              }
+            }
+          });
+		
+		close_dialog('auth_role_select_dlg');
+	}
+</script>
+</body>
+</html>

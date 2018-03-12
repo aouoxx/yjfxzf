@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.supconit.kqfx.web.fxzf.qbb.entities.QbbBfxx">
+
+	<resultMap type="com.supconit.kqfx.web.fxzf.qbb.entities.QbbBfxx" id="QbbBfxxResultMap">
+		<id property="id" column="ID" />
+		<result property="xxnr" column="XXNR" />
+		<result property="czfs" column="CZFS"/>
+		<result property="font" column="FONT"/>
+		<result property="color" column="COLOR"/>
+		<result property="remainTime" column="REMAIN_TIME"/>
+		<result property="publishTime" column="PUBLISH_TIME"/>
+		<result property="circleTime" column="CIRCLE_TIME"/>
+		<result property="location" column="LOCATION"/>
+		<result property="type" column="TYPE"/>
+		<result property="listOrder" column="LIST_ORDER"/>
+		<result property="deleted" column="DELETED"/>
+	</resultMap>
+	
+	<sql id="TABLE_NAME" lang="velocity">T_QBB_BFXX</sql>
+	<sql id="SELECT_PRE" lang="velocity">SELECT * FROM <include refid="TABLE_NAME"/></sql>
+	<sql id="COUNT_PRE" lang="velocity">SELECT COUNT(1) FROM <include refid="TABLE_NAME"/></sql>
+
+	<sql id="SEARCH_PAGER_SQL" lang="velocity">
+			  from t_qbb_bfxx A
+			 right join (select location, max(publish_time) AS publish_time
+			               from t_qbb_bfxx t
+			              <![CDATA[
+							#where()
+								#if($_parameter.condition.xxnr1)
+									(xxnr = @{_parameter.condition.xxnr1,jdbcType=VARCHAR} and location = '1')
+								#end
+								#if($_parameter.condition.xxnr2)
+									or (xxnr = @{_parameter.condition.xxnr2,jdbcType=VARCHAR} and location = '2')
+								#end
+								#if($_parameter.condition.xxnr3)
+									#set($_xxnr3 = '%' + $_parameter.condition.xxnr3 + '%')
+									or (xxnr = @{_parameter.condition.xxnr3,jdbcType=VARCHAR} and location = '3')
+								#end
+								#if($_parameter.condition.xxnr4)
+									#set($_xxnr4 = '%' + $_parameter.condition.xxnr4 + '%')
+									or (xxnr = @{_parameter.condition.xxnr4,jdbcType=VARCHAR} and location = '4')
+								#end
+								#if($_parameter.condition.xxnr5)
+									#set($_xxnr5 = '%' + $_parameter.condition.xxnr4 + '%')
+									or (xxnr = @{_parameter.condition.xxnr5,jdbcType=VARCHAR} and location = '5')
+								#end
+								AND DELETED = 0	
+							#end
+						  ]]>	
+			              group by t.location) B
+	    on A.location = b.location AND A.publish_time = B.publish_time
+	</sql>
+	
+	
+	<select id="getById" resultMap="QbbBfxxResultMap" parameterType="string" lang="velocity">
+		<include refid="SELECT_PRE" />
+				WHERE ID = @{_parameter, jdbcType=VARCHAR} AND DELETED = 0	
+	</select>
+	
+	<select id="getByBfxxId" resultMap="QbbBfxxResultMap" parameterType="string" lang="velocity">
+		<include refid="SELECT_PRE" />
+				WHERE ID = @{_parameter, jdbcType=VARCHAR} AND DELETED = 0	
+	</select>
+	
+	<select id="getByCondition" resultMap="QbbBfxxResultMap" parameterType="com.supconit.kqfx.web.fxzf.qbb.entities.QbbBfxx" lang="velocity">
+		 select A.* from t_qbb_bfxx A
+			 right join (select location, max(publish_time) AS publish_time
+			               from t_qbb_bfxx t
+			              <!-- 下划线替换成空匹配数据库-->
+			              <![CDATA[
+							#where()
+								#if($_parameter.xxnr && $_parameter.xxnr != '')
+									AND REPLACE(xxnr,'_','') = @{_parameter.xxnr,jdbcType=VARCHAR}
+								#end
+								#if($_parameter.location && $_parameter.location != '')
+									AND location = @{_parameter.location,jdbcType=VARCHAR}
+								#end
+								AND DELETED = 0	
+							#end
+						  ]]>	
+			              group by t.location) B
+	    on A.location = b.location AND A.publish_time = B.publish_time
+	</select>
+	
+	<select id="IsWarnTypeHistrory" resultMap="QbbBfxxResultMap" parameterType="com.supconit.kqfx.web.fxzf.qbb.entities.QbbBfxx" lang="velocity">
+		<include refid="SELECT_PRE" />
+			<![CDATA[
+				#where()
+					#if($_parameter.xxnr && $_parameter.xxnr != '')
+						AND REPLACE(xxnr,'_','') = @{_parameter.xxnr,jdbcType=VARCHAR}
+					#end
+					#if($_parameter.location && $_parameter.location != '')
+						AND location = @{_parameter.location,jdbcType=VARCHAR}
+					#end
+					AND REMAIN_TIME >0
+					AND DELETED = 0
+					AND TYPE = 0
+				#end
+			]]>
+	</select>
+	
+	<select id="IsPublishTypeHistrory" resultMap="QbbBfxxResultMap" parameterType="com.supconit.kqfx.web.fxzf.qbb.entities.QbbBfxx" lang="velocity">
+	    select A.* from t_qbb_bfxx A
+			 right join (select location, max(publish_time) AS publish_time
+			               from t_qbb_bfxx t
+			              <!-- 下划线替换成空匹配数据库-->
+			              <![CDATA[
+							#where()
+								#if($_parameter.xxnr && $_parameter.xxnr != '')
+									AND xxnr = @{_parameter.xxnr,jdbcType=VARCHAR}
+								#end
+								#if($_parameter.location && $_parameter.location != '')
+									AND location = @{_parameter.location,jdbcType=VARCHAR}
+								#end
+								AND REMAIN_TIME >0
+								AND DELETED = 0
+								AND TYPE = 1
+							#end
+						  ]]>	
+			              group by t.location) B
+	    on A.location = b.location AND A.publish_time = B.publish_time
+	</select>
+	
+	
+	<select id="getAll" resultMap="QbbBfxxResultMap" parameterType="string" lang="velocity">
+		<include refid="SELECT_PRE" />
+		WHERE DELETED = 0 AND PUBLISH_TIME DESC
+	</select>
+			
+	<select id="selectPager" lang="velocity" resultMap="QbbBfxxResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+		select A.*
+		<include refid="SEARCH_PAGER_SQL"/>
+		#order($_parameter.condition,"A.LOCATION ASC")
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	</select>
+
+	<select id="countPager" lang="velocity" resultType="long">
+		SELECT COUNT(1)
+		<include refid="SEARCH_PAGER_SQL"/>
+	</select>
+	
+	<sql id="INSERT_SQL" lang="velocity">
+		INSERT INTO <include refid="TABLE_NAME"/>(
+		#if($_databaseId == 'oracle') ID,#end
+								 XXNR
+								,CZFS
+								,FONT
+								,COLOR
+								,REMAIN_TIME
+								,PUBLISH_TIME
+								,CIRCLE_TIME
+								,LOCATION
+								,TYPE
+								,LIST_ORDER
+								,DELETED
+		) VALUES (
+		#if($_databaseId == 'oracle') @{_parameter.id,jdbcType=VARCHAR},#end
+								 @{_parameter.xxnr,jdbcType=VARCHAR}
+								,@{_parameter.czfs,jdbcType=VARCHAR}
+								,@{_parameter.font,jdbcType=VARCHAR}
+								,@{_parameter.color,jdbcType=VARCHAR}
+								,@{_parameter.remainTime,jdbcType=NUMERIC}
+								,@{_parameter.publishTime,jdbcType=TIMESTAMP}
+								,@{_parameter.circleTime,jdbcType=NUMERIC}
+								,@{_parameter.location,jdbcType=VARCHAR}
+								,@{_parameter.type,jdbcType=VARCHAR}
+								,@{_parameter.listOrder,jdbcType=NUMERIC}
+								,@{_parameter.deleted,jdbcType=NUMERIC}
+								
+	)
+	</sql>
+	
+	<insert id="insert" parameterType="com.supconit.kqfx.web.fxzf.qbb.entities.QbbBfxx" 
+		keyProperty="ID" keyColumn="ID" 		lang="velocity" databaseId="oracle">
+		  <include refid="INSERT_SQL" />
+	</insert>
+	<insert id="insert" parameterType="com.supconit.kqfx.web.fxzf.qbb.entities.QbbBfxx" 
+		keyProperty="ID" keyColumn="ID" 		 lang="velocity">
+        <include refid="INSERT_SQL"/>
+        <selectKey keyProperty="ID" resultType="string" order="AFTER"><include refid="_PUBLIC_V.SELECT_KEY"/> </selectKey>    </insert>
+    
+	<update id="update" parameterType="com.supconit.kqfx.web.fxzf.qbb.entities.QbbBfxx" lang="velocity">
+		UPDATE <include refid="TABLE_NAME"/> 
+		#mset()
+		<![CDATA[
+			#if($_parameter.xxnr)XXNR = @{_parameter.xxnr,jdbcType=VARCHAR},#end
+			#if($_parameter.czfs)CZFS = @{_parameter.czfs,jdbcType=VARCHAR},#end
+			#if($_parameter.font)FONT = @{_parameter.font,jdbcType=VARCHAR},#end
+			#if($_parameter.color)COLOR = @{_parameter.color,jdbcType=VARCHAR},#end
+			#if($_parameter.remainTime)REMAIN_TIME = @{_parameter.remainTime,jdbcType=NUMERIC},#end
+			#if($_parameter.publishTime)PUBLISH_TIME = @{_parameter.publishTime,jdbcType=TIMESTAMP},#end
+			#if($_parameter.circleTime)CIRCLE_TIME = @{_parameter.circleTime,jdbcType=NUMERIC},#end
+			#if($_parameter.location)LOCATION = @{_parameter.location,jdbcType=VARCHAR},#end
+			#if($_parameter.type)TYPE = @{_parameter.type,jdbcType=VARCHAR},#end
+			#if($_parameter.listOrder)LIST_ORDER = @{_parameter.listOrder,jdbcType=NUMERIC},#end
+			#if($_parameter.deleted)DELETED = @{_parameter.deleted,jdbcType=NUMERIC},#end
+		]]>
+		#end
+		WHERE ID = @{_parameter.id,jdbcType=VARCHAR}
+	</update>
+	
+	<delete id="deleteById" parameterType="string" lang="velocity">
+		DELETE FROM <include refid="TABLE_NAME" /> WHERE ID = @{_parameter,jdbcType=VARCHAR}
+	</delete>
+    		
+</mapper>

@@ -1,0 +1,294 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+<div class="ui-layout-north">
+	#bread_crumbs2("BLACKLIST")
+	<div class="ui-search-container">
+		<form id="blackList-search-condition">
+			<table style="margin-top: 12px;">
+				<tbody>
+					<tr>
+						<td class="ui-search-name">加入黑名单时间：</td>
+						<td class="ui-search-c"> 
+						   <input type="text" name="condition.updateTime" id="datePicker1">
+						 </td>
+						 <td style="text-align: right;padding-right: 10px;">&nbsp;&nbsp;至&nbsp;&nbsp;</td>
+						 <td>
+						   <input type="text" name="condition.operateTime" id="datePicker2">
+						 </td>
+						 <td colspan="3"></td>
+					</tr>
+					<tr>
+						<td class="ui-search-name">车牌号：</td>
+						<td class="ui-search-c"> <input type="text" name="condition.license" id="license" class="k-textbox" style="width:187px;"/></td>
+						<td class="ui-search-name">车牌颜色：</td>
+						<td class="ui-search-c"> #dic_select2("PLATECOLOR","condition.plateColor","condition_plateColor","ui-combobox","condition_plateColor")</td>
+						<td class="ui-search-name">超限次数：</td>
+						<td class="ui-search-c"> <input type="text" name="condition.overloadTimes" id="overLoadTimes" class="k-textbox" style="width:180px;"/></td>
+						<td><button type="submit" class="hc_btn k-primary search-btn" style="margin-left: 20px;">查询</button></td>
+						<td><button type="reset" class="hc_btn k-primary reset-btn" style="margin-left: 20px;" id="resetForm"></i>重置</button></td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	 </div>
+</div>
+
+<div class="ui-layout-center"  style="overflow: inherit;">
+	<div id="blackList_datalist"></div>
+</div>
+
+ #parse("platform/_footer.vm")
+ <script>
+ 	$(document).ready(function(){
+	 var start = $("#datePicker1").hcDateTimePicker({
+    	culture : "zh-CN",
+    	format :"yyyy-MM-dd HH:mm:ss",
+    	change : startChange
+    }).data("kendoDateTimePicker");
+    var end = $("#datePicker2").hcDateTimePicker({
+    	culture : "zh-CN",
+    	format : "yyyy-MM-dd HH:mm:ss",
+    	change : endChange
+    }).data("kendoDateTimePicker");
+   function startChange() {
+        var startDate = start.value(),
+        endDate = end.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate());
+            end.min(startDate);
+        } else if (endDate) {
+            start.max(new Date(endDate));
+        } else {
+            endDate = new Date();
+            start.max(endDate);
+        }
+    }
+    function endChange() {
+        var endDate = end.value(),
+        startDate = start.value();
+
+        if (endDate) {
+            endDate = new Date(endDate);
+            endDate.setDate(endDate.getDate());
+            start.max(endDate);
+        } else if (startDate) {
+            end.min(new Date(startDate));
+        } else {
+            endDate = new Date();
+            start.max(endDate);
+        }
+    }    
+    startChange();
+    endChange();
+    });
+ 	var  _iframe_layout,_inner_layout;
+ 	$(function(){
+		 _iframe_layout = $('body').layout({
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+                },
+            center: {
+                onresize_end: function () {}
+                },
+            north: {size:127}
+            });
+   quick_datagrid("#blackList_datalist", "#blackList-search-condition", "$!{rc.contextPath}/fxzf/blackList/list", [
+		            {
+		                field: "id",
+		                hidden: true
+		        	},{
+		                field: "license",
+		                title: "黑名单车牌号"
+		            },{
+		                field: "plateColor",
+		                title: "车牌颜色"
+		            },{
+		                field: "overloadTimes",
+		                title: "历史超限次数"
+		            },{
+		                 field: "updateTime",
+		                 title: "加入黑名单时间"
+		            },{
+		                 field: "id",
+		                 title: "删除",
+		                 template:"<button class=\"k-button k-button-icontext k-primary\" onclick=\"deleteItem('#:data.id#')\" id=\"#:data.id#\"><i class=\"fa fa-close\"></i>删除</button>"
+		            }
+		            ], {
+		             columnResizeHandleWidth: 6,
+					 pageable:true,
+					 dataBound:function(e){
+					 	grid_dataBound(e);
+					 }
+		        	}, {
+		             serverSorting: true
+		        	},[
+		        		{
+		                name: "导出本页",
+		                icon: "fa fa-download",
+		                onclick: function (obj, grid) {
+		                	exportExcelPage(obj, grid);
+		                }
+		                },
+		                {
+		                name: "导出全部",
+		                icon: "fa fa-download",
+		                onclick: function (obj, grid) {
+		                	exportExcelAll();
+		                }
+		                },
+		                {
+		                name: "添 加",
+		                icon: "fa fa-plus",
+		                onclick: function (obj, grid) {
+		                		addBlackList();
+		                }
+		                }
+##		                {
+##		                name: "黑名单设置",
+##		                icon: "fa fa-edit",
+##		                onclick: function (obj, grid) {
+##		                		editBlackList();
+##		                }
+##		                }
+		                ]
+		        	);
+		          });
+function grid_dataBound(e){
+          	 var data = e.sender._data;
+             sender = e.sender;
+             for(var i=0;i< data.length;i++)
+               {
+                $(e.sender.tbody[0].childNodes[i]).attr('title','双击该行数据显示过车轨迹');
+               	$(e.sender.tbody[0].childNodes[i]).bind('dblclick',function(){
+               		var license = $(this).children().eq(2).text();
+               		var  color = $(this).children().eq(3).text();
+               	    trailRecord(license,color);
+               	});
+               	}
+          }
+##  轨迹查询
+	function trailRecord(license,color){
+		license = encodeURI(encodeURI(license));
+		color= encodeURI(encodeURI(color));
+		window.location.href="$!{rc.contextPath}/fxzf/blackList/record?condition.license="+license+"&condition.plateColor="+color;
+		
+	}
+
+##  导出本页
+	function exportExcelPage(obj, grid){
+
+		var total = sender.pager.dataSource._total;
+		var pageNo = sender.pager.dataSource._page;
+    	if(total==0){
+    		notify("列表数据为空,不允许导出", "warn");
+    		return ;
+    	}if(total>20*(pageNo-1))
+    	{
+    		total=total-(pageNo-1)*20;
+    	}
+    	var license = $('#license').val();
+    	license = encodeURI(encodeURI(license));
+        var times = $('#overLoadTimes').val();
+        var begin='';
+	 	var end ='';
+	 	var plateColor = $("#condition_plateColor option:selected").val();
+		if($("#datePicker2").data("kendoDateTimePicker").value()!=null){
+					 end = $("#datePicker2").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+				}
+		if($("#datePicker1").data("kendoDateTimePicker").value()!=null){
+			 		 begin  = $("#datePicker1").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+				}
+    	window.location.href="$!{rc.contextPath}/fxzf/blackList/exportPage?pageNo="+pageNo+"&condition.license="+license+
+    	                     "&condition.overloadTimes="+times+"&condition.updateTime="+begin+"&condition.operateTime="+end+
+    	                     "&condition.plateColor="+plateColor;
+
+}
+
+## 导出全部
+function exportExcelAll(){
+		var total = sender.pager.dataSource._total;
+    	if(total==0){
+    		notify("列表数据为空,不允许导出", "warn");
+    		return ;
+    	}else if(total>2000)
+    	{
+    		if (!confirm("列表数据超过2000条,确定导出吗?"))return;
+    	}
+      var license = $('#license').val();
+      license = encodeURI(encodeURI(license));
+      var times = $('#overLoadTimes').val();
+      var plateColor = $("#condition_plateColor option:selected").val();
+      var begin='';
+	  var end ='';
+		if($("#datePicker2").data("kendoDateTimePicker").value()!=null){
+					 end = $("#datePicker2").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+				}
+		if($("#datePicker1").data("kendoDateTimePicker").value()!=null){
+			 		 begin  = $("#datePicker1").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+				}
+      window.location.href="$!{rc.contextPath}/fxzf/blackList/exportAll?condition.license="+license+
+                           "&condition.overloadTimes="+times+"&condition.updateTime="+begin+"&condition.operateTime="+end+
+                            "&condition.plateColor="+plateColor;
+                    	
+}          
+
+##   删除黑名单记录
+	function deleteItem(flag){
+		if(confirm("是否确定删除该记录")){
+			$.ajax({
+	        url: "$!{rc.contextPath}/fxzf/blackList/deleteById",
+	        dataType: "json",
+	        type: "post",
+	        data: {
+	        	id:flag
+	        },
+   			success: function(data,textStatus){ 
+		        	notify("黑名单删除成功","success");
+		        	edited_callback();
+						},
+    		error: function(XMLHttpRequest, textStatus, errorThrown){}
+			  });
+		}else{
+			return ;
+		}
+		
+	}
+##  添加黑名单
+	function addBlackList(){
+		quick_dialog('add_blackList_Dlg','添加黑名单','$!{rc.contextPath}/fxzf/blackList/add',642,216);
+	}
+##	黑名单阀值设置
+	function editBlackList(){
+		quick_dialog('edit_blackList_Dlg','黑名单阀值设置','$!{rc.contextPath}/fxzf/blackList/edit',597,179);
+	}
+##	回调函数
+    function edited_callback() {
+	        var grid = $("#blackList_datalist").data("kendoGrid");
+	        grid.dataSource.read();
+	       }
+## 重置页面后刷新页面
+$('#resetForm').click(function(){
+	$('#license').val("");
+	$('#condition_plateColor').val("");
+	$('#overLoadTimes').val('');
+	$('#datePicker1').val('');
+	$('#datePicker2').val('');
+	edited_callback();
+});
+	
+ </script>
+ </body>
+ <style>
+ .k-grid tbody button.k-button {
+ 	min-width: 66px;
+ 	background: url(../images/search-btn.png) no-repeat 50% 50%;
+	color: #036891;
+	border: 1px solid #9cd2ea;
+  }
+ </style>
+ </html>

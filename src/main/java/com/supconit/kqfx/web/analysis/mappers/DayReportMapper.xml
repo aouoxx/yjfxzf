@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.supconit.kqfx.web.analysis.entities.DayReport">
+
+	<resultMap type="com.supconit.kqfx.web.analysis.entities.DayReport" id="DayReportResultMap">
+		<id property="id" column="ID" />
+		<result property="jgid" column="JGID" />
+		<result property="detectStation" column="DETECT_STATION" />
+		<result property="overloadStatus" column="OVERLOAD_STATUS"/>
+		<result property="reportTimes" column="REPORT_TIMES"/>
+		<result property="tjDate" column="TJ_DATE"/>
+		<result property="updateTime" column="UPDATE_TIME"/>
+	</resultMap>
+	
+	<sql id="TABLE_NAME" lang="velocity">T_FXZF_DAYREPORT</sql>
+	<sql id="SELECT_PRE" lang="velocity">SELECT * FROM <include refid="TABLE_NAME"/></sql>
+	<sql id="COUNT_PRE" lang="velocity">SELECT COUNT(1) FROM <include refid="TABLE_NAME"/></sql>
+
+	<sql id="SEARCH_CONDITION_SQL" lang="velocity">
+		<![CDATA[
+		#where()
+			
+		#end
+		]]>	
+	</sql>
+	
+	
+	<select id="getById" resultMap="DayReportResultMap" parameterType="string" lang="velocity">
+		<include refid="SELECT_PRE" />
+				WHERE ID = @{_parameter, jdbcType=VARCHAR}
+	</select>
+	
+	<select id="CountByCondition" resultMap="DayReportResultMap" parameterType="com.supconit.kqfx.web.analysis.entities.DayReport" lang="velocity">
+		SELECT 
+			   JGID AS JGID,
+			   OVERLOAD_STATUS AS OVERLOAD_STATUS,
+			   SUM(REPORT_TIMES) AS REPORT_TIMES
+			   FROM T_FXZF_DAYREPORT
+		<![CDATA[
+			#where()
+				#if($_parameter.jgid && $_parameter.jgid != '')
+					AND JGID = @{_parameter.jgid,jdbcType=NUMERIC} 
+				#end
+				#if($_parameter.tjDateStr && $_parameter.tjDateStr != '')
+					AND to_char(TJ_DATE,'yyyy-MM-dd') = @{_parameter.tjDateStr,jdbcType=VARCHAR} 
+				#end
+			#end
+			GROUP BY JGID,OVERLOAD_STATUS ORDER BY OVERLOAD_STATUS ASC
+		]]>
+	</select>
+	
+	<select id="CountDetectByCondition" resultMap="DayReportResultMap" parameterType="com.supconit.kqfx.web.analysis.entities.DayReport" lang="velocity">
+		SELECT 
+			   DETECT_STATION as detectStation,
+    		   SUM(decode(OVERLOAD_STATUS, 0, REPORT_TIMES,0)) as overLoadNormal,
+			   SUM(decode(OVERLOAD_STATUS, 1, REPORT_TIMES,0)) as overLoadQingWei,
+			   SUM(decode(OVERLOAD_STATUS, 2, REPORT_TIMES,0)) as overLoadYiBan,
+			   SUM(decode(OVERLOAD_STATUS, 3, REPORT_TIMES,0)) as overLoadJiaoZhong,
+			   SUM(decode(OVERLOAD_STATUS, 4, REPORT_TIMES,0)) as overLoadYanzhong,
+			   SUM(decode(OVERLOAD_STATUS, 5, REPORT_TIMES,0)) as overLoadTebieYanZhong
+		   FROM T_FXZF_DAYREPORT
+		<![CDATA[
+			#where()
+				#if($_parameter.detects)
+					     #repeat($_parameter.detects  $_detect "," "AND DETECT_STATION IN (" ")" )
+						    @{_detect,jdbcType=VARCHAR}
+						 #end
+				#end
+				#if($_parameter.tjDate && $_parameter.tjDate != '')
+					AND TJ_DATE = @{_parameter.tjDate,jdbcType=TIMESTAMP} 
+				#end
+			#end
+			GROUP BY DETECT_STATION ORDER BY DETECT_STATION ASC
+		]]>
+	</select>
+	
+	
+	
+	<select id="AnalysisCarFluxByCondition" parameterType="com.supconit.kqfx.web.analysis.entities.DayReport"  resultType="com.supconit.kqfx.web.analysis.entities.DayReport" lang="velocity">
+		   SELECT TJ_DATE as tjDate,
+			   SUM(decode(DETECT_STATION, '1', REPORT_TIMES,0)) as detectOne,
+			   SUM(decode(DETECT_STATION, '2', REPORT_TIMES,0)) as detectTwo,
+			   SUM(decode(DETECT_STATION, '3', REPORT_TIMES,0)) as detectThree,
+			   SUM(decode(DETECT_STATION, '4', REPORT_TIMES,0)) as detectFour,
+			   SUM(decode(DETECT_STATION, '5', REPORT_TIMES,0)) as detectFive
+			FROM 
+			<include refid="TABLE_NAME"/>
+			<![CDATA[
+				#where()
+					#if($_parameter.beginDate && $_parameter.beginDate != '')
+							AND  TJ_DATE >= @{_parameter.beginDate,jdbcType=TIMESTAMP}
+					#end
+					#if($_parameter.endDate && $_parameter.endDate != '')
+							AND  TJ_DATE <= @{_parameter.endDate,jdbcType=TIMESTAMP}
+					#end
+					#if($_parameter.detects)
+					     #repeat($_parameter.detects  $_detect "," "AND DETECT_STATION IN (" ")" )
+						    @{_detect,jdbcType=VARCHAR}
+						 #end
+					#end
+				#end
+				GROUP BY TJ_DATE
+				ORDER BY TJ_DATE DESC
+			]]>
+	</select>
+	
+	<select id="selectPager" lang="velocity" resultMap="DayReportResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+		<include refid="SELECT_PRE"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+		#order($_parameter.condition,"UPDATE_TIME DESC")
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	</select>
+
+	<select id="countPager" lang="velocity" resultType="long">
+		<include refid="COUNT_PRE"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+	</select>
+	
+	<sql id="INSERT_SQL" lang="velocity">
+		INSERT INTO <include refid="TABLE_NAME"/>(
+		#if($_databaseId == 'oracle') ID,#end
+								 JGID
+								,DETECT_STATION
+								,OVERLOAD_STATUS
+								,REPORT_TIMES
+								,TJ_DATE
+								,UPDATE_TIME
+		) VALUES (
+		#if($_databaseId == 'oracle') @{_parameter.id,jdbcType=VARCHAR},#end
+								 @{_parameter.jgid,jdbcType=NUMERIC}
+								,@{_parameter.detectStation,jdbcType=VARCHAR}
+								,@{_parameter.overloadStatus,jdbcType=NUMERIC}
+								,@{_parameter.reportTimes,jdbcType=NUMERIC}
+								,@{_parameter.tjDate,jdbcType=TIMESTAMP}
+								,@{_parameter.updateTime,jdbcType=TIMESTAMP}
+								
+	)
+	</sql>
+	
+	<insert id="insert" parameterType="com.supconit.kqfx.web.analysis.entities.DayReport" 
+		keyProperty="ID" keyColumn="ID" 		lang="velocity" databaseId="oracle">
+		  <include refid="INSERT_SQL" />
+	</insert>
+	<insert id="insert" parameterType="com.supconit.kqfx.web.analysis.entities.DayReport" 
+		keyProperty="ID" keyColumn="ID" 		 lang="velocity">
+        <include refid="INSERT_SQL"/>
+        <selectKey keyProperty="ID" resultType="string" order="AFTER"><include refid="_PUBLIC_V.SELECT_KEY"/> </selectKey>    </insert>
+    
+	<update id="update" parameterType="com.supconit.kqfx.web.analysis.entities.DayReport" lang="velocity">
+		UPDATE <include refid="TABLE_NAME"/> 
+		#mset()
+		<![CDATA[
+			#if($_parameter.jgid) JGID = @{_parameter.jgid,jdbcType=NUMERIC},#end
+			#if($_parameter.detectStation) DETECT_STATION = @{_parameter.detectStation,jdbcType=VARCHAR},#end
+			#if($_parameter.overloadStatus) OVERLOAD_STATUS = @{_parameter.overloadStatus,jdbcType=NUMERIC},#end
+			#if($_parameter.reportTimes) REPORT_TIMES = @{_parameter.reportTimes,jdbcType=NUMERIC},#end
+			#if($_parameter.tjDate) TJ_DATE = @{_parameter.tjDate,jdbcType=TIMESTAMP},#end
+			#if($_parameter.updateTime) UPDATE_TIME = @{_parameter.updateTime,jdbcType=TIMESTAMP},#end
+		]]>
+		#end
+		WHERE ID = @{_parameter.id,jdbcType=VARCHAR}
+	</update>
+	
+	<delete id="deleteById" parameterType="string" lang="velocity">
+		DELETE FROM <include refid="TABLE_NAME" /> WHERE ID = @{_parameter,jdbcType=VARCHAR}
+	</delete>
+	
+	
+	
+	<select id="selectZczPager" lang="velocity" resultMap="zczReportResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+		<include refid="ZCZSearch"/> 
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	</select>
+	
+	<select id="countZczPager" lang="velocity" resultType="long">
+		SELECT COUNT(DISTINCT TJ_DATE) FROM 
+		<include refid="TABLE_NAME"/>
+		<include refid="SEARCH_ZCZCONDITION_SQL"/>
+	</select>
+    <sql id="ZCZSearch" lang="velocity">
+    	SELECT TJ_DATE as TJ_DATE,
+			   SUM(decode(DETECT_STATION, '1', REPORT_TIMES,0)) as detectOne,
+			   SUM(decode(DETECT_STATION, '2', REPORT_TIMES,0)) as detectTwo,
+			   SUM(decode(DETECT_STATION, '3', REPORT_TIMES,0)) as detectThree,
+			   SUM(decode(DETECT_STATION, '4', REPORT_TIMES,0)) as detectFour,
+			   SUM(decode(DETECT_STATION, '5', REPORT_TIMES,0)) as detectFive
+			FROM 
+			<include refid="TABLE_NAME"/>
+			<include refid="SEARCH_ZCZCONDITION_SQL"/>
+			GROUP BY TJ_DATE
+			ORDER BY TJ_DATE DESC
+    </sql>
+	
+	<sql id="SEARCH_ZCZCONDITION_SQL" lang="velocity">
+		<![CDATA[
+			#where()
+					#if($_parameter.condition.beginDate && $_parameter.condition.beginDate != '')
+							AND  TJ_DATE >= @{_parameter.condition.beginDate,jdbcType=TIMESTAMP}
+					#end
+					#if($_parameter.condition.endDate && $_parameter.condition.endDate != '')
+							AND  TJ_DATE <= @{_parameter.condition.endDate,jdbcType=TIMESTAMP}
+					#end
+					#if($_parameter.condition.detects)
+					     #repeat($_parameter.condition.detects  $_detect "," "AND DETECT_STATION IN (" ")" )
+						    @{_detect,jdbcType=VARCHAR}
+						 #end
+					#end
+					#if($_parameter.condition.illegals)
+					     #repeat($_parameter.condition.illegals  $_illegal "," "AND OVERLOAD_STATUS IN (" ")" )
+						    @{_illegal,jdbcType=NUMERIC}
+						 #end
+					#end
+				#end
+		]]>	
+	</sql>
+	
+	<resultMap type="com.supconit.kqfx.web.analysis.entities.DayReport" id="zczReportResultMap">
+		<result property="tjDate" column="TJ_DATE"/>
+		<result property="detectOne" column="detectOne"/>
+		<result property="detectTwo" column="detectTwo"/>
+		<result property="detectThree" column="detectThree"/>
+		<result property="detectFour" column="detectFour"/>
+		<result property="detectFive" column="detectFive"/>
+	</resultMap>
+	
+	
+	<select id="AnalysisZczByCondition" parameterType="com.supconit.kqfx.web.analysis.entities.DayReport"  resultMap="zczReportResultMap" lang="velocity">
+	  SELECT TJ_DATE as tjDate,
+			   SUM(decode(DETECT_STATION, '1', REPORT_TIMES,0)) as detectOne,
+			   SUM(decode(DETECT_STATION, '2', REPORT_TIMES,0)) as detectTwo,
+			   SUM(decode(DETECT_STATION, '3', REPORT_TIMES,0)) as detectThree,
+			   SUM(decode(DETECT_STATION, '4', REPORT_TIMES,0)) as detectFour,
+			   SUM(decode(DETECT_STATION, '5', REPORT_TIMES,0)) as detectFive
+			FROM 
+			<include refid="TABLE_NAME"/>
+			<include refid="SEARCH_CHARTCONDITION_SQL"/>
+			GROUP BY TJ_DATE
+			ORDER BY TJ_DATE DESC
+    </select>
+	
+	
+	<sql id="SEARCH_CHARTCONDITION_SQL" lang="velocity">
+		<![CDATA[
+			#where()
+					#if($_parameter.beginDate && $_parameter.beginDate != '')
+							AND  TJ_DATE >= @{_parameter.beginDate,jdbcType=TIMESTAMP}
+					#end
+					#if($_parameter.endDate && $_parameter.endDate != '')
+							AND  TJ_DATE <= @{_parameter.endDate,jdbcType=TIMESTAMP}
+					#end
+					#if($_parameter.detects)
+					     #repeat($_parameter.detects  $_detect "," "AND DETECT_STATION IN (" ")" )
+						    @{_detect,jdbcType=VARCHAR}
+						 #end
+					#end
+					#if($_parameter.illegals)
+					     #repeat($_parameter.illegals  $_illegal "," "AND OVERLOAD_STATUS IN (" ")" )
+						    @{_illegal,jdbcType=NUMERIC}
+						 #end
+					#end
+				#end
+		]]>	
+	</sql>
+   
+   
+   
+   
+	<select id="selectOverLoadPager" lang="velocity" resultMap="overLoadReportResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+		<include refid="overLoadSearch"/> 
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	</select>
+	
+	<select id="countOverLoadPager" lang="velocity" resultType="long">
+		SELECT COUNT(DISTINCT TJ_DATE) FROM 
+		<include refid="TABLE_NAME"/>
+		<include refid="SEARCH_OVERLOADCONDITION_SQL"/>
+	</select>
+    <sql id="overLoadSearch" lang="velocity">
+    	SELECT TJ_DATE as TJ_DATE,
+    		   SUM(decode(OVERLOAD_STATUS, 0, REPORT_TIMES,0)) as overLoadNormal,
+			   SUM(decode(OVERLOAD_STATUS, 1, REPORT_TIMES,0)) as overLoadQingWei,
+			   SUM(decode(OVERLOAD_STATUS, 2, REPORT_TIMES,0)) as overLoadYiBan,
+			   SUM(decode(OVERLOAD_STATUS, 3, REPORT_TIMES,0)) as overLoadJiaoZhong,
+			   SUM(decode(OVERLOAD_STATUS, 4, REPORT_TIMES,0)) as overLoadYanzhong,
+			   SUM(decode(OVERLOAD_STATUS, 5, REPORT_TIMES,0)) as overLoadTebieYanZhong
+			FROM 
+			<include refid="TABLE_NAME"/>
+			<include refid="SEARCH_OVERLOADCONDITION_SQL"/>
+			GROUP BY TJ_DATE
+			ORDER BY TJ_DATE DESC
+    </sql>
+	
+	<sql id="SEARCH_OVERLOADCONDITION_SQL" lang="velocity">
+		<![CDATA[
+			#where()
+					#if($_parameter.condition.beginDate && $_parameter.condition.beginDate != '')
+							AND  TJ_DATE >= @{_parameter.condition.beginDate,jdbcType=TIMESTAMP}
+					#end
+					#if($_parameter.condition.endDate && $_parameter.condition.endDate != '')
+							AND  TJ_DATE <= @{_parameter.condition.endDate,jdbcType=TIMESTAMP}
+					#end
+					#if($_parameter.condition.detects)
+					     #repeat($_parameter.condition.detects  $_detect "," "AND DETECT_STATION IN (" ")" )
+						    @{_detect,jdbcType=VARCHAR}
+						 #end
+					#end
+					#if($_parameter.condition.illegals)
+					     #repeat($_parameter.condition.illegals  $_illegal "," "AND OVERLOAD_STATUS IN (" ")" )
+						    @{_illegal,jdbcType=NUMERIC}
+						 #end
+					#end
+				#end
+		]]>	
+	</sql>
+	
+	<resultMap type="com.supconit.kqfx.web.analysis.entities.DayReport" id="overLoadReportResultMap">
+		<result property="tjDate" column="TJ_DATE"/>
+		<result property="overLoadNormal" column="overLoadNormal"/>
+		<result property="overLoadQingWei" column="overLoadQingWei"/>
+		<result property="overLoadYiBan" column="overLoadYiBan"/>
+		<result property="overLoadJiaoZhong" column="overLoadJiaoZhong"/>
+		<result property="overLoadYanzhong" column="overLoadYanzhong"/> 
+		<result property="overLoadTebieYanZhong" column="overLoadTebieYanZhong"/>
+	</resultMap>
+   
+   
+   <select id="AnalysisOverLoadByCondition" parameterType="com.supconit.kqfx.web.analysis.entities.DayReport"  resultMap="overLoadReportResultMap" lang="velocity">
+	  SELECT TJ_DATE as TJ_DATE,
+    		   SUM(decode(OVERLOAD_STATUS, 0, REPORT_TIMES,0)) as overLoadNormal,
+			   SUM(decode(OVERLOAD_STATUS, 1, REPORT_TIMES,0)) as overLoadQingWei,
+			   SUM(decode(OVERLOAD_STATUS, 2, REPORT_TIMES,0)) as overLoadYiBan,
+			   SUM(decode(OVERLOAD_STATUS, 3, REPORT_TIMES,0)) as overLoadJiaoZhong,
+			   SUM(decode(OVERLOAD_STATUS, 4, REPORT_TIMES,0)) as overLoadYanzhong,
+			   SUM(decode(OVERLOAD_STATUS, 5, REPORT_TIMES,0)) as overLoadTebieYanZhong
+			FROM 
+			<include refid="TABLE_NAME"/>
+			<include refid="SEARCH_OVERLOADCONDITIONLIST_SQL"/>
+			GROUP BY TJ_DATE
+			ORDER BY TJ_DATE
+    </select>
+   
+   <sql id="SEARCH_OVERLOADCONDITIONLIST_SQL" lang="velocity">
+		<![CDATA[
+			#where()
+					#if($_parameter.beginDate && $_parameter.beginDate != '')
+							AND  TJ_DATE >= @{_parameter.beginDate,jdbcType=TIMESTAMP}
+					#end
+					#if($_parameter.endDate && $_parameter.endDate != '')
+							AND  TJ_DATE <= @{_parameter.endDate,jdbcType=TIMESTAMP}
+					#end
+					#if($_parameter.detects)
+					     #repeat($_parameter.detects  $_detect "," "AND DETECT_STATION IN (" ")" )
+						    @{_detect,jdbcType=VARCHAR}
+						 #end
+					#end
+					#if($_parameter.illegals)
+					     #repeat($_parameter.illegals  $_illegal "," "AND OVERLOAD_STATUS IN (" ")" )
+						    @{_illegal,jdbcType=NUMERIC}
+						 #end
+					#end
+				#end
+		]]>	
+	</sql>
+    		
+</mapper>

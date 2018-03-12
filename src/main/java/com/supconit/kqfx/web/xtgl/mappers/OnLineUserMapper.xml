@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.supconit.kqfx.web.xtgl.entities.OnLineUser">
+
+	<resultMap type="com.supconit.kqfx.web.xtgl.entities.OnLineUser" id="OnLineUserResultMap">
+					<id property="id" column="ID" />
+							<result property="personId" column="PERSON_ID" />
+							<result property="userName" column="USERNAME" />
+							<result property="description" column="DESCRIPTION" />
+							<result property="email" column="EMAIL" />
+							<result property="ryzw" column="RYZW" />
+							<result property="name" column="NAME" />
+							<result property="rysjhm" column="RYSJHM" />
+							<result property="jgmc" column="JGMC" />
+							
+				</resultMap>
+	
+	
+	<sql id="TABLE_NAME" lang="velocity">XT_ON_LINE_USER</sql>
+	<sql id="SEQUENCE" lang="velocity">SELECT SEQ_<include refid="TABLE_NAME"/>.NEXTVAL FROM DUAL</sql>
+	<sql id="SELECT_PRE" lang="velocity">
+		select distinct 
+		u.ID,
+		u.PERSON_ID,
+		u.USERNAME,
+		u.DESCRIPTION,
+		u.EMAIL,
+		p.NAME,
+		p.RYZW,
+		p.RYSJHM,
+		x.JGMC
+	 from ho_user u
+	left join ho_person p
+	on u.person_id = p.id
+	left join t_xtgl_zhgl_jgxx x
+	on p.jgbh = x.id
+ 
+	
+	</sql>
+	<sql id="COUNT_PRE" lang="velocity">SELECT COUNT(1) FROM <include refid="TABLE_NAME"/></sql>
+
+	<sql id="SEARCH_CONDITION_SQL" lang="velocity">
+		<![CDATA[
+		#where()
+																			#end
+		]]>	
+	</sql>
+	
+	<select id="getById" resultMap="OnLineUserResultMap" parameterType="string" lang="velocity">
+		<include refid="SELECT_PRE" />
+				WHERE u.ID = @{_parameter, jdbcType=VARCHAR}
+			</select>
+	
+	<select id="selectPager" lang="velocity" resultMap="OnLineUserResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+		<include refid="SELECT_PRE"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+		#order($_parameter.condition,"ID DESC")
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	</select>
+	
+	<select id="selectPager" lang="velocity" resultMap="OnLineUserResultMap" databaseId="sqlserver">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+		SELECT * 
+		<include refid="_PUBLIC_V.ROW_NUMBER_OVER" /> 
+		#order($_parameter.condition,"ID DESC")
+		<include refid="_PUBLIC_V.AS_ROW_NUM" />
+		FROM <include refid="TABLE_NAME"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	</select>
+
+	<select id="countPager" lang="velocity" resultType="long">
+		<include refid="COUNT_PRE"/><include refid="SEARCH_CONDITION_SQL"/>
+	</select>
+	
+	<sql id="INSERT_SQL" lang="velocity">
+		INSERT INTO <include refid="TABLE_NAME"/>(
+															#if($_databaseId == 'oracle') ID,#end
+																USER_NAME
+																					,USER_ROLE
+														) VALUES (
+															#if($_databaseId == 'oracle') @{_parameter.id,jdbcType=NUMERIC},#end
+																@{_parameter.userName,jdbcType=VARCHAR}
+																					,@{_parameter.userRole,jdbcType=VARCHAR}
+														)
+	</sql>
+	
+	<insert id="insert" parameterType="com.supconit.kqfx.web.xtgl.entities.OnLineUser" 
+		keyProperty="id" keyColumn="ID" 		lang="velocity" databaseId="oracle">
+		<selectKey keyProperty="id" resultType="long" order="BEFORE"><include refid="SEQUENCE" /></selectKey>        <include refid="INSERT_SQL" />
+	</insert>
+	<insert id="insert" parameterType="com.supconit.kqfx.web.xtgl.entities.OnLineUser" 
+		keyProperty="id" keyColumn="ID" 		 lang="velocity">
+        <include refid="INSERT_SQL"/>
+        <selectKey keyProperty="id" resultType="long" order="AFTER"><include refid="_PUBLIC_V.SELECT_KEY"/> </selectKey>    </insert>
+    
+	<update id="update" parameterType="com.supconit.kqfx.web.xtgl.entities.OnLineUser" lang="velocity">
+		UPDATE <include refid="TABLE_NAME"/> 
+		#mset()
+		<![CDATA[
+																							#if($_parameter.userName)USER_NAME = @{_parameter.userName,jdbcType=VARCHAR},#end
+																#if($_parameter.userRole)USER_ROLE = @{_parameter.userRole,jdbcType=VARCHAR},#end
+									]]>
+		#end
+		WHERE ID = @{_parameter.id,jdbcType=NUMERIC}
+	</update>
+	
+	<delete id="deleteById" parameterType="long" lang="velocity">
+		DELETE FROM <include refid="TABLE_NAME" /> WHERE ID = @{_parameter,jdbcType=NUMERIC}
+	</delete>
+    		
+</mapper>

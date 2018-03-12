@@ -1,0 +1,227 @@
+#parse("platform/_header.vm")
+<link href="$!{_platform_assets_url}/css/ztree/zTreeStyle.css" rel="stylesheet">
+<script src="$!{_platform_assets_url}/js/jquery.ztree.all-3.5.min.js"></script>
+</head>
+<body>
+<div class="ui-layout-north">
+    <div class="ui-search-container">
+        <form id="search_form">
+           <input type="hidden" name="condition.jgbh" value="" />
+			<table width="100%">
+                <tr>
+                    <td>
+                        <table class="ui-search-table">
+                            <tr>
+                                <td class="ui-search-name ">人员名称：</td>
+                                <td class="ui-search-c"><input name="condition.name" class="k-textbox" type="text"></td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td width="100" >
+                        <button type="submit" class="hc_btn k-primary"><i class="fa fa-search"></i>查询</button>
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+
+<div class="ui-layout-center">
+    <div id="grid"></div>
+</div>
+<div class="ui-layout-west" id="department_tree_container" style="border-right:solid 1px #e1e5e6;">
+    <div class="ui-layout-north">
+        <div class="k-header k-grid-toolbar" style="padding-left:10px;">
+            机构簇
+        </div>
+    </div>
+    <div class="ui-layout-center">
+        <ul id="tree" class="ztree"></ul>
+    </div>
+</div>
+  
+    #parse("platform/_footer.vm")
+<script>
+    var _iframe_layout;
+	var pdlg_id = "$!{pdlg_id}";
+  	
+    $(function () {
+        _iframe_layout = $('body').layout({
+            center__maskContents: true,
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            },
+            center: {
+                onresize_end: function () {
+                    var grid = $("#grid").data("kendoGrid");
+                    grid.resize();
+                }
+            },
+            west: {
+                size: 250,
+                closable: true,
+                spacing_open: 5
+            }
+        });
+
+        $("#department_tree_container").layout({
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            }
+        });
+
+        var tree = $.fn.zTree.init($("#tree"), {
+            data: {
+			key : {
+					name : "jgmc" 
+				},
+                simpleData: {
+                    enable: true,
+                    pIdKey: "pid",
+                    rootPId: 0
+                }
+            },
+            view: {
+                selectedMulti: false
+            }, callback: {
+                onClick: function (event, treeId, node) {
+                   $("#search_form input[name='condition.jgbh']").val(node.id);
+					 var grid = $("#grid").data("kendoGrid");
+               		 grid.dataSource.read();
+					
+                }
+            }
+        }, $!{jgxxJson});
+
+        tree.expandAll(true);
+
+       	quick_datagrid("#grid", "#search_form", "$!{rc.contextPath}/xtgl/zhgl/person/select-list", [
+            
+			 {
+                width: 50,
+                headerTemplate: "选择",
+                template: "<div align=\"center\"><input #:(jQuery.inArray(data.name+'',selected)>=0)?'checked':''# onclick=\"check_id(this,#:data.id #,'#:data.rysjhm#')\" type=\"checkbox\" name=\"ids\" value=\"#:data.name  #\"></div>"
+              }		
+			
+			,{
+                field: "name",
+                title: "人员名称",
+                sortable: true,
+                width: 150
+            }, {
+                field: "rysjhm",
+                title: "手机号码",
+                sortable: true,
+                width: 150
+            }, {
+                field: "code",
+                title: "人员编码",
+                sortable: true,
+                width: 150,
+                hidden:true
+            }, {
+                field: "jgxxJgmc",
+                title: "所属机构",
+                width: 150
+            }
+			], {
+             sortable: false,
+			 pageable: true
+        	}, {
+             serverSorting: true
+        	},
+			[
+				
+				{
+                    name: "【选择】",
+                    icon: "fa fa-check-square-o",
+                    onclick: function () {
+						var tag=0;
+						var name="";
+						$.each(selectedItems, function (idx, it) {
+							if(it ==null || it=="" || it=='undefined'){
+								tag=1;
+								name=idx;
+							}     			
+                        });
+						  
+					 	if(tag==1){
+							notify(name+"没有可用的手机号,请确认后选择！", "warn");
+							return;
+						} 
+						 
+						var ids = [];
+                		for(var key in selectedItemsId){
+                			ids.push(key);
+                		}
+						
+						$.ajax({
+					        url: "$!{rc.contextPath}/message/phonebookgroup/add-persons",
+					        dataType: "json",
+					        type: "post",
+					        data: {groupId: '$!{groupId}', ids: ids},
+					        success: function(data, textStatus, jqXHR){
+					        	notify("操作成功", "success");
+					        	if(pdlg_id != ""){
+		                   	 		get_fun_in_dialog(pdlg_id).edited_callback();
+		                   	 	}else{
+		                   	 		top.window.frames['_main_frame'].edited_callback();
+		                   	 	}
+		                   	 	close_dialog('$!{dlg_id}');
+								return false;
+					        },
+					        error: function(XMLHttpRequest, textStatus, errorThrown){}
+					    });
+##                   	 	quick_ajax("$!{rc.contextPath}/message/phonebookgroup/add-persons", {groupId: '$!{groupId}', ids: ids},function(res){
+##							if(pdlg_id != ""){
+##	                   	 		get_fun_in_dialog(pdlg_id).edited_callback();
+##	                   	 	}else{
+##	                   	 		top.window.frames['_main_frame'].edited_callback();
+##	                   	 	}
+##                   	 	});
+                    }
+                }
+			
+			]);
+
+    });
+	
+	
+	var personName="";
+    var personId="";
+
+	var selected = "";
+  	if (!selected){ 
+  		selected = []
+	};
+  	
+	var selected_copy = [];
+  	var selectedItems = {};
+  	//personIds
+  	var selectedItemsId = {};
+  
+	for (var i = 0; i < selected.length; i++) {
+    	selectedItems[selected[i]] = "";
+    	selected_copy.push(selected[i]);
+	}
+	
+	
+	function check_id(o, id , sjhm) {
+        if (o.checked) {
+		
+          selectedItems[o.value] = sjhm;
+          selectedItemsId[id] = id;
+        } else {
+          delete selectedItems[o.value];
+          delete selectedItemsId[id];
+        }
+  	}
+	
+</script>
+</body>
+</html>

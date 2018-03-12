@@ -1,0 +1,344 @@
+#parse("platform/_header.vm")
+<link href="$!{rc.contextPath}/assets/css/analysis.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="ui-layout-north">
+    #bread_crumbs2("DETECT_DAY_ANALYSIS")
+</div>
+<div class="ui-layout-center" id="container">
+    <div class="ui-layout-center">
+        <div class="ui-mid-chart-left">
+            <div class="ui-chart-title">
+                <form id="search_form">
+                    <input type="hidden" id="chartChange"/>
+                    <input type="hidden" id="detectStation"/>
+                    <table class="ui-search-table">
+                        <tr>
+                            <td class="ui-search-name"><span class="count-time">统计日期：</span></td>
+                            <td><input type="text" id="tjDate"></td>
+                            <td></td>
+                            <td>
+                                <button type="button" class="hc_btn" style="background-color:#37ADDA;border-color:#37ADDA;margin-left: 140px;" onclick="refreshData('','');"><i class="fa fa-search"></i>查 询</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+            <div class="ui-chart-content">
+                <div class="ui-chart-tab menu">
+                    <ul class="tab-menu">
+                        <li class="list-bz"><a href="javascript:void(0);" onclick="refreshData('0','');" class="list-words">饼状图</a>
+                            <ul class="list-menu">
+                                <li><a href="javascript:void(0);" onclick="refreshData('0','-1');">汇总</a></li>
+                                #foreach($!jgzcd in $!jgZcdList)
+                                    <li><a href="javascript:void(0);" onclick="refreshData('0','$!{jgzcd.deteStation}');">$!{jgzcd.deteStationName}</a></li>
+                                #end
+                            </ul>
+                        </li>
+                        <li class="list-zz"><a href="javascript::void(0);" onclick="refreshData('1','');" class="list-words">柱状图</a></li>
+                    </ul>
+                </div>
+                <div class="ui-charts">
+                    <div id="ydzsmain"></div>
+                </div>
+            </div>
+        </div>
+    </div><!--container_center END -->
+    <div class="ui-layout-east">
+        <div class="ui-mid-chart-right">
+            <div class="ui-chart-title">
+                <span class="out-data" id="export">导出数据</span>
+            </div>
+            <div class="ui-chart-content">
+                <table class="ui-table ui-table-yjd" id="resultData">
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="$!{rc.contextPath}/assets/js/echarts/echarts-plain.js" type="text/javascript"></script>
+<script src="$!{rc.contextPath}/assets/js/echarts/analysis.js" type="text/javascript"></script>
+    #parse("platform/_footer.vm")
+<script type="text/javascript">
+    var exchart, extjdate, exjgid;
+    $(function () {
+        var _w = window.screen.width * 0.45;
+        var _center_main_layout = $("body").layout({
+            defaults: {
+                spacing_open: 0,
+                spacing_closed: 0
+            },
+            north: {
+                size: 34,
+                closable: true
+            },
+            onresize_end: function () {}
+        });
+
+        var _west_main_layout = $("#container").layout({
+            defaults: {
+                spacing_open: 0,
+                spacing_closed: 0
+            },
+            east: {
+                size: _w,
+                closable: true
+            },
+            onresize_end: function () {
+                $("#ydzsmain").height(_west_main_layout.center.state.innerHeight * 0.6);
+            }
+        })
+        $("#ydzsmain").height(_west_main_layout.center.state.innerHeight * 0.6);
+        refreshData('0', '-1');
+    });
+
+
+    function refreshData(chartChange, detectStation) {
+        if ("" != chartChange && "undefined" != chartChange && undefined != chartChange) {
+            $("#chartChange").val(chartChange);
+        } else {
+            chartChange = $("#chartChange").val();
+        }
+        if ("" != detectStation && "undefined" != detectStation && undefined != detectStation) {
+            if ("-1" == detectStation) {
+                detectStation = "";
+            }
+            $("#detectStation").val(detectStation);
+        } else {
+            detectStation = $("#detectStation").val();
+        }
+        var tjDate = $("#tjDate").val();
+        exchart = chartChange;
+        extjdate = tjDate;
+        if ("0" == chartChange) {
+            getPieData(tjDate, detectStation);
+            exjgid = detectStation;
+        } else {
+            getLineData(tjDate);
+            exjgid = "";
+        }
+    }
+
+    ##ajax获取饼图的数据
+    function getPieData(tjDate, detectStation) {
+        $.ajax({
+            type: "post",
+            url: "$!{rc.contextPath}/analysis/detectday/getchartdata",
+            data: {"condition.chart": 0, "condition.tjDate": tjDate, "condition.detectStation": detectStation},
+            dataType: "json",
+            success: function (data) {
+                if ("success" == data.status) {
+                    $("#ydzsmain").show();
+                    var legendData = [];
+                    ## 获取饼图legendData
+                    $.each(data.data.dicdata, function (i, item) {
+                        legendData.push(item.name);
+                    });
+                    if (data.data.dayReportList.length == 0) {
+                        $("#ydzsmain").hide();
+                        createTable(legendData);
+                    } else {
+                        var seriesData = [];
+                        var title = "治超站日期统计";
+                        ## 获取饼图seriesData
+                        var count0 = 0;
+                        var count1 = 0;
+                        var count2 = 0;
+                        var count3 = 0;
+                        var count4 = 0;
+                        var count5 = 0;
+                        $.each(data.data.dayReportList, function (i, item) {
+                            count0 += item.overLoadNormal;
+                            count1 += item.overLoadQingWei;
+                            count2 += item.overLoadYiBan;
+                            count3 += item.overLoadJiaoZhong;
+                            count4 += item.overLoadYanzhong;
+                            count5 += item.overLoadTebieYanZhong;
+                        });
+                        seriesData.push({name: legendData[0], value: count0});
+                        seriesData.push({name: legendData[1], value: count1});
+                        seriesData.push({name: legendData[2], value: count2});
+                        seriesData.push({name: legendData[3], value: count3});
+                        seriesData.push({name: legendData[4], value: count4});
+                        seriesData.push({name: legendData[5], value: count5});
+                        ## 判断是否为汇总数据,如果是汇总则转换图表数据及表格数据
+                        if (detectStation == '') {
+                            ## 图表数据
+                            title += "(汇总)";
+                        } else {
+                            ## 图表数据
+                            $.each(data.data.jgZcdList, function (i, item) {
+                                if (detectStation == item.deteStation)
+                                    title += "(" + item.deteStationName + ")";
+                            })
+                        }
+                        ## 加载饼图,可动态配置,具体参数可参考analysis.js
+                        var obj = new Object();
+                        obj.正常 = false;
+                        pieChart({
+                            "title": title,
+                            "subtext": "" != tjDate ? tjDate : "",
+                            "elementId": "ydzsmain",
+                            "legendData": legendData,
+                            "seriesName": "违法程度",
+                            "seriesData": seriesData,
+                            "selected": obj
+                        });
+                        createTable(legendData, data.data.dayReportList);
+                    }
+                } else {
+                    $("#ydzsmain").hide();
+                    notify("统计失败", "error");
+                }
+            }
+        });
+    }
+
+    ## ajax获取柱状图的数据
+    function getLineData(tjDate) {
+        $.ajax({
+            type: "post",
+            url: "$!{rc.contextPath}/analysis/detectday/getchartdata",
+            data: {"condition.chart": 1, "condition.tjDate": tjDate},
+            dataType: "json",
+            success: function (data) {
+                if ("success" == data.status) {
+                    var legendData = [];
+                    $.each(data.data.dicdata, function (i, item) {
+                        legendData.push(item.name);
+                    });
+                    $("#ydzsmain").show();
+                    if (data.data.dayReportList.length == 0) {
+                        $("#ydzsmain").hide();
+                        createTable(legendData);
+                    } else {
+                        var seriesData = [];
+                        var xData = [];
+                        var title = "";
+                        $.each(data.data.jgZcdList, function (i, item) {
+                            xData.push(item.deteStationName);
+                        });
+                        xData.push("汇总");
+                        var arr0 = [0, 0, 0, 0, 0, 0];
+                        var arr1 = [0, 0, 0, 0, 0, 0];
+                        var arr2 = [0, 0, 0, 0, 0, 0];
+                        var arr3 = [0, 0, 0, 0, 0, 0];
+                        var arr4 = [0, 0, 0, 0, 0, 0];
+                        var arr5 = [0, 0, 0, 0, 0, 0];
+                        var arr6 = [0, 0, 0, 0, 0, 0];
+                        var count0 = 0;
+                        var count1 = 0;
+                        var count2 = 0;
+                        var count3 = 0;
+                        var count4 = 0;
+                        var count5 = 0;
+                        $.each(data.data.dayReportList, function (i, item) {
+                            $.each(xData, function (x, ele) {
+                                if (item.detectStationName == ele) {
+                                    arr0[x] = item.overLoadNormal;
+                                    arr1[x] = item.overLoadQingWei;
+                                    arr2[x] = item.overLoadYiBan;
+                                    arr3[x] = item.overLoadJiaoZhong;
+                                    arr4[x] = item.overLoadYanzhong;
+                                    arr5[x] = item.overLoadTebieYanZhong;
+                                    count0 += item.overLoadNormal;
+                                    count1 += item.overLoadQingWei;
+                                    count2 += item.overLoadYiBan;
+                                    count3 += item.overLoadJiaoZhong;
+                                    count4 += item.overLoadYanzhong;
+                                    count5 += item.overLoadTebieYanZhong;
+                                }
+                            })
+                        });
+                        arr0[xData.length - 1] = count0;
+                        arr1[xData.length - 1] = count1;
+                        arr2[xData.length - 1] = count2;
+                        arr3[xData.length - 1] = count3;
+                        arr4[xData.length - 1] = count4;
+                        arr5[xData.length - 1] = count5;
+                        seriesData.push({name: legendData[0], type: 'bar', data: arr0});
+                        seriesData.push({name: legendData[1], type: 'bar', data: arr1});
+                        seriesData.push({name: legendData[2], type: 'bar', data: arr2});
+                        seriesData.push({name: legendData[3], type: 'bar', data: arr3});
+                        seriesData.push({name: legendData[4], type: 'bar', data: arr4});
+                        seriesData.push({name: legendData[5], type: 'bar', data: arr5});
+                        var obj = new Object();
+                        obj.正常 = false;
+                        barChart({
+                            "title": "治超站日期统计",
+                            "subtext": "" != tjDate ? tjDate : "",
+                            "elementId": "ydzsmain",
+                            "legendData": legendData,
+                            "xData": xData,
+                            "seriesData": seriesData,
+                            "selected": obj
+                        });
+                        createTable(legendData, data.data.dayReportList);
+                    }
+                } else {
+                    $("#ydzsmain").hide();
+                    notify("统计失败", "error");
+                }
+            }
+        });
+    }
+
+    function createTable(legendData, dayReportList) {
+        var count0 = 0;
+        var count1 = 0;
+        var count2 = 0;
+        var count3 = 0;
+        var count4 = 0;
+        var count5 = 0;
+        var count6 = 0;
+        ## 拼接表头
+        var thead = "<tr><th></th>";
+        $.each(legendData, function (i, item) {
+            if (i == 5) {
+                thead += "<th>" + item.substring(0, 2) + "<br/>" + item.substring(2, 4) + "</th>";
+            } else {
+                thead += "<th>" + item + "</th>";
+            }
+        })
+        thead += "<th>汇总</th></tr>";
+        var tbody = "";
+        if (null != dayReportList && undefined != dayReportList) {
+            ## 拼接表身
+            $.each(dayReportList, function (i, item) {
+                count0 += item.overLoadNormal;
+                count1 += item.overLoadQingWei;
+                count2 += item.overLoadYiBan;
+                count3 += item.overLoadJiaoZhong;
+                count4 += item.overLoadYanzhong;
+                count5 += item.overLoadTebieYanZhong;
+                count6 += item.overloadTotal;
+                tbody += "<tr><td>" + item.detectStationName + "</td><td>" + item.overLoadNormal + "</td><td>" + item.overLoadQingWei + "</td><td>" + item.overLoadYiBan + "</td><td>" +
+                        +item.overLoadJiaoZhong + "</td><td>" + item.overLoadYanzhong + "</td><td>" + item.overLoadTebieYanZhong + "</td><td>" + item.overloadTotal + "</td></tr>";
+            });
+            tbody += "<tr><td>汇总</td><td>" + count0 + "</td><td>" + count1 + "</td><td>" + count2 + "</td><td>" +count3 + "</td><td>" + count4 + "</td><td>" + count5 + "</td><td>" + count6 + "</td></tr>";
+        }
+        ## 生成表格(样式待调整)
+        $("#resultData").empty();
+        $("#resultData").append(thead + tbody);
+    }
+
+    $(function () {
+        $("#tjDate").hcDatePicker({
+            start: "month",
+            culture: "zh-CN",
+            format: "yyyy-MM-dd"
+        })
+    })
+
+    $("#export").click(function () {
+        var datas = $("#resultData").find("tr");
+        if (datas.length > 1) {
+            window.location.href = "$!{rc.contextPath}/analysis/detectday/export?condition.chart=" + exchart + "&condition.tjDate=" + extjdate + "&condition.detectStation=" + exjgid;
+        } else {
+            notify("统计数据为空,无法导出", "warn");
+        }
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+#parse("platform/_header.vm")
+</head>
+<body style="margin:0px">
+<form id="notifyList" class="ui-dialog-form">
+<input type="hidden" name="jgid" id="jgid" value="$!{jgid}" />
+<div class="piece-title">
+		<span class="piece-name">公告发布</span>
+</div>
+
+<div class="piece-container">
+	  <div class="piece-box">
+		<div class="piece-content">
+			<div class="piece-item piece-item-noborder">
+			    <table width="100%">
+			        <tr>
+						<td class="label"><span class="ui-form-required">*</span>公告标题：</td>
+			            <td class="ui-search-c"> <textarea name="condition.title" class="k-textbox"  id="title" style="height:50px;width:90%"></textarea></td>
+			        </tr>
+			        <tr id="jgidrange">
+						<td class="label"><span class="ui-form-required">*</span>公告范围：</td>
+						<td class="ui-search-c" id="rangeTD">
+							<div style="height: 100%;width: 150px;">
+							<input type="checkbox" name="range" value="一桥"/>&nbsp;&nbsp;一桥&nbsp;&nbsp;
+							<input type="checkbox" name="range" value="二桥"/>&nbsp;&nbsp;二桥&nbsp;&nbsp;
+							<input type="hidden" name="condition.range" id="range" />
+						    </div>
+						</td>
+			        </tr>
+			         <tr>
+						<td class="label"><span class="ui-form-required">*</span>公告载体：</td>
+						<td class="ui-search-c">
+							<div style="height: 100%;width: 150px;">
+							<input type="checkbox" name="carrier" value="网页"/>&nbsp;&nbsp;网页&nbsp;&nbsp;&nbsp;<input type="checkbox" name="carrier" value="APP"/>&nbsp;&nbsp;APP&nbsp;&nbsp; 
+							<input type="hidden" name="condition.carrier" id="carrier" />
+							</div>
+						</td>
+			        </tr>
+			        <tr>
+						<td class="label"><span class="ui-form-required">*</span>公告类型：</td>
+						<td class="ui-search-c">
+							#dic_select2("NOTIFYTYPE","condition.type","condition_type","ui-combobox","condition_type") 
+						</td>
+			        </tr>
+			        <tr>
+			       		<td  class="label"><span class="ui-form-required">*</span>公告有效期截止时间：</td>
+						<td> 
+							<input type="text" name="condition.endDateTime" id="datePicker1">
+							<span class="ui-form-required">&nbsp;&nbsp;(截止时间必须晚于公告发布时间)</span> 
+						</td>
+					</tr>
+					<tr>
+						<td class="label"><span class="ui-form-required">*</span>公告内容：</td>
+						<td  style="height:50px;">
+						  <textarea name="condition.content" style=" width: 90%;height: 80px;" class="k-textbox" id="discription" ></textarea> 
+						</td>
+					</tr>        
+			    </table>
+			  </div>
+		    </div>
+	  </div>
+</div>
+<div class="actions">
+    <button class="k-primary hc_btn" type="submit" id="but"><i class="fa fa-save"></i>发 布</button>
+    <button class="hc_btn cancel"  type="reset" id="close"><i class="fa fa-close"></i>取 消</button>
+</div>
+</form>
+
+
+#parse("platform/_footer.vm")
+
+<script src="$!{rc.contextPath}/dwr/engine.js"></script>
+<script src="$!{rc.contextPath}/dwr/util.js"></script>	
+<script src="$!{rc.contextPath}/dwr/interface/messagePush.js"></script>
+<script>
+
+ $(document).ready(function(){
+
+    var start = $("#datePicker1").hcDateTimePicker({
+    	culture : "zh-CN",
+    	format :"yyyy-MM-dd HH:mm:ss",
+    	change : startChange
+    }).data("kendoDateTimePicker");
+    
+ 	function startChange(){
+ 		   date = new Date();
+ 		   date.setHours(date.getHours()+1);
+           start.min(date);
+ 	}
+ 	startChange();
+   });
+   
+ ## 消息发布成功后推送信息 ,权限控制如果只推送给一桥
+ function pushMessage(){
+ 			var data = rangeT();
+ 			if(data=='一桥'){
+ 			messagePush.send("133");
+ 			}else if(data=='二桥'){
+ 			messagePush.send("134");
+ 			}else{
+ 			messagePush.send("134_133");
+ 			}
+  }
+ function show(){
+	}
+
+ ##发布信息的权限控制
+ $(function(){
+ 	var jgid = $('#jgid').val();
+## 	console.log(jgid);
+ 	if(jgid==133){
+ 	$('input:checkbox[value="一桥"]').attr("checked",true);
+ 	$('#jgidrange').hide();
+ 	carrierT();
+ 	}else if(jgid==134){
+ 	$('input:checkbox[value="二桥"]').attr("checked",true);
+ 	$('#jgidrange').hide();
+ 	carrierT();
+ 	}
+ });
+
+ $('form').validator({
+    rules: {
+    	validtime1:function(element){
+    			var time = /^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}$/.test(element.value);
+    			if(!time){
+    			  $("#datePicker1").parent().css("border-color","red");
+    			}else{
+    			   $("#datePicker1").parent().css("border-color","#CCC");
+    			}
+    			return time;
+    	}
+    },
+    messages:{
+    	validtime1:'请选择公告有效期截止时间'
+    },
+    fields: {
+    	"condition.title":{
+    		    rule:"required;length[~1000]",
+    		    msg: {required: "请输入公告标题"}
+    	},
+    	"condition.type":{
+    		    rule:"required",
+    		    msg: {required: "请选择公告类型"}
+    	},
+    	"condition.content":{
+    		    rule:"required;length[~2000]",
+    		    msg: {required: "请输入公告内容"}
+    	},
+    	"condition.endDateTime":{
+    			rule:"validtime1;required",
+    			msg: {required: "请选择公告有效期截止时间"}
+    	}
+    },
+    valid: function(form){
+    	var range=rangeT();
+    	$('#range').val(range);
+    	var carrier=carrierT();
+    	$('#carrier').val(carrier);
+    	if(range==''){
+    		notify('请选择公告范围','warn');
+    		return ;
+    	}
+    	if(carrier==''){
+    		notify('请选择公告载体','warn');
+    		return ;
+    	}
+		if($("#datePicker1").data("kendoDateTimePicker").value()!=null){
+		   begin  = $("#datePicker1").data("kendoDateTimePicker").value();
+		   var now = new Date();
+		   if(now>begin){
+		   	confirm("公告发布时间大于截止时间将不会进行语音提示，是否确定发布该公告通知！")
+		   }
+		   
+		}
+    	
+        $.ajax({
+            url: "$!{rc.contextPath}/fxzf/notify/add",
+            data: $('form').serialize(),
+			type: 'post',
+            success: function(data){
+            	var carrier=carrierT();
+            	##console.log(carrier);
+                if(carrier=='APP'){
+                	## 不进行告警
+                	## console.log("APP告警");
+                	window.parent.frames["_main_frame"].edited_callback();
+                	close_dialog('add_Notify_Dlg',true );
+                }else{
+                	## 仅对网页告警进行提醒
+					pushMessage();
+                	window.parent.frames["_main_frame"].edited_callback();
+                	close_dialog('add_Notify_Dlg');
+                }
+            },
+            error:function(data){
+            
+            }
+        });
+    }
+  });
+  
+ $('#close').click(function(){
+ 	close_dialog('add_Notify_Dlg');
+ })
+ 
+ $("input[name='range']:checkbox").change(function(){
+ 	rangeT()
+ });
+ 
+  $("input[name='carrier']:checkbox").change(function(){
+ 	carrierT()
+ });
+ 
+ function rangeT(){
+   var str="";
+        $("input[name='range']:checkbox").each(function(){ 
+            if(this.checked){
+                str += $(this).val()+","
+            }
+        })
+   return str.substring(0,str.length-1);
+  }
+
+ function carrierT(){
+   var str="";
+        $("input[name='carrier']:checkbox").each(function(){ 
+            if(this.checked){
+                str += $(this).val()+","
+               
+            }
+        })
+   ## console.log(str.substring(0,str.length-1));
+   return str.substring(0,str.length-1);
+   
+  }
+</script>
+
+
+
+<style>
+ .ui-dialog-form .label {
+		  text-align: right;
+		  color: #4b4b4b;
+		  width: 150px;
+	}
+ 
+ .k-combobox {
+	  min-width: 3em;
+	  width: 25%;
+	}
+.k-datetimepicker, .k-multiselect {
+	width : 25%;
+}
+ </style>
+ 
+ 
+ 
+ </body>
+</html>

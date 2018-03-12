@@ -1,0 +1,133 @@
+<div class="ui-layout-center" id="plat_auth_user_select_container">
+	<div class="ui-layout-center">
+		<table id="plat_auth_user_datalist" class="fn-hide"></table>
+	</div>
+	<div class="ui-layout-north">
+		<form id="plat_auth_user_search_form" class="ui-form ui-form-search fn-clear">
+			<input type="hidden" name="condition.jgbh" value="" />
+			<div class="ui-form-search-left" style="width:540px">
+		    	<div class="ui-form-item" style="width:200px">
+					<label class="ui-label" style="width:70px;">用户名：</label>
+		    		<input class="ui-input" style="width:90px" type="text" name="condition.username" value="$!{condition.username}" />
+		    	</div>
+		    	<div class="ui-form-item" style="width:200px">
+					<label class="ui-label" style="width:70px;">员工姓名：</label>
+		    		<input class="ui-input" style="width:90px" type="text" name="condition.person.name" value="$!{condition.person.name}" />
+		    	</div>
+	    	</div>
+	    	<div class="ui-form-search-right" style="width:80px">
+				<button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> 查&nbsp;询</button>
+			</div>
+		</form>
+	</div>
+</div>
+<div class="ui-layout-west">
+	<div id="plat_org_person_box" class="ui-box" style="margin-top:5px;">
+      <div class="ui-box-head">机构树</div>
+      <div class="ui-box-container">
+          <ul id="xtgl_zhgl_jgxx_tree" class="ztree"></ul>
+      </div>
+    </div>
+</div>
+<script type="text/javascript">
+var xtgl_zhgl_jgxx_tree;
+var plat_auth_user_select_datagrid;
+var _plat_auth_user_select_layout,_plat_auth_user_select_center_layout;
+	$(function(){
+		if(_plat_auth_user_select_layout && !_plat_auth_user_select_layout.destroyed) _plat_auth_user_select_layout.destroy();
+		_plat_auth_user_select_layout = $("#plat_auth_user_select_container").parent().layout({
+			defaults : {
+				resizable : false,
+				closable : false,
+				spacing_open : 5
+			},
+			west : {
+				size : 250,
+				resizable : true,
+				resizerTip : "移动改变大小",
+				closable : true,
+				togglerTip_open : "隐藏",
+				togglerTip_closed : "打开"
+			},
+			onresize_end : function(){
+				$("#plat_org_person_box").box("resize");
+			}
+		});
+		if(_plat_auth_user_select_center_layout && !_plat_auth_user_select_center_layout.destroyed) _plat_auth_user_select_center_layout.destroy();
+		_plat_auth_user_select_center_layout = $("#plat_auth_user_select_container").layout({
+			defaults : {
+				resizable : false,
+				closable : false,
+				spacing_open : 5
+			},
+			onresize_end : function(){
+				$("#plat_auth_user_datalist").datagridResize({width:_plat_auth_user_select_center_layout.state.center.innerWidth,height:_plat_auth_user_select_center_layout.state.center.innerHeight});
+			}
+		});
+		$("#plat_org_person_box").box({
+			width : function(){return _plat_auth_user_select_layout.state.west.innerWidth;},
+			height : function(){return _plat_auth_user_select_layout.state.west.innerHeight;}
+		});
+		## 菜单树
+		var setting = {
+			data : {
+				key : {
+					name : "jgmc"
+				}
+			},
+			callback: {
+				onClick : function(event, treeId, treeNode) {
+					if(treeNode.id == 1) {
+						$("#plat_auth_user_search_form input[name='condition.jgbh']").val("");
+					} else {
+						$("#plat_auth_user_search_form input[name='condition.jgbh']").val(treeNode.id);
+					}
+					plat_auth_user_select_datagrid.flexReload();
+				}
+			}
+		};
+		var nodes = $!{jgxxJson};
+		
+		xtgl_zhgl_jgxx_tree = $.fn.zTree.init($("#xtgl_zhgl_jgxx_tree"), setting, nodes);
+		xtgl_zhgl_jgxx_tree.expandAll(true);
+		var expandNodes = xtgl_zhgl_jgxx_tree.getNodesByParam("jgdj","1",null);
+##		$.each(expandNodes,function(i,node){
+##			tree.expandNode(node, true, false, true, false);
+##		});
+		
+		## datagrid
+		plat_auth_user_select_datagrid = $("#plat_auth_user_datalist").datagrid({
+			url: '$!{rc.contextPath}/xtgl/zhgl/user/select',
+			dataType: "json",
+			method: "POST",
+			singleSelected : true,
+			striped : false,
+			height:  _plat_auth_user_select_center_layout.center.state.innerHeight,
+			width :  _plat_auth_user_select_center_layout.center.state.innerWidth,
+			showOrderNumber : true,
+			useRp : true,
+			usepager: true,
+    		rpOptions: [10, 20, 40, 60],
+    		pageSize: 20,
+    		searchFormId : "plat_auth_user_search_form",
+    		searchCallback : function(datagrid){
+    		},
+    		#if($muilt)
+    		showCheckbox:true,
+    		#end
+			colModel : [
+				{"display":"序号"},
+				#if($muilt)
+				{"display": "checkbox",width:30},
+				#end
+				{"name":"id","hide":true},
+				{"display":"用户名","name":"username",width:100,"sortable":true,"orderField":"USERNAME"},
+				{"display":"对应员工","name":"person.name",width:100},
+				{"display":"电子邮箱","name":"email",width:150},
+				{"display":"备注","name":"description",width:80}
+			],
+			buttons : [
+			]
+		});
+	});
+</script>

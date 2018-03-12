@@ -1,0 +1,64 @@
+<div class="ui-layout-north">
+  <!-- header start -->
+  <div class="ui-header">
+    <div class="ui-head-title">台州非现执法系统</div>
+    <ul class='ui-header-info'>
+      #current_user()
+      <li class="ui-header-info-item first">
+          <a href="$!{rc.contextPath}"><i class="iconfont icon-home"></i></a>
+      </li>
+      <li class="ui-header-info-item"><a href="javascript:void(0)"><i class="iconfont icon-user"></i> #if($_user.person.name)$!{_user.person.name}#{else}$!{_user.username}#{end}</a></li>
+      <li class="ui-header-info-item"><a href="javascript:void(0)"><i class="iconfont icon-envelope-alt"></i> 3</a></li>
+      <li class="ui-header-info-item" id="full_text_seach_btn">
+          <a href="javascript:void(0)"><i class="iconfont icon-search"></i></a>
+      </li>
+      <li class="ui-header-info-item">
+          <a href="$!{rc.contextPath}/platform/index" target="_blank"><i class="iconfont icon-cog"></i></a>
+      </li>
+      <li class="ui-header-info-item last">
+          <a href="$!{rc.contextPath}/platform/logout"><i class="iconfont icon-off"></i></a>
+      </li>
+    </ul>
+
+    <div class="ui-full-text-search fn-hide">
+      <span>快速搜索</span>
+      <input class="ui-full-text-search-input" placeholder="keyword">
+    </div>
+
+    <!-- menu start -->
+    <div class="ui-menu-warp">
+      <ul id="function_menus" class="ui-menu fn-hide">
+
+      ##_menu("menu","ROOT")#end
+      ##foreach($mm in $menu.children)
+          ##if($mm.code == 'ROOT_FUNCTION')
+          #foreach($m in $menu.children)
+            <li link="$!{rc.contextPath}$!{m.linkUrl}">
+              <a href="javascript:void(0)" #if($m.linkUrl && $m.linkUrl != "")onclick="loadUrl('$!{rc.contextPath}$!{m.linkUrl}')"#{end}>$!{m.name}</a>
+              #if($m.children && !$m.children.isEmpty())
+                <ul>
+                  #foreach($mm in $m.children)
+                    <li link="$!{rc.contextPath}$!{mm.linkUrl}">
+                      <a code="$!{mm.code}" href="javascript:void(0)" #if($mm.linkUrl && $mm.linkUrl != "")onclick="loadUrl('$!{rc.contextPath}$!{mm.linkUrl}')"#{end}>$!{mm.name}</a>
+                      #if($mm.children && !$mm.children.isEmpty())
+                      <ul>
+                        #foreach($mmm in $mm.children)
+                          <li link="$!{rc.contextPath}$!{mmm.linkUrl}"><a code="$!{mmm.code}" href="javascript:void(0)" #if($mmm.linkUrl && $mmm.linkUrl != "")onclick="loadUrl('$!{rc.contextPath}$!{mmm.linkUrl}')"#{end}>$!{mmm.name}</a></li>
+                        #end
+                      </ul>
+                      #end
+                    </li>
+                  #end
+                </ul>
+              #end
+            </li>
+          #end
+          ##end
+      ##end
+    </ul>
+    <div class="ui-menu-sub fn-hide"></div>
+    </div>
+    <!--menu end -->
+  </div>
+  <!-- header end -->
+</div>

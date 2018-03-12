@@ -1,0 +1,128 @@
+#set($_title = "新增部门 - " + $_site_name)
+#parse("platform/_header.vm")
+</head>
+<body>
+
+<form method="post" id="plat_auth_operate_edit_form" action="$!{rc.contextPath}/platform/authorization/operate/edit" class="ui-dialog-form">
+	<input type="hidden" name="operate.id" value="$!{operate.id}"/>
+    <table width="100%">
+        <tr>
+            <td class="label"><span class="ui-form-required">*</span>操作编码：</td>
+            <td><input name="operate.code" class="k-textbox" value="$!{operate.code}"></td>
+            <td class="label"><span class="ui-form-required">*</span>操作名称：</td>
+            <td><input name="operate.name" class="k-textbox" value="$!{operate.name}"></td>
+            <td></td>
+        </tr>
+		<tr>
+            <td class="label"><span class="ui-form-required">*</span>所属菜单：</td>
+            <td><select name="operate.menuId" id="menuId"></select></td>
+			<td class="label"><span class="ui-form-required">*</span>显示按键：</td>
+            <td>
+				<select class="ui-combobox" name="operate.listButton" value="$!{portlet.loadType}">
+    				<option value="1" #if($operate.listButton==1) selected="selected" #{end}>是</option>
+    				<option value="0" #if($operate.listButton==0) selected="selected" #{end}>否</option>
+    			</select>
+			</td>
+            <td></td>
+        </tr>
+		<tr>
+            <td class="label">按键图标：</td>
+            <td><input name="operate.icon" class="k-textbox" value="$!{operate.icon}" data-rule="length[~512];"></td>
+			<td class="label">排序值：</td>
+            <td><input name="operate.sortValue" class="k-textbox" value="$!{operate.sortValue}" data-rule="length[~11];"></td>
+            <td></td>
+        </tr>
+		<tr>
+            <td class="label">操作代码：</td>
+            <td colspan="3"><textarea name="operate.onclick" class="k-textbox" rows="4">$!{operate.onclick}</textarea></td>
+            <td></td>
+        </tr>
+		<tr>
+            <td class="label">控制URL：<br>(一行一个)</td>
+            <td colspan="3"><textarea name="operate.resources" class="k-textbox" rows="4">$!{operate.resources}</textarea></td>
+            <td></td>
+        </tr>
+		<tr>
+            <td class="label">备注：</td>
+            <td colspan="3"><textarea name="operate.description" class="k-textbox" rows="4" data-rule="length[~255];">$!{operate.description}</textarea></td>
+            <td></td>
+        </tr>
+    </table>
+    <div class="actions">
+        <button class="k-primary hc_btn" type="submit" id="save"><i class="fa fa-save"></i>保 存</button>
+        <button class="hc_btn cancel" onclick="close_dialog('operate_edit_dlg')" type="button"><i class="fa fa-close"></i>取 消</button>
+    </div>
+</form>
+
+    #parse("platform/_footer.vm")
+	
+<script>
+	$('form').validator({
+        rules: {
+            
+        },
+        messages: {
+            required: "请填写{0}",
+            email: "邮箱地址不合法"
+        },
+        fields: {
+            'operate.code': '操作编码:required;length[~128];',
+            'operate.name': '操作名称:required;length[~32];',
+            'operate.menuId': '所属菜单:required;',
+            'operate.listButton': '显示按键:required;'
+        },
+		msgClass: "n-bottom",
+        valid: function(form){
+           form_btn_submit('#save','#plat_auth_operate_edit_form',function(res){
+    				notify("操作成功", "success");
+					window.parent.frames["_main_frame"].callback();
+					close_dialog('operate_edit_dlg');
+			})
+        }
+    });
+	$("form .k-textbox").bind({
+		mouseover: function(e) {
+			if ($(this).hasClass("n-invalid")) {
+				var msg_box = $(this).siblings(".msg-box").get(0);
+				$(msg_box).find(".n-error").show();
+			}
+		},
+		mouseout: function(e){
+			if ($(this).hasClass("n-invalid")) {
+				$(this).siblings(".msg-box").find(".n-error").hide();
+			}
+		}
+	});
+	$(document).ready(function(){
+		$("#menuId").kendoComplexeSelect({
+            validate : true,
+            multiple: false,
+            selectClick: function (e) {
+                _select_menu("#menuId", "operate_edit_dlg", false);
+            },
+            onRemove: function () {
+                
+            },
+            onAdd: function (item) {
+                
+            }
+        });
+		//所属菜单初始化
+		var pid = '$!{menu.pid}';
+		var name = '$!{menu.name}';
+		if(pid != "" && pid > 0){
+			var id = '$!{menu.id}';
+			if(name.length>10){
+				name = name.substring(0,10)+"...";
+			}
+    		var ser = get_el_in_dialog('operate_edit_dlg', '#menuId').data("kendoComplexeSelect");
+            ser.add(id, name.replace("</span>", "").replace(/<span.*>/, ""));
+		}
+    });
+	
+	function _select_menu(el, dlgId, multiple) {
+        quick_dialog("menu_select_dlg", "选择菜单", "xtgl/qxgl/menu/select?el=" + encodeURIComponent(el) + "&dlgId=" + dlgId + "&multiple=" + (multiple || false), 300, 480);
+    }
+</script>
+</body>
+</html>

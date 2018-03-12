@@ -1,0 +1,307 @@
+#parse("platform/_header.vm")
+<link href="$!{rc.contextPath}/assets/css/analysis.css" rel="stylesheet">
+</head>
+<body>
+<div class="ui-layout-north">
+    #bread_crumbs2("ZCZ_ANALYSIS")
+</div>
+<div class="ui-layout-center" id="container">
+    <div class="ui-layout-center">
+        <div class="ui-mid-chart-left">
+            <div class="ui-chart-title" style="height:70px;">
+                <form id="search_form">
+                    <input type="hidden" name="jgid" id="jgid" value="$!{jgid}"/>
+                    <input type="hidden" name="condition.jgid" id="jgidc" value="$!{jgid}"/>
+                    <table style="margin-top: 12px;">
+                        <tr>
+                            <td class="ui-search-name" style="color: #055a7e;font-size: 16px; padding-left:20px;">统计时间：</td>
+                            <td class="ui-search-c"><input type="text" name="condition.beginDate" id="datePicker1"></td>
+                            <td style="text-align: right;padding-right: 10px;">&nbsp;&nbsp;至&nbsp;&nbsp;</td>
+                            <td><input type="text" name="condition.endDate" id="datePicker2"></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="ui-search-name" style="color: #055a7e;font-size: 16px; padding-left:20px;"><span style="line-height: 38px;">违法程度：</span></td>
+                            <td class="ui-search-c" colspan="3" id="overLoadStatusName"></td>
+                            <td>
+                                <button type="submit" class="hc_btn k-primary" style="background-color:#37ADDA;border-color:#37ADDA;" id="search"><i class="fa fa-search"></i>查 询</button>
+                            </td>
+                        </tr>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+            <div class="ui-chart-content">
+                <div class="ui-charts">
+                    <div id="zczBar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ui-layout-east">
+        <div class="ui-mid-chart-right">
+            <div class="ui-chart-title">
+                <span class="out-data" id="exportExcel">导出数据</span>
+            </div>
+        </div>
+        <div class="ui-chart-content" id="grid-content">
+            <div id="grid"></div>
+        </div>
+    </div>
+</div>
+<script src="$!{rc.contextPath}/assets/js/echarts/echarts-plain.js" type="text/javascript"></script>
+<script src="$!{rc.contextPath}/assets/js/echarts/overload.js" type="text/javascript"></script>
+    #parse("platform/_footer.vm")
+<script>
+    $(document).ready(function () {
+        var start = $("#datePicker1").hcDatePicker({
+            culture: "zh-CN",
+            format: "yyyy-MM-dd",
+            change: startChange
+        }).data("kendoDatePicker");
+        var end = $("#datePicker2").hcDatePicker({
+            culture: "zh-CN",
+            format: "yyyy-MM-dd",
+            change: endChange
+        }).data("kendoDatePicker");
+
+        function startChange() {
+            var startDate = start.value(), endDate = end.value();
+            if (startDate) {
+                startDate = new Date(startDate);
+                startDate.setDate(startDate.getDate());
+                end.min(startDate);
+            } else if (endDate) {
+                start.max(new Date(endDate));
+            } else {
+                endDate = new Date();
+                start.max(endDate);
+            }
+        }
+
+        function endChange() {
+            var endDate = end.value(), startDate = start.value();
+            if (endDate) {
+                endDate = new Date(endDate);
+                endDate.setDate(endDate.getDate());
+                start.max(endDate);
+            } else if (startDate) {
+                end.min(new Date(startDate));
+            } else {
+                endDate = new Date();
+                start.max(endDate);
+            }
+        }
+        startChange();
+        endChange();
+    });
+
+    $(function () {
+        overLoadStatus();
+        var _w = window.screen.width * 0.45;
+        var _center_main_layout = $("body").layout({
+            defaults: {
+                spacing_open: 0,
+                spacing_closed: 0
+            },
+            north: {
+                size: 34,
+                closable: true
+            },
+            onresize_end: function () {
+
+            }
+        });
+        var _chartPart_layout = $("#container").layout({
+            defaults: {
+                spacing_open: 0,
+                spacing_closed: 0
+            },
+            east: {
+                size: _w,
+                closable: true
+            },
+            onresize_end: function () {
+                $("#zczBar").height(_chartPart_layout.center.state.innerHeight * 0.7);
+                $("#grid-content").height(_chartPart_layout.east.state.innerHeight - 40);
+                var grid = $("#grid").data("kendoGrid");
+                grid.resize();
+            }
+        });
+        $("#zczBar").height(_chartPart_layout.center.state.innerHeight * 0.7);
+        $("#grid-content").height(_chartPart_layout.east.state.innerHeight - 40);
+
+        arrdata = [];
+        var flag = ($('#jgid').val());
+        var station1 = '$!{station1}';
+        var station2 = '$!{station2}';
+//        station1 = station1.substring(0, station1.length - 3) + '<br/>' + station1.substring(station1.length - 3, station1.length);
+//        station2 = station2.substring(0, station2.length - 3) + '<br/>' + station2.substring(station2.length - 3, station2.length);
+
+        if (flag == 133) {
+            arrdata.push({field: "id", hidden: true}, {field: "tjDateStr", title: "统计时间"},
+                    {field: "detectOne", title: station1, width: "25%"},
+                    {field: "detectTwo", title: station2, width: "25%"},
+                    {field: "total", title: "总计", width: "15%"});
+        } else {
+            $('#jgidc').val('');
+            arrdata.push({field: "id", hidden: true}, {field: "tjDateStr", title: "统计时间"},
+                    {field: "detectOne", title: station1, width: "25%"},
+                    {field: "detectTwo", title: station2, width: "25%"},
+                    {field: "total", title: "总计", width: "15%"});
+        }
+        ##渲染列表
+        myquick_datagrid("#grid", "#search_form", "$!{rc.contextPath}/analysis/overload/zczoverload/list", arrdata,
+            {
+                sortable: false,
+                pageable: true,
+                pageSize: 20,
+                dataBound: function (e) {
+                    grid_dataBound(e);
+                }
+            },
+            {
+                serverSorting: true
+            },
+        []);
+        $("#grid .k-grid-toolbar").remove();
+        ##渲染图形
+        getBarData();
+    });
+
+    ## 表格回调方法
+    function grid_dataBound(e) {
+        var flag = ($('#jgid').val());
+        var data = e.sender._data;
+        sender = e.sender;
+    }
+
+    ## 获取违法程度
+    function overLoadStatus() {
+        $.ajax({
+            url: "$!{rc.contextPath}/analysis/overload/zczoverload/overLoadStatus",
+            dataType: "json",
+            type: "post",
+            data: {},
+            success: function (data, textStatus) {
+                var html = '<select id="overLoadStatus" multiple="multipe" name="condition.overloadStatusStr" class="ui-combobox"><option></option>';
+                for (var i = 0; i < data.data.length; i++) {
+                    var status = data.data[i].split(":");
+                    html = html + '<option value="' + status[0] + '">' + status[1] + '</option>';
+                }
+                html = html + '</select>';
+                $("#overLoadStatusName").html(html);
+                $("#overLoadStatus").hcMultiSelect();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+            }
+        });
+    }
+    ##  表单验证提交查询
+    $('form').validator({
+        rules: {},
+        messages: {},
+        fields: {},
+        valid: function (form) {
+            var overLoadStatus = $("#overLoadStatus option:selected").val();
+            var begin = '';
+            var end = '';
+            if ($("#datePicker2").data("kendoDatePicker").value() != null) {
+                end = $("#datePicker2").data("kendoDatePicker").value().format('yyyy-MM-dd');
+            }
+            if ($("#datePicker1").data("kendoDatePicker").value() != null) {
+                begin = $("#datePicker1").data("kendoDatePicker").value().format('yyyy-MM-dd');
+            }
+            ##刷新表格
+            edited_callback();
+            ##刷新图标
+            getBarData();
+        }
+    });
+    ## 表格刷新函数
+    function edited_callback() {
+        var grid = $("#grid").data("kendoGrid");
+        grid.dataSource.read();
+    }
+    ## 获取柱状图数据
+    function getBarData() {
+        $.ajax({
+            url: "$!{rc.contextPath}/analysis/overload/zczoverload/getChartData",
+            dataType: "json",
+            type: "post",
+            data: $("form").serialize(),
+            success: function (data) {
+                if (data.data.success == 200) {
+                    $('#zczBar').show();
+                    var xData = [];
+                    ##柱状图xAis
+                    xData = data.data.xAis;
+                    ##柱状图的legend
+                    var legend = [];
+                    legend = data.data.legend;
+                    ##柱状图的yAis
+                    ##这里可以进行优化,现在的做法是手动的将治超站的数据和y轴的数据进行对应,这样要求
+                    ##对应关系不能出错,否则会出现数据混乱
+                    var yData = [];
+                    var yAisData = [];
+                    var arr1 = [];
+                    var arr2 = [];
+                    var arr3 = [];
+                    $.each(data.data.yAis, function (i, yAis) {
+                        arr1.push(yAis.detectOne);
+                        arr2.push(yAis.detectTwo);
+                        arr3.push(yAis.total);
+                    });
+
+                    ##通过权限控制图标legend的显示
+                    var flag = ($('#jgid').val());
+                    var reallegend = [];
+                    if (flag == 133) {
+                        reallegend = legend;
+                        yData.push(
+                                {name: legend[0], type: 'bar', data: arr1}
+                                , {name: legend[1], type: 'bar', data: arr2}
+                                , {name: legend[2], type: 'bar', data: arr3}
+                        );
+                    } else {
+                        reallegend = legend;
+                        yData.push(
+                                {name: legend[0], type: 'bar', data: arr1}
+                                , {name: legend[1], type: 'bar', data: arr2}
+                                , {name: legend[2], type: 'bar', data: arr3}
+                        );
+                    }
+                    ##渲染图标
+                    var position = $("#zczBar").height() - 73;
+                    areaBarChart({
+                        "title": "治超站超限统计",
+                        "elementId": "zczBar",
+                        "legendData": reallegend,
+                        "xData": xData,
+                        "seriesData": yData,
+                        "position": position
+                    });
+                } else {
+                    $('#zczBar').hide();
+                }
+            }
+        });
+    }
+
+    ## 导出excel
+    $('#exportExcel').click(function () {
+        var overload = $('#overLoadStatus').val();
+        var begin = '';
+        var end = '';
+        var jgid = $('#jgid').val();
+        if ($("#datePicker2").data("kendoDatePicker").value() != null) {
+            end = $("#datePicker2").data("kendoDatePicker").value().format('yyyy-MM-dd');
+        }
+        if ($("#datePicker1").data("kendoDatePicker").value() != null) {
+            begin = $("#datePicker1").data("kendoDatePicker").value().format('yyyy-MM-dd');
+        }
+        window.location.href = "$!{rc.contextPath}/analysis/overload/zczoverload/exportAll?condition.beginDate=" + begin + "&condition.endDate=" + end + "&condition.overloadStatusStr=" + overload + "&condition.jgid=" + jgid;
+    })
+</script>
+</body>
+</html>

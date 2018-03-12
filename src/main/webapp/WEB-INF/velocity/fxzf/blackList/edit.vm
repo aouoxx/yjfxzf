@@ -1,0 +1,75 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+#bread_crumbs2("BLACKTHRED")
+<form id="blackList" class="ui-dialog-form">
+<input type="hidden" value="$!{thredhold}"  id="thredhold"/>
+	<table class="blacklist-table">
+			<tr>
+				<td class="ui-search-name title" colspan="2"> 
+					<i class="warnIcon" ></i>一年内超限次数大于该值将加入黑名单
+				</td>
+			</tr>
+			<tr style="height:100px;">
+				<td class="ui-search-name" style="text-align: right; width: 43%;color:#09739f;
+	font-size:14px;"><span class="ui-form-required">*</span>黑名单设置：</td>
+				<td class="ui-search-c"> <input type="text" id="overloadTimes" name="condition.overloadTimes" class="k-textbox" style="width: 285px;border: 1px solid #b7dfee;"value="请输入超限次数..."/></td>
+			</tr>
+			<tr>
+			<td align="center" colspan="2"><button class="k-primary hc_btn blsave" type="submit">确 定</button></td>
+					
+			</tr>	
+	</table>
+	<!--<div class="actions">
+        <button class="k-primary hc_btn blsave" type="submit">确 定</button>
+    </div> -->
+  </form>
+
+#parse("platform/_footer.vm")
+
+ 
+<script>
+
+$(function(){
+ var data = $('#thredhold').val();
+ $('#overloadTimes').val(data);
+})
+
+
+$('form').validator({
+        rules: {
+        },
+        messages:{
+        	required:"请输入正确的黑名单阀值"
+        },
+        fields: {
+         "condition.overloadTimes":{
+         					rule:"required;integer[+]",
+         					tip:"请输入黑名单阀值，必须为正整数"
+         }
+        },
+        valid: function(form){
+        	var newdata = $('#overloadTimes').val();
+        	if(newdata==$('#thredhold').val()){
+        		notify("无修改操作，黑名单阀值不改变","warn");
+        	}else{
+        		if(confirm("是否确定修改黑名单阀值数据")){
+	             $.ajax({
+	                url: "$!{rc.contextPath}/fxzf/blackList/edit",
+	                data: $('form').serialize(),
+					type: 'post',
+	                success: function(data){
+	    		     	notify("黑名单阀值修改成功");
+	    		     	window.parent.frames["_main_frame"].edited_callback();
+	    				close_dialog('edit_blackList_Dlg');
+	                }
+	            });
+	            }else{
+	            return ;
+	            }
+        	}
+        }
+      });
+</script>
+</body>
+</html>

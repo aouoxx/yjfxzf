@@ -1,0 +1,410 @@
+#parse("platform/_header.vm")
+<link href="$!{rc.contextPath}/assets/css/analysis.css" rel="stylesheet">
+</head>
+<body>
+<div class="ui-layout-north">
+    #bread_crumbs2("DAY_ANALYSIS")
+</div>
+<div class="ui-layout-center" id="container">
+    <div class="ui-layout-center">
+        <div class="ui-mid-chart-left">
+            <div class="ui-chart-title">
+                <form id="dateoverload-search-condition">
+                    <input type="hidden" name="jgid" id="jgid" value="$!{jgid}"/>
+                    <input type="hidden" name="condition.jgid" id="jgidc" value="$!{jgid}"/>
+                    <input type="hidden" name="condition.detectStation" id="selectedStation"/>
+                    <table style="margin-top: 12px;">
+                        <tr>
+                            <td class="ui-search-name" style="color: #055a7e;font-size: 16px; width: 90px;">统计时间：</td>
+                            <td class="ui-search-c"><input type="text" name="condition.tjDate" id="datePicker1"></td>
+                            <td style="text-align: right;padding-right: 10px;">&nbsp;&nbsp;至&nbsp;&nbsp;</td>
+                            <td><input type="text" name="condition.updateTime" id="datePicker2"></td>
+                            <td>
+                                <button type="submit" class="hc_btn k-primary"
+                                        style="background-color:#37ADDA;border-color:#37ADDA;"><i
+                                        class="fa fa-search"></i>查 询
+                                </button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+            <div class="ui-chart-content">
+                <div class="ui-chart-tab menu">
+                    <ul class="tab-menu">
+                        <li class="list-bz"><a href="javascript:void(0);" onclick="refreshData('0','');"
+                                               class="list-words">饼状图</a>
+                            <ul class="list-menu" id="detectionStation">
+
+                            </ul>
+                        </li>
+                        <li class="list-zz"><a href="javascript::void(0);" onclick="refreshData('1','');"
+                                               class="list-words">柱状图</a></li>
+                    </ul>
+                </div>
+                <div class="ui-charts">
+                    <div id="chartPic"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ui-layout-east">
+        <div class="ui-mid-chart-right">
+            <div class="ui-chart-title">
+                <span class="out-data" id="exportExcel">导出数据</span>
+            </div>
+        </div>
+        <div class="ui-chart-content" id="grid-content">
+            <div id="grid"></div>
+        </div>
+    </div>
+</div>
+
+<script src="$!{rc.contextPath}/assets/js/echarts/echarts-plain.js" type="text/javascript"></script>
+<script src="$!{rc.contextPath}/assets/js/echarts/overload.js" type="text/javascript"></script>
+    #parse("platform/_footer.vm")
+<script>
+    $(document).ready(function () {
+        var start = $("#datePicker1").hcDatePicker({
+            culture: "zh-CN",
+            format: "yyyy-MM-dd",
+        ##value : new Date(),
+            change: startChange
+        }).data("kendoDatePicker");
+        var end = $("#datePicker2").hcDatePicker({
+            culture: "zh-CN",
+            format: "yyyy-MM-dd",
+            change: endChange
+        }).data("kendoDatePicker");
+
+        function startChange() {
+            var startDate = start.value(),
+                    endDate = end.value();
+            if (startDate) {
+                startDate = new Date(startDate);
+                startDate.setDate(startDate.getDate());
+                end.min(startDate);
+            } else if (endDate) {
+                start.max(new Date(endDate));
+            } else {
+                endDate = new Date();
+                start.max(endDate);
+            }
+        }
+
+        function endChange() {
+            var endDate = end.value(),
+                    startDate = start.value();
+
+            if (endDate) {
+                endDate = new Date(endDate);
+                endDate.setDate(endDate.getDate());
+                start.max(endDate);
+            } else if (startDate) {
+                end.min(new Date(startDate));
+            } else {
+                endDate = new Date();
+                start.max(endDate);
+            }
+        }
+
+        startChange();
+        endChange();
+    });
+
+    ##  获取治超站信息列表
+    function detectionSeclect() {
+        $.ajax({
+            url: "$!{rc.contextPath}/analysis/overload/dateoverload/detectionStation",
+            dataType: "json",
+            type: "post",
+            data: {},
+            success: function (data, textStatus) {
+                var html = '<li><a href="javascript:void(0);" onclick="refreshData(' + '0' + ',' + '\'\'' + ')" >汇总</a></li>';
+                for (var i = 0; i < data.data.length; i++) {
+                    var detectStations = data.data[i].split(":");
+                    var name = detectStations[1];
+                ##									name=name.substring(3,name.length);
+                    var onclick = 'refreshData(' + '0' + ',' + detectStations[0] + ');';
+                    var li = '<li><a href="javascript:void(0);" ' + 'onclick=\"' + onclick + '\" >' + name + '</a></li>'
+                    html = html + li;
+                }
+                $("#detectionStation").html(html);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+            }
+        });
+    }
+
+    ## 页面初始化后加载
+    $(function () {
+        detectionSeclect();
+        var _w = window.screen.width * 0.45;
+        var _center_main_layout = $("body").layout({
+            defaults: {
+                spacing_open: 0,
+                spacing_closed: 0
+            },
+            north: {
+                size: 34,
+                closable: true
+            },
+            onresize_end: function () {
+
+            }
+        });
+        var _chartPart_layout = $("#container").layout({
+            defaults: {
+                spacing_open: 0,
+                spacing_closed: 0
+            },
+            east: {
+                size: _w,
+                closable: true
+            },
+            onresize_end: function () {
+                $("#chartPic").height(_chartPart_layout.center.state.innerHeight * 0.7);
+                $("#grid-content").height(_chartPart_layout.east.state.innerHeight - 40);
+                var grid = $("#grid").data("kendoGrid");
+                grid.resize();
+            }
+        });
+        $("#chartPic").height(_chartPart_layout.center.state.innerHeight * 0.7);
+        $("#grid-content").height(_chartPart_layout.east.state.innerHeight - 40);
+        arrdata = [];
+        var flag = ($('#jgid').val());
+        var station1 = '$!{station1}';
+        var station2 = '$!{station2}';
+//        station1 = station1.substring(0, station1.length - 3) + '<br/>' + station1.substring(station1.length - 3, station1.length);
+//        station2 = station2.substring(0, station2.length - 3) + '<br/>' + station2.substring(station2.length - 3, station2.length);
+        if (flag == 133) {
+            arrdata.push({field: "id", hidden: true}, {field: "timeString", title: "统计日期"},
+                    {field: "stationA", title: station1, width: "25%"}, {
+                        field: "stationB",
+                        title: station2,
+                        width: "25%"
+                    },
+                    {field: "total", title: "总计", width: "15%"});
+        } else {
+            $('#jgidc').val('');
+            arrdata.push({field: "id", hidden: true}, {field: "timeString", title: "统计日期"},
+                    {field: "stationA", title: station1, width: "25%"}, {
+                        field: "stationB",
+                        title: station2,
+                        width: "25%"
+                    },
+                    {field: "total", title: "总计", width: "15%"});
+        }
+        myquick_datagrid("#grid", "#dateoverload-search-condition", "$!{rc.contextPath}/analysis/overload/dateoverload/list", arrdata, {
+                    sortable: false,
+                    pageable: true,
+                    pageSize: 31
+                }, {
+                    serverSorting: true
+                },
+                []);
+        $("#grid .k-grid-toolbar").remove();
+    ## 渲染饼图数据
+        getPicData();
+    });
+    ## 表格回调方法
+    function grid_dataBound(e) {
+        var flag = ($('#jgid').val());
+        var data = e.sender._data;
+        sender = e.sender;
+    }
+    ##  表单验证提交查询
+    $('form').validator({
+        rules: {},
+        messages: {},
+        fields: {},
+        valid: function (form) {
+            var station = $('#selectedStation').val();
+            var begin = '';
+            var end = '';
+            if ($("#datePicker2").data("kendoDatePicker").value() != null) {
+                end = $("#datePicker2").data("kendoDatePicker").value().format('yyyy-MM-dd');
+            }
+            if ($("#datePicker1").data("kendoDatePicker").value() != null) {
+                begin = $("#datePicker1").data("kendoDatePicker").value().format('yyyy-MM-dd');
+            }
+        ##刷新图标和表格
+            refreshData(mark, station);
+        }
+    });
+    ## 饼图或柱状图的标志
+    var mark = 0;
+    ##  刷新图标和表格
+    function refreshData(flag, station) {
+        if (flag == 0) {
+            $('#selectedStation').val(station);
+            mark = 0;
+        ##选择画出饼图
+            getPicData();
+            edited_callback();
+        } else if (flag == 1) {
+        ##选择画出折线图
+            $('#selectedStation').val('');
+            getBarData();
+            mark = 1;
+            edited_callback();
+        }
+    }
+    ## 表格刷新函数
+    function edited_callback() {
+        var grid = $("#grid").data("kendoGrid");
+        grid.dataSource.read();
+    }
+
+    ##设置饼图数据
+    function getPicData() {
+        $.ajax({
+            url: "$!{rc.contextPath}/analysis/overload/dateoverload/getChartData",
+            dataType: "json",
+            type: "post",
+            data: $("form").serialize(),
+            success: function (data) {
+                if (data.data.success == 200) {
+                    $('#chartPic').show();
+                ##生成饼图legend(默认情况下为1~31,共31个legend)
+                    var legend = [];
+                    legend = data.data.xAis;
+                ##生成饼图的数据
+                    var day = [];
+                    var day1 = 0, day2 = 0, day3 = 0, day4 = 0, day5 = 0, day6 = 0, day7 = 0, day8 = 0,
+                            day9 = 0, day10 = 0, day11 = 0, day12 = 0;
+                    var day13 = 0, day14 = 0, day15 = 0, day16 = 0, day17 = 0, day18 = 0, day19 = 0, day20 = 0,
+                            day21 = 0, day22 = 0, day23 = 0;
+                    var day24 = 0, day25 = 0, day26 = 0, day27 = 0, day28 = 0, day29 = 0, day30 = 0, day31 = 0;
+                    $.each(data.data.yAis, function (i, yAis) {
+                        day1 = day1 + yAis.aday;
+                        day2 = day2 + yAis.bday;
+                        day3 = day3 + yAis.cday;
+                        day4 = day4 + yAis.dday;
+                        day5 = day5 + yAis.eday;
+                        day6 = day6 + yAis.fday;
+                        day7 = day7 + yAis.gday;
+                        day8 = day8 + yAis.hday;
+                        day9 = day9 + yAis.iday;
+                        day10 = day10 + yAis.jday;
+                        day11 = day11 + yAis.kday;
+                        day12 = day12 + yAis.lday;
+                        day13 = day13 + yAis.mday;
+                        day14 = day14 + yAis.nday;
+                        day15 = day15 + yAis.oday;
+                        day16 = day16 + yAis.pday;
+                        day17 = day17 + yAis.qday;
+                        day18 = day18 + yAis.rday;
+                        day19 = day19 + yAis.sday;
+                        day20 = day20 + yAis.tday;
+                        day21 = day21 + yAis.uday;
+                        day22 = day22 + yAis.vday;
+                        day23 = day23 + yAis.wday;
+                        day24 = day24 + yAis.xday;
+                        day25 = day25 + yAis.yday;
+                        day26 = day26 + yAis.zday;
+                        day27 = day27 + yAis.aaday;
+                        day28 = day28 + yAis.abday;
+                        day29 = day29 + yAis.acday;
+                        day30 = day30 + yAis.aeday;
+                        day31 = day31 + yAis.afday;
+                    });
+                    day.push(day1, day2, day3, day4, day5, day6, day7, day8, day9, day10, day11, day12, day13, day14, day15,
+                            day16, day17, day18, day19, day20, day21, day22, day23, day24, day25, day26, day27, day28, day29, day30, day31);
+                    var data = [];
+                    $.each(legend, function (i) {
+                        if (day[i] == 0) {
+                        ##如果该日期内没有数据在饼图上不显示比例和legend
+                        }
+                        else {
+                            data.push({name: legend[i], value: day[i]});
+                        }
+                    })
+                ##渲染饼图
+                    pieChart({
+                        "title": "治超站按日期统计",
+                        "elementId": "chartPic",
+                        "legendData": legend,
+                        "legendx": "5%",
+                        "legendy": "5%",
+                        "seriesName": "每天统计数据",
+                        "seriesData": data
+                    });
+                }
+                else {
+                    $('#chartPic').hide();
+                }
+            }
+        });
+
+    }
+    ##  设置柱状图
+    function getBarData() {
+        $.ajax({
+            url: "$!{rc.contextPath}/analysis/overload/dateoverload/getChartData",
+            dataType: "json",
+            type: "post",
+            data: $("form").serialize(),
+            success: function (data) {
+                if (data.data.success == 200) {
+                    $('#chartPic').show();
+                ##柱状图的xAis值
+                    var xData = [];
+                    xData = data.data.xAis;
+                ##柱状图的legend
+                    var legend = [];
+                ##legend=data.data.legend;
+                    var yData = [];
+                    var yAisData = [];
+                ##柱状图的series
+                    $.each(data.data.yAis, function (i, yAis) {
+                        legend.push(yAis.station);
+                        yAisData.push(yAis.aday, yAis.bday, yAis.cday, yAis.dday, yAis.eday, yAis.fday, yAis.gday,
+                                yAis.hday, yAis.iday, yAis.jday, yAis.kday, yAis.lday, yAis.mday, yAis.nday,
+                                yAis.oday, yAis.pday, yAis.qday, yAis.rday, yAis.sday, yAis.tday,
+                                yAis.uday, yAis.vday, yAis.wday, yAis.xday, yAis.yday, yAis.zday,
+                                yAis.aaday, yAis.abday, yAis.acday, yAis.aeday, yAis.afday
+                        );
+                        yData.push({name: yAis.station, type: 'bar', data: yAisData})
+                        yAisData = [];
+
+                    });
+                ##渲染图标
+                    var position = $("#chartPic").height() - 73;
+                    areaBarChart({
+                        "title": "治超站按日期统计",
+                        "elementId": "chartPic",
+                        "legendData": legend,
+                        "xData": xData,
+                        "seriesData": yData,
+                        "position": position
+                    });
+                } else {
+                    $('#chartPic').hide();
+                }
+            }
+        });
+    }
+
+    ## 导出excel
+    $('#exportExcel').click(function () {
+
+        var detectStation = $('#selectedStation').val();
+        var begin = '';
+        var end = '';
+        var jgid = $('#jgid').val();
+        if ($("#datePicker2").data("kendoDatePicker").value() != null) {
+            end = $("#datePicker2").data("kendoDatePicker").value().format('yyyy-MM-dd');
+        }
+        if ($("#datePicker1").data("kendoDatePicker").value() != null) {
+            begin = $("#datePicker1").data("kendoDatePicker").value().format('yyyy-MM-dd');
+        }
+
+        window.location.href = "$!{rc.contextPath}/analysis/overload/dateoverload/exportAll?condition.tjDate=" + begin +
+                "&condition.updateTime=" + end + "&condition.detectStation=" + detectStation + "&condition.jgid=" + jgid;
+
+    })
+
+</script>
+</body>
+</html>

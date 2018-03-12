@@ -1,0 +1,251 @@
+<div id="sidebar">
+  <div id="sidebar-shortcuts">
+    <div id="sidebar-shortcuts-large">
+      <button class="btn btn-small btn-success">
+        <i class="fa fa-share-alt"></i>
+      </button>
+
+      <button class="btn btn-small btn-info">
+        <i class="fa fa-user"></i>
+      </button>
+
+      <button class="btn btn-small btn-warning">
+        <i class="fa fa-bell"></i>
+      </button>
+
+      <button class="btn btn-small btn-danger">
+        <i class="fa fa-cogs"></i>
+      </button>
+    </div>
+
+    <div id="sidebar-shortcuts-mini">
+      <span class="btn btn-success"></span>
+
+      <span class="btn btn-info"></span>
+
+      <span class="btn btn-warning"></span>
+
+      <span class="btn btn-danger"></span>
+    </div>
+  </div><!--#sidebar-shortcuts-->
+
+  <ul class="nav nav-list">
+    <li class="active">
+      <a href="javascript:void(0)">
+        <i class="fa fa-dashboard"></i>
+        <span>首页</span>
+      </a>
+    </li>
+
+    <li>
+      <a href="javascript:void(0)">
+        <i class="fa fa-desktop"></i>
+        <span>欢迎页</span>
+      </a>
+    </li>
+
+    <li>
+      <a href="#" class="dropdown-toggle">
+        <i class="fa fa-list"></i>
+        <span>查询列表</span>
+
+        <b class="arrow fa fa-angle-down"></b>
+      </a>
+
+      <ul class="submenu">
+        <li>
+          <a href="javascript:void(0)">
+            <i class="fa fa-angle-double-right"></i>
+            简单查询
+          </a>
+        </li>
+
+        <li>
+          <a href="javascript:void(0)">
+            <i class="fa fa-angle-double-right"></i>
+            高级查询
+          </a>
+        </li>
+
+      </ul>
+    </li>
+
+    <li>
+      <a href="#" class="dropdown-toggle">
+        <i class="fa fa-edit"></i>
+        <span>表单Forms</span>
+
+        <b class="arrow fa fa-angle-down"></b>
+      </a>
+
+      <ul class="submenu">
+        <li>
+          <a href="javascript:void(0)">
+            <i class="fa fa-angle-double-right"></i>
+            Form Elements
+          </a>
+        </li>
+
+        <li>
+          <a href="javascript:void(0)">
+            <i class="fa fa-angle-double-right"></i>
+            分节表单
+          </a>
+        </li>
+
+        <li>
+          <a href="javascript:void(0)">
+            <i class="fa fa-angle-double-right"></i>
+            带Tab表单
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <li>
+      <a href="javascript:void(0)">
+        <i class="fa fa-list-alt"></i>
+        <span>只读表单</span>
+      </a>
+    </li>
+
+    <li>
+      <a href="javascript:void(0)">
+        <i class="fa fa-sitemap"></i>
+        <span>流程处置</span>
+      </a>
+    </li>
+
+    <li>
+      <a href="#" class="dropdown-toggle">
+        <i class="fa fa-map-marker"></i>
+        <span>地图操作</span>
+
+        <b class="arrow fa fa-angle-down"></b>
+      </a>
+
+      <ul class="submenu">
+        <li>
+          <a href="javascript:void(0)">
+            <i class="fa fa-angle-double-right"></i>
+            Form Elements
+          </a>
+        </li>
+
+        <li>
+          <a href="javascript:void(0)">
+            <i class="fa fa-angle-double-right"></i>
+            Wizard &amp; Validation
+          </a>
+        </li>
+
+        <li>
+          <a href="javascript:void(0)">
+            <i class="fa fa-angle-double-right"></i>
+            Wysiwyg &amp; Markdown
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <li>
+      <a href="#" class="dropdown-toggle">
+        <i class="fa fa-file"></i>
+        <span>Other Pages</span>
+
+        <b class="arrow fa fa-angle-down"></b>
+      </a>
+
+      <ul class="submenu">
+        <li>
+          <a href="javascript:void(0)">
+            <i class="fa fa-angle-double-right"></i>
+            Login &amp; Register
+          </a>
+        </li>
+
+        <li>
+          <a href="javascript:void(0)">
+            <i class="fa fa-angle-double-right"></i>
+            Error 404
+          </a>
+        </li>
+
+        <li>
+          <a href="javascript:void(0)">
+            <i class="fa fa-angle-double-right"></i>
+            Error 500
+          </a>
+        </li>
+
+        <li>
+          <a href="javascript:void(0)">
+            <i class="fa fa-angle-double-right"></i>
+            Blank Page
+          </a>
+        </li>
+      </ul>
+    </li>
+  </ul><!--/.nav-list-->
+
+  <div id="sidebar-collapse">
+    <i class="fa fa-angle-double-left"></i>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    handle_side_menu();
+  });
+
+  function handle_side_menu() {
+    //mini
+    var $minimized = false;
+    $('#sidebar-collapse').on('click', function(){
+      $('#sidebar').toggleClass('menu-min');
+      $(this.firstChild).toggleClass('fa-angle-double-right');
+
+      $minimized = $('#sidebar').hasClass('menu-min');
+      if($minimized) {
+        $('.open > .submenu').removeClass('open');
+      }
+    });
+
+
+    $('.nav-list > li').on('click', function(e){
+      /* opening submenu */
+      if($minimized) return;
+
+      //check to see if we have clicked on an element which is inside a .dropdown-toggle element?!
+      //if so, it means we should toggle a submenu
+      var link_element = $(e.target).closest('.dropdown-toggle');
+      if(link_element && link_element.length > 0) {
+        var sub = link_element.next().get(0);
+
+        //if we are opening this submenu, close all other submenus except the ".active" one
+        if(! $(sub).is(':visible') ) {
+          $('.open > .submenu').each(function(){
+  //          if(this != sub && !$(this.parentNode).hasClass('active')) {
+              $(this).slideUp(200).parent().removeClass('open');
+  //          }
+          });
+        }
+
+        $(sub).slideToggle(200).parent().toggleClass('open');
+        return false;
+      }
+      else {
+        $('.nav-list > li').removeClass("active");
+        $(this).addClass("active");
+      }
+    })
+
+    $('.nav-list .submenu li').on('click', function(e){
+      $('.nav-list li').removeClass("active");
+      $(this).addClass("active");
+      $(this).parent(".submenu").parent("li").addClass("active");
+    });
+  }
+
+
+</script>

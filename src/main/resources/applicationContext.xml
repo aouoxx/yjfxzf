@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:p="http://www.springframework.org/schema/p" 
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:util="http://www.springframework.org/schema/util" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="
+                http://www.springframework.org/schema/beans 
+                http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                http://www.springframework.org/schema/context 
+                http://www.springframework.org/schema/context/spring-context-4.0.xsd
+                http://www.springframework.org/schema/mvc 
+                http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+                http://www.springframework.org/schema/util 
+                http://www.springframework.org/schema/util/spring-util-4.0.xsd
+                http://www.springframework.org/schema/tx 
+                http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+                http://www.springframework.org/schema/task
+      			http://www.springframework.org/schema/task/spring-task-4.0.xsd
+                http://www.springframework.org/schema/aop 
+                http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+	<!-- applicationContext.xml ; CREATE AT 2015-07-07T23:00:26 BY yuhui@supcon.com-->
+	<!-- Spring 配置文件，可插拔Bean在此配置以获得开启或者关闭 -->
+	<!-- =============== SPRING CONFIG BEGIN ================ -->
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+	<!-- 请在此加入需要拦截的包路径 -->
+	<context:component-scan base-package="com.supconit.honeycomb.**.services,com.supconit.honeycomb.**.daos,com.supconit.honeycomb.**.controllers,hc.**.services,hc.**.daos,hc.**.controllers,com.supconit.kqfx.*,com.supconit.taizhou_offsite_enforcement.*"
+		name-generator="com.supconit.honeycomb.base.context.BeanNameGenerator" />
+	
+	<!-- 设置访问webservice的时间 -->
+	<task:annotation-driven />
+	
+
+	<!-- <task:scheduled-tasks> -->
+		<!-- <task:scheduled ref="TIME_WEB_SERVICE" method="synSystemTime" cron="0 0 0/2 * * *" /> -->
+		<!-- <task:scheduled ref="DEVICE_KEY_SET" method="setStationKey" cron="1/5 * * * * *" /> -->
+		<!-- <task:scheduled ref="DEVICE_WEB_SERVICE" method="tranferDeviceState" cron="1/5 * * * * *" /> -->
+	<!-- </task:scheduled-tasks> -->	
+
+	
+	
+	<!-- 该SpringContextHolder用于快速获取ApplicationContext,一定要使用Honeycomb提供的，请不要自行替换，否则会导致很多宏失效 -->
+	<bean id="springContextHolder" class="com.supconit.honeycomb.base.context.SpringContextHolder" />
+	<!-- ================ SPRING CONFIG END ================= -->
+
+	
+
+
+	<!-- =============== CACHE CONFIG BEGIN ================ -->
+	<!-- 缓存配置，目前Honeycomb提供三种实现：Memcache, Ehcache, Map；建议采用Memcache -->
+		<!-- Ehcache 配置 -->
+	<!-- ==== 没有安装Memcache时可选用 ==== -->
+	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" p:config-location="classpath:ehcache.xml" />
+	<bean id="cache" class="com.supconit.honeycomb.cache.ehcache.Ehcache" p:cacheManager-ref="cacheManager" />
+
+	
+
+	<bean id="cachePeriodHelper" class="com.supconit.honeycomb.cache.CachePeriodHelper">
+		<property name="cachePeriodProperties" ref="cachePeriodProperties" />
+	</bean>
+	<util:properties id="cachePeriodProperties" location="classpath:/cache-period.properties" />
+	<!-- ================ CACHE CONFIG END ================= -->
+
+
+	<!-- =============== ORM CONFIG BEGIN ================ -->
+	<!-- 数据源配置 -->
+	<bean id="ds" class="com.alibaba.druid.pool.DruidDataSource" p:driverClassName="${jdbc.ds.driver}" p:url="${jdbc.ds.jdbcUrl}" p:username="${jdbc.ds.username}" p:password="${jdbc.ds.password}"
+		p:initialSize="${jdbc.ds.initialSize}" p:maxActive="${jdbc.ds.maxActive}" p:testOnBorrow="${jdbc.ds.testOnBorrow:false}" destroy-method="close">
+	</bean>
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager" p:dataSource-ref="ds" />
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
+	<bean id="databaseIdProvider" class="hc.orm.DefaultDatabaseIdProvider"></bean>
+	<bean id="sqlSessionFactory" class="hc.orm.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="ds" />
+		<property name="databaseIdProvider" ref="databaseIdProvider" />
+		<property name="mapperLocations" value="classpath*:com/supconit/kqfx/**/mappers/*Mapper.xml" />
+	</bean>
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate" destroy-method="clearCache">
+		<constructor-arg ref="sqlSessionFactory" />
+	</bean>
+	<bean id="jdbcProcessor" class="hc.jdbc.DefaultJdbcProcessor">
+		<property name="dataSource" ref="ds" />
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="databaseIdProvider" ref="databaseIdProvider" />
+	</bean>
+	<!--
+	<bean id="sequenceGenerator" class="hc.orm.sequence.SingleSequenceGenerator">
+		<property name="dataSource" ref="ds" />
+	</bean>
+	-->
+	<!-- ================ ORM CONFIG END ================= -->
+
+	<!-- =============== EXTENDED MODEL CONFIG BEGIN ================ -->
+	<bean id="extendedModelProvider" class="hc.modelextend.ExtendedModelProviderFactoryBean">
+		<property name="dataSource" ref="ds" />
+		<property name="databaseIdProvider" ref="databaseIdProvider" />
+	</bean>
+	<!-- ================ EXTENDED MODEL CONFIG END ================= -->
+	
+
+	
+	
+
+	<!-- =============== 数据字典 CONFIG BEGIN ================ -->
+	<!-- 如果要使用数据字典可以加入下面这个BEAN
+	<bean id="dataDictionaryService" class="hc.business.dic.services.DefaultDataDictionaryService">
+		<property name="cache" ref="cache" />
+	</bean> -->
+	<!-- ================ 数据字典 CONFIG END ================= -->
+
+
+	<!-- =============== BUSINESS TRIGGERS CONFIG BEGIN ================ -->
+	<!-- 业务触发器，目前支持Company,Person,Department的触发，支持插入前后，修改前后，删除前后触发事件，如无需要请关闭 -->
+	<!-- 触发器请实现hc.orm.triggers.BusinessTrigger接口 -->
+	<!-- =====
+	<bean id="businessTriggerExecutor" class="hc.orm.triggers.BusinessTriggerExecutor">
+		<property name="businessTriggers">
+			<map>
+				<entry>
+					<key>
+						<value>com.supconit.honeycomb.business.organization.entities.Person</value>
+					</key>
+					<bean class="hc.factory.business.triggers.PersonBusinessTrigger"></bean>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	===== -->
+	<!-- ================ BUSINESS TRIGGERS CONFIG END ================= -->
+
+
+
+	<!-- =============== SAFETY CONFIG BEGIN ================ -->
+	<!-- 安全控制体系 -->
+	<bean id="safetyManager" class="hc.safety.web.manager.WebSafetyManager" init-method="init">
+		<property name="accountManager" ref="business_authorization_user_service" />
+		<property name="roleResourceManager" ref="business_authorization_role_service" />
+		<property name="sessionProvider">
+			<!-- Session的实现方式，有HttpSession, Cookie, Memcache等实现方式，如果是集群的话不要使用HttpSession方式 -->
+			<bean class="hc.safety.web.session.WebSessionProvider"></bean>
+		</property>
+		<property name="productName" value="${product.code:honeycomb}"></property>
+		<!-- 密码加密策略，支持SHA1,MD5等 -->
+		<property name="algorithm" value="SHA1" />
+		<!-- 登录的地址，未登录时会跳到这个地址 -->
+		<property name="loginUrl" value="/platform/login" />
+		<!-- URL控制配置 -->
+		<!-- anon 无需登录; authc 必须已登录; ROLE[XXX] 必须具有某角色 -->
+		<property name="behaviorDefinitionString">
+			<value>
+				/unauthorized = anon
+				/unauthenticated = anon
+				/platform/login = anon
+				/platform/login/code = anon
+			</value>
+		</property>
+		<property name="behaviorDefinitionAfter">
+			<value>
+				/platform/index = authc
+				/** = authc
+			</value>
+		</property>
+	</bean>
+	<!-- ================ SAFETY CONFIG END ================= -->
+
+	<!-- =============== PROFILES BEGIN ================ -->
+	<beans profile="test">
+		<context:property-placeholder location="classpath:/config-test.properties" ignore-unresolvable="true" />
+		<util:properties id="_globalVars" location="classpath:/global-vars-test.properties" />
+	</beans>
+	<beans profile="dev">
+		<context:property-placeholder location="classpath:/config-dev.properties" ignore-unresolvable="true" />
+		<util:properties id="_globalVars" location="classpath:/global-vars-dev.properties" />
+		<import resource="classpath:/mvc.xml" />
+	</beans>
+	<beans profile="production">
+		<context:property-placeholder location="classpath:/config.properties" ignore-unresolvable="true" />
+		<util:properties id="_globalVars" location="classpath:/global-vars.properties" />
+		<import resource="classpath:/mvc.xml" />
+	</beans>
+	<!-- ================ PROFILES END ================= -->
+
+
+</beans>

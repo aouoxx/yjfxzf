@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.supconit.kqfx.web.fxzf.search.entities.IllegalTrail">
+  
+   <sql id="TABLE_NAME" lang="velocity">T_ILLEGAL_TRAIL</sql>
+  
+   <resultMap type="com.supconit.kqfx.web.fxzf.search.entities.IllegalTrail" id="IllegalTrailResultMap">
+			 <result property="id" column="ID" />
+			 <result property="license" column="LICENSE" />
+			 <result property="plateColor" column="PLATE_COLOR" />
+			 <result property="overLoadTimes" column="OVERLOAD_TIMES" />
+			 <result property="updateTime" column="UPDATE_TIME" />
+			 <result property="deleted" column="DELETED" />
+	</resultMap>
+  
+  
+  <insert id="insert" parameterType="com.supconit.kqfx.web.fxzf.search.entities.IllegalTrail" 
+		keyProperty="ID" keyColumn="ID" 		lang="velocity" databaseId="oracle">
+		  <include refid="INSERT_SQL" />
+	</insert>
+	<insert id="insert" parameterType="com.supconit.kqfx.web.fxzf.search.entities.IllegalTrail" 
+		keyProperty="ID" keyColumn="ID" 		 lang="velocity">
+        <include refid="INSERT_SQL"/>
+        <selectKey keyProperty="ID" resultType="string" order="AFTER"><include refid="_PUBLIC_V.SELECT_KEY"/> </selectKey>
+    </insert>
+    
+    
+    <sql id="INSERT_SQL" lang="velocity">
+		INSERT INTO <include refid="TABLE_NAME"/>(
+		#if($_databaseId == 'oracle') ID,#end
+									LICENSE
+									,PLATE_COLOR
+									,OVERLOAD_TIMES
+									,UPDATE_TIME
+									,DELETED
+		) VALUES (
+		#if($_databaseId == 'oracle') @{_parameter.id,jdbcType=VARCHAR},#end
+										@{_parameter.license,jdbcType=VARCHAR}
+										,@{_parameter.plateColor,jdbcType=VARCHAR}
+										,@{_parameter.overLoadTimes,jdbcType=NUMERIC}
+										,@{_parameter.updateTime,jdbcType=TIMESTAMP}
+										,@{_parameter.deleted,jdbcType=NUMERIC}
+	   )
+	   </sql>
+  
+  
+  <update id="update" parameterType="com.supconit.kqfx.web.fxzf.search.entities.IllegalTrail" lang="velocity">
+		UPDATE <include refid="TABLE_NAME"/> 
+		#mset()
+		<![CDATA[
+			#if($_parameter.license)LICENSE = @{_parameter.license,jdbcType=VARCHAR},#end
+			#if($_parameter.plateColor)PLATE_COLOR = @{_parameter.plateColor,jdbcType=VARCHAR},#end
+			#if($_parameter.overLoadTimes)OVERLOAD_TIMES = @{_parameter.overLoadTimes,jdbcType=NUMERIC},#end
+			#if($_parameter.updateTime)UPDATE_TIME = @{_parameter.updateTime,jdbcType=TIMESTAMP},#end
+			#if($_parameter.deleted)DELETED = @{_parameter.deleted,jdbcType=NUMERIC},#end
+		]]>
+		#end
+		WHERE ID = @{_parameter.id,jdbcType=VARCHAR}
+	</update>
+  
+  
+    <select id="selectPager" lang="velocity" resultMap="IllegalTrailResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+			SELECT * FROM 
+		<include refid="TABLE_NAME"/> 
+		<include refid="SEARCH_CONDITION_SQL_LOG"/>
+		    #order($_parameter.condition,"UPDATE_TIME DESC")
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	 </select>
+     
+     <sql id="SEARCH_CONDITION_SQL_LOG" lang="velocity">
+     <![CDATA[
+		#where()
+			#if($_parameter.condition.license && $_parameter.condition.license != '')
+			  AND LICENSE #set($_license = '%' + $_parameter.condition.license + '%')
+						LIKE @{_license,jdbcType=VARCHAR}
+		    #end
+		    #if($_parameter.condition.plateColor && $_parameter.condition.plateColor != '')
+			   AND PLATE_COLOR = @{_parameter.condition.plateColor,jdbcType=VARCHAR}
+		    #end
+		    #if($_parameter.condition.overLoadTimes && $_parameter.condition.overLoadTimes != '')
+			   AND OVERLOAD_TIMES = @{_parameter.condition.overLoadTimes,jdbcType=NUMERIC}
+		    #end
+		       AND DELETED = 0
+		#end
+	  ]]>
+	</sql>
+	<select id="countPager" lang="velocity" resultType="long">
+		<include refid="COUNT_PRE" />
+	</select>
+	<sql id="COUNT_PRE" lang="velocity">SELECT COUNT(1) FROM <include refid="TABLE_NAME"/></sql>
+	
+	
+	
+	<select id="findByLicenseAndColor" parameterType="com.supconit.kqfx.web.fxzf.search.entities.IllegalTrail" resultMap="IllegalTrailResultMap" lang="velocity">
+		SELECT * FROM
+		<include refid="TABLE_NAME" />
+		<include refid="SEARCH_COUNT_SQL" />
+	</select>
+	<sql id="SEARCH_COUNT_SQL" lang="velocity">
+		<![CDATA[
+			#where()
+				#if($_parameter.license && $_parameter.license != '')
+				   AND LICENSE = @{_parameter.license,jdbcType=VARCHAR}
+			    #end
+			    #if($_parameter.plateColor && $_parameter.plateColor != '')
+				   AND PLATE_COLOR = @{_parameter.plateColor,jdbcType=VARCHAR}
+				#else
+				   AND PLATE_COLOR IS NULL
+			    #end
+			        AND DELETED=0
+		    #end
+		    ]]>
+	</sql>
+	
+	<select id="findByOverLoadTimes" resultMap="IllegalTrailResultMap" parameterType="long" lang="velocity">
+		SELECT * FROM
+		<include refid="TABLE_NAME" />
+		<include refid="SEARCH_OVERLOAD_SQL" />
+	</select>
+	<sql id="SEARCH_OVERLOAD_SQL" lang="velocity">
+		<![CDATA[
+			#where()
+				   AND OVERLOAD_TIMES > @{_parameter,jdbcType=NUMERIC}
+			       AND DELETED=0
+		    #end
+		    ]]>
+	</sql>
+  
+  
+	  <delete id="deleteById" parameterType="string" lang="velocity">
+			DELETE FROM  <include refid="TABLE_NAME" />
+			 WHERE ID = @{_parameter,jdbcType=VARCHAR}
+		</delete>
+  
+  </mapper>

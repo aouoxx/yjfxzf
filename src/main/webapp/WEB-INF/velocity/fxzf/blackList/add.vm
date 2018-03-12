@@ -1,0 +1,112 @@
+#parse("platform/_header.vm")
+</head>
+<body style="margin:0px">
+
+
+<form id="blackList" class="ui-dialog-form">
+    <table width="100%">
+        <tr>
+			<td class="label"><span class="ui-form-required">*</span>车牌号：</td>
+            <td class="ui-search-c""> <input type="text" name="condition.license" class="k-textbox" value="请输入车牌号..." id="license"/></td>
+			<td class="label"><span class="ui-form-required">*</span>车牌颜色：</td>
+			<td class="ui-search-c"> #dic_select2("PLATECOLOR","condition.plateColor","condition_plateColor","ui-combobox","condition_plateColor")</td>
+            <td> </td>
+        </tr>
+		<tr>
+			<td class="label">说明：</td>
+			<td colspan="3" style="height:50px;"><textarea name="condition.illustrate" style="  width: 100%;height: 100%;" class="k-textbox" id="discription" >请输入描述信息...</textarea> </td>
+    		<td></td>
+		</tr>        
+    </table>
+    <div class="actions">
+        <button class="k-primary hc_btn save-s" type="submit">保 存</button>
+        <button class="hc_btn cancel close-s"  type="button" id="close">取 消</button>
+    </div>
+</form>
+
+
+#parse("platform/_footer.vm")
+
+ 
+<script>
+	$('#close').click(function(){
+		close_dialog('add_blackList_Dlg');
+	}); 
+	
+
+	$(function(){
+		$('#td tbody tr:even').css('backgroundColor','#E1E5E6');
+	});
+	
+	$('#license').focus(function(){
+		 if($('#license').val()=='请输入车牌号...'){
+		 	$('#license').val("");
+		 }
+	})
+	$('#discription').focus(function(){
+		$('#discription').val("");
+	})
+	
+	
+	$('form').validator({
+        rules: {
+        	license:function(element){
+        			if(element.value=='请输入车牌号...'){
+        				return false;
+        			}else{
+        				return true;
+        			}
+        		}
+        
+        },
+        messages:{
+        	license:'请输入正确的车牌号'
+        },
+        fields: {
+         "condition.license":{
+         					 rule:"required;license",
+         					 msg: {required: "请输入正确的车牌号"}
+         },
+         "condition.plateColor":{
+         					 rule:"required",
+         					 msg: {required: "请选择正确的车牌颜色"}
+         }
+        },
+        valid: function(form){
+             $.ajax({
+                url: "$!{rc.contextPath}/fxzf/blackList/add",
+                data: $('form').serialize(),
+				type: 'post',
+                success: function(data){
+                	if(data.data==200){
+                		notify("黑名单添加成功");
+                	}
+                	if(data.data==1002){
+                		notify("已存在该车牌信息");
+                	}
+                	window.parent.frames["_main_frame"].edited_callback();
+    				close_dialog('add_blackList_Dlg');
+                },
+                error:function(data){
+                	##console.log(data.data);
+                }
+            });
+        }
+      });
+	
+</script>
+
+
+
+<style>
+.ui-dialog-form .label {
+	text-align: right;
+	color: #4B4B4B;
+	width: 15%;
+	}
+ </style>
+ 
+ 
+ 
+ </body>
+</html>

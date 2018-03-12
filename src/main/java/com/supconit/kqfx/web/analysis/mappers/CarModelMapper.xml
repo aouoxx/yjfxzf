@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.supconit.kqfx.web.analysis.entities.CarModel">
+
+	<resultMap type="com.supconit.kqfx.web.analysis.entities.CarModel" id="CarModelResultMap">
+		<id property="id" column="ID" />
+		<result property="detectStation" column="DETECT_STATION" />
+		<result property="axisCount" column="AXIS_COUNT"/>
+		<result property="carModel" column="CAR_MODEL"/>
+		<result property="reportTimes" column="REPORT_TIMES"/>
+		<result property="tjDate" column="TJ_DATE"/>
+		<result property="updateTime" column="UPDATE_TIME"/>
+	</resultMap>
+	
+	<sql id="TABLE_NAME" lang="velocity">T_FXZF_CARMODEL</sql>
+	<sql id="SELECT_PRE" lang="velocity">SELECT * FROM <include refid="TABLE_NAME"/></sql>
+	<sql id="COUNT_PRE" lang="velocity">SELECT COUNT(1) FROM <include refid="TABLE_NAME"/></sql>
+
+	<sql id="SEARCH_CONDITION_SQL" lang="velocity">
+		<![CDATA[
+		#where()
+			
+		#end
+		]]>	
+	</sql>
+	
+	
+	<select id="getById" resultMap="CarModelResultMap" parameterType="string" lang="velocity">
+			<include refid="SELECT_PRE" />
+				WHERE ID = @{_parameter, jdbcType=VARCHAR}
+	</select>
+	
+	<select id="AnalysisByCondition" resultMap="CarModelResultMap" parameterType="com.supconit.kqfx.web.analysis.entities.CarModel" lang="velocity">
+			SELECT
+			   SUM(decode(A.analysis_count, 2, REPORT_TIMES,0)) as axisTwo,
+			   SUM(decode(A.analysis_count, 3, REPORT_TIMES,0)) as axisThree,
+			   SUM(decode(A.analysis_count, 4, REPORT_TIMES,0)) as axisFour,
+			   SUM(decode(A.analysis_count, 5, REPORT_TIMES,0)) as axisFive,
+			   SUM(decode(A.analysis_count, 6, REPORT_TIMES,0)) as axisSix,
+			   SUM(decode(A.analysis_count, 7, REPORT_TIMES,0)) as axisSeven
+			FROM (select t.*,
+				       case
+				         when t.axis_count > 6 then
+				          7
+				         else
+				          t.axis_count
+				       end as analysis_count
+				  from T_FXZF_CARMODEL t
+							) A
+			
+			<![CDATA[
+				#where()
+					#if($_parameter.beginDate && $_parameter.beginDate != '')
+							AND  A.TJ_DATE >= @{_parameter.beginDate,jdbcType=TIMESTAMP}
+					#end
+					#if($_parameter.endDate && $_parameter.endDate != '')
+							AND  A.TJ_DATE <= @{_parameter.endDate,jdbcType=TIMESTAMP}
+					#end
+					#if($_parameter.detects)
+					     #repeat($_parameter.detects  $_detect "," "AND A.DETECT_STATION IN (" ")" )
+						    @{_detect,jdbcType=VARCHAR}
+						 #end
+					#end
+				#end
+				AND A.analysis_count >=2
+			]]>	
+	</select>
+	
+	<select id="selectPager" lang="velocity" resultMap="CarModelResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+		<include refid="SELECT_PRE"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+		#order($_parameter.condition,"UPDATE_TIME DESC")
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	</select>
+
+	<select id="countPager" lang="velocity" resultType="long">
+		<include refid="COUNT_PRE"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+	</select>
+	
+	<sql id="INSERT_SQL" lang="velocity">
+		INSERT INTO <include refid="TABLE_NAME"/>(
+		#if($_databaseId == 'oracle') ID,#end
+								 DETECT_STATION
+								,AXIS_COUNT
+								,CAR_MODEL
+								,REPORT_TIMES
+								,TJ_DATE
+								,UPDATE_TIME
+		) VALUES (
+		#if($_databaseId == 'oracle') @{_parameter.id,jdbcType=VARCHAR},#end
+								 @{_parameter.detectStation,jdbcType=VARCHAR}
+								,@{_parameter.axisCount,jdbcType=NUMERIC}
+								,@{_parameter.carModel,jdbcType=NUMERIC}
+								,@{_parameter.reportTimes,jdbcType=NUMERIC}
+								,@{_parameter.tjDate,jdbcType=TIMESTAMP}
+								,@{_parameter.updateTime,jdbcType=TIMESTAMP}
+								
+	)
+	</sql>
+	
+	<insert id="insert" parameterType="com.supconit.kqfx.web.analysis.entities.CarModel" 
+		keyProperty="ID" keyColumn="ID" 		lang="velocity" databaseId="oracle">
+		  <include refid="INSERT_SQL" />
+	</insert>
+	<insert id="insert" parameterType="com.supconit.kqfx.web.analysis.entities.CarModel" 
+		keyProperty="ID" keyColumn="ID" 		 lang="velocity">
+        <include refid="INSERT_SQL"/>
+        <selectKey keyProperty="ID" resultType="string" order="AFTER"><include refid="_PUBLIC_V.SELECT_KEY"/> </selectKey>    </insert>
+    
+	<update id="update" parameterType="com.supconit.kqfx.web.analysis.entities.CarModel" lang="velocity">
+		UPDATE <include refid="TABLE_NAME"/> 
+		#mset()
+		<![CDATA[
+			#if($_parameter.detectStation) DETECT_STATION = @{_parameter.detectStation,jdbcType=VARCHAR},#end
+			#if($_parameter.axisCount) AXIS_COUNT = @{_parameter.axisCount,jdbcType=NUMERIC},#end
+			#if($_parameter.carModel) CAR_MODEL = @{_parameter.carModel,jdbcType=NUMERIC},#end
+			#if($_parameter.reportTimes) REPORT_TIMES = @{_parameter.reportTimes,jdbcType=NUMERIC},#end
+			#if($_parameter.tjDate) TJ_DATE = @{_parameter.tjDate,jdbcType=TIMESTAMP},#end
+			#if($_parameter.updateTime) UPDATE_TIME = @{_parameter.updateTime,jdbcType=TIMESTAMP},#end
+		]]>
+		#end
+		WHERE ID = @{_parameter.id,jdbcType=VARCHAR}
+	</update>
+	
+	<delete id="deleteById" parameterType="string" lang="velocity">
+		DELETE FROM <include refid="TABLE_NAME" /> WHERE ID = @{_parameter,jdbcType=VARCHAR}
+	</delete>
+    		
+</mapper>

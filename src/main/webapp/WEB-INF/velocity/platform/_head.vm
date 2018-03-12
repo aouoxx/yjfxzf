@@ -1,0 +1,184 @@
+  <script src="$!{rc.contextPath}/dwr/engine.js"></script>
+  <script src="$!{rc.contextPath}/dwr/util.js"></script>
+  <link href="$!{rc.contextPath}/assets/dwr/msg.css" rel="stylesheet">	
+  <script type="text/javascript">
+  $(document).ready(function(){
+  ##这个方法用来启动该页面的ReverseAjax功能 
+  dwr.engine.setActiveReverseAjax(true);
+  ##设置在页面关闭时，通知服务端销毁回话 
+  dwr.engine.setNotifyServerOnPageUnload(true);
+  });
+   function show(msg){
+##   	console.info("**********************"+msg+"************************");
+##   	$('#newMessageDIV').html('<audio controls="controls" autoplay="autoplay"><source src="$!{rc.contextPath}/assets/dwr/msg.mp3" type="audio/mpeg" /></audio>');
+##   	showMsgFlag('0');
+   	 $.ajax({
+                url: "$!{rc.contextPath}/fxzf/msg/verify",
+                data: {
+	        		jgid:msg
+	        	},
+				type: 'post',
+                success: function(data){
+                if(data.data=='200'){
+               		$('#newMessageDIV').html('<audio controls="controls" autoplay="autoplay"><source src="$!{rc.contextPath}/assets/dwr/msg.mp3" type="audio/mpeg" /></audio>');
+   	 				showMsgFlag('0');
+                }
+                },
+                 error:function(data){
+                }
+            });
+   }
+   
+   function showAll(){
+   }
+   
+   function closeW(){
+ 		updateMsgFlag('2') 
+ 		$('.notices-w').hide();
+ 		$('.notices-w-min').hide();
+ 	}
+   
+   function minW(){
+ 		updateMsgFlag('1');
+ 		$('.notices-w').hide();
+ 		$('.notices-w-min').show();
+ 	}
+   function fadeclose(){
+ 		$('.notices-w').hide();
+ 		$('.notices-w-min').show();
+ 		updateMsgFlag('1');
+ 	}
+ 	function fadeopen(){
+ 		$('.notices-w').show();
+ 		$('.notices-w-min').hide();
+ 		updateMsgFlag('0');
+ 	}
+  
+   $(document).ready(function(){
+   	## 每次进入页面的时候进行刷新获取消息
+   	refreshMsg();
+   });
+  
+   ## 刷新获取消息
+   function refreshMsg(){
+       
+   	     $.ajax({
+                url: "$!{rc.contextPath}/fxzf/msg/list",
+				type: 'post',
+                success: function(data){
+                		var displayMsg='';
+                		if(data.data=='1002'){
+                			$('#notices-w').hide();
+                			$('.notices-w-min').show();
+                			$('#msgContent').html('')
+                		}else{
+                		if (data.data[0].msgflag=='2'){
+                			$('.notices-w').hide();
+ 							$('.notices-w-min').hide();
+                		}else{
+                			var dialog='';
+	                		var li='';
+	                		var  msg=''
+	                		for(var i=0; i<data.data.length;i++){
+		                		
+		                		if(data.data[i].flag=='1'){
+		                			dialog = "quick_dialog('notify_dlg','查看公告详情','$!{rc.contextPath}/fxzf/notify/view?id="+
+		                		             data.data[i].pid+"'"+",840,300)";
+		                		    dialog = '<a class=\"warn-text\" href=\"javascript:void(0)\" title=\"查看公告详情\" onclick=\"'+dialog+'\">'+
+		                		    		 '<div class="text-control" style="margin-left: 40px;">'+data.data[i].content+'</div>'+
+		                		    		 '</a>';
+		                		    li='<li class="warn"> ';
+		                		}
+		                		
+		                		if(data.data[i].flag=='0'){
+		                			dialog = "quick_dialog('warn_dlg','查看告警详情','$!{rc.contextPath}/fxzf/warn/history/view?id="+
+		                		             data.data[i].pid+"&flag=view'"+",800,740)";
+		                		    dialog = '<a class=\"warn-text\" href=\"javascript:void(0)\" title=\"查看告警详情\" onclick=\"'+dialog+'\">'+
+		                		    		 '<div class="text-control" style="margin-left: 40px;">'+data.data[i].content+'</div>'+
+		                		    		 '</a>';
+		                		    li='<li>';
+		                		}
+	                		 	msg=li+
+	                				 '<div><i class="nt-icon" style="position: absolute;" ></i>'+
+	                				 '<i class="closeIcon1" onclick="deleteMsg('+'\''+data.data[i].id+'\''+');"></i>'+
+	                				  dialog+
+	                				  '</div><span class="date" style="margin-left:40px">'+
+	                				  data.data[i].updateTime+
+	                				  '</span>'+
+	                				  '</li>';
+	                			displayMsg=displayMsg+msg;
+	                			msg='';
+	                			li='';
+	                			dialog='';
+	                		}
+	                		##打印显示内容
+	                		##console.log(displayMsg);
+	                		$('#msgContent').html(displayMsg);
+	                	   if (data.data[0].msgflag=='0' ){
+                			$('#notices-w').show();
+                			$('.notices-w-min').hide();
+                		   }else if(data.data[0].msgflag=='1' ){
+                		    $('.notices-w').hide();
+ 						    $('.notices-w-min').show();
+                		   }else{
+                		   	$('#notices-w').show();
+                			$('.notices-w-min').hide();
+                		   }
+                		}
+                		
+                		}
+                },
+                error:function(data){
+                }
+            });
+   }
+   
+   function deleteMsg(id){
+   	 $.ajax({
+                url: "$!{rc.contextPath}/fxzf/msg/delete",
+                data: {
+	        		id:id
+	        	},
+				type: 'post',
+                success: function(data){
+                if(data.data=='200'){
+                	refreshMsg();
+                }
+                },
+                 error:function(data){
+                }
+            });
+    }
+    
+    function updateMsgFlag(flag){
+   	 $.ajax({
+                url: "$!{rc.contextPath}/fxzf/msg/update",
+                data: {
+	        		flag:flag
+	        	},
+				type: 'post',
+                success: function(data){
+                },
+                 error:function(data){
+                }
+            });
+    }
+    
+    ## 
+    function showMsgFlag(flag){
+   	 $.ajax({
+                url: "$!{rc.contextPath}/fxzf/msg/update",
+                data: {
+	        		flag:flag
+	        	},
+				type: 'post',
+                success: function(data){
+                	refreshMsg();
+                },
+                 error:function(data){
+                }
+            });
+    }
+  
+  </script>
+  

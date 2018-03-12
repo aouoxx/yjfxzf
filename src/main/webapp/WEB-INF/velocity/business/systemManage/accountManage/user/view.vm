@@ -1,0 +1,64 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+
+	    <table >
+			<tr>
+                <td class="label">
+					用户名：
+				</td>
+                <td class="cont">
+    				
+        			$!{user.username}
+        			
+    			</td>
+                <td class="label">
+					电子邮箱：
+				</td>
+                <td class="cont">
+    				$!{user.email}
+    			</td>
+			</tr>
+			<tr>
+                <td class="label">
+					关联人员：
+				</td>
+                <td colspan="3">
+    				
+        			$!{user.person.name}
+        			
+    			</td>
+			</tr>
+			<tr>
+				<td class="label">
+					分配角色：
+				</td>
+                <td colspan="3">
+					$!{user.roleName}
+										
+    			</td>
+               
+			</tr>
+		
+			<tr>
+				<td class="label">
+					备注：
+				</td>
+                <td colspan="3" >
+					$!{user.description}
+				</td>	
+			</tr>
+		
+		</table>
+   
+
+    #parse("platform/_footer.vm")
+	
+	</body>
+<script type="text/javascript">
+$("body").css({"padding":"10px","height":"auto"});
+$("table").addClass("ui-view");
+$("table").find("tr:odd").addClass("odd");
+$("table").find("tr:even").addClass("even");
+</script>
+</html>

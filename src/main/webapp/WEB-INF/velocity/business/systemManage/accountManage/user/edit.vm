@@ -1,0 +1,225 @@
+#if($_type)#else#set($_type="edit")#end
+#parse("platform/_header.vm")
+##<style>
+##    .k-multiselect{width:300px;}
+##    h3{padding: 10px 0;}
+##</style>
+<script src="$!{main_static_url}/datepicker/WdatePicker.js"></script>
+</head>
+<body>
+<form class="ui-dialog-form" id="platform_auth_user_$!{_type}_form" action="$!{rc.contextPath}/platform/authorization/useradd/$!{_type}" method="post">
+	<input type="hidden" name="user.id" value="$!{user.id}"/>
+	    <table width="100%">
+			<tr>
+                <td class="label">
+					<span class="ui-form-required">*</span>用户名：
+				</td>
+                <td>
+    				#if($_type=="edit")
+        			<span class="ui-text" title="$!{user.username}">$!{user.username}</span>
+        			#else
+        			<input class="k-textbox" type="text" name="user.username" value="$!{user.username}" />
+        			#end
+    			</td>
+                <td class="label">
+					电子邮箱：
+				</td>
+                <td>
+    				<input class="k-textbox" type="text" name="user.email" value="$!{user.email}" data-rule="电子邮箱:email;length[~256];" />
+    			</td>
+    			<td></td>
+			</tr>
+			<tr>
+                <td class="label">
+					#if($_type == "add")<span class="ui-form-required">*</span>#{end}登录密码：
+				</td>
+                <td >
+    				<input class="k-textbox" type="password" value="" name="user.password" id="userpassword" data-rule="登录密码:#if($_type == "add")required;#{end}password;" />
+				</td>
+				 <td class="label">
+					#if($_type == "add")<span class="ui-form-required">*</span>#{end}重复密码：
+				</td>
+                <td >
+    				<input class="k-textbox" type="password" value="" name="repassword" id="repassword" data-rule="重复密码:#if($_type == "add")required;#{end}password;match[user.password];" />
+				</td>
+				<td></td>
+			</tr>
+			<tr>	
+				<td class="label">
+					<span class="ui-form-required">*</span>关联人员：
+				</td>
+				<td colspan="3">
+					<select name="user.person.id"  id="personId" >
+						#if($!{user.person.id})
+						<option value="$!{user.person.id}" selected>$!{user.person.name}</option>
+						#end
+					</select>
+				</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td class="label">
+					分配角色：
+				</td>
+                <td colspan="3">
+    				<input type="hidden" id="selectedRoleIds" name="selectedRoleIds" value="#foreach($role in $assignedRoles)#if($velocityCount > 1),#{end}$!{role.id}#{end}" />
+					<select id="multiselect" multiple="multiple" ></select>  
+    			</td>
+    			<td></td>
+			</tr>
+			<tr>
+				<td class="label">
+					备注：
+				</td>
+                <td colspan="3">
+					<textarea  class="k-textbox" name="user.description" data-rule="length[~128]" >$!{user.description}</textarea>
+				</td>
+				<td></td>
+			</tr>
+		
+		</table>
+  	<div class="actions">
+        <button class="k-primary hc_btn" type="submit" id="save"><i class="fa fa-save"></i>保 存</button>
+        <button class="hc_btn cancel" onclick="close_dialog('user_$!{_type}_dlg')" type="button"><i class="fa fa-close"></i>取 消</button>
+    </div>
+ 
+</form>
+
+#parse("platform/_footer.vm")
+<script src="$!{_platform_assets_url}/js/site.js" type="text/javascript"></script>
+<script src="$!{rc.contextPath}/assets/js/xtgl/zhgl/person.js" type="text/javascript"></script>
+<script type="text/javascript">
+	  $("#multiselect").hcMultiSelect ({
+	   	 	dataTextField: "name",
+          	dataValueField: "id",
+			
+          	dataSource: $!{json},
+            placeholder:'请选择',
+			change: function(e) {
+                var value = this.value();
+               $("#selectedRoleIds").val(value);
+			  
+              }
+
+			 
+			  
+        });
+
+		
+		if("$!{_type}" == "edit"){
+		
+		var multiselect = $("#multiselect").data("kendoMultiSelect");
+		var value = multiselect.value();
+			multiselect.value($!{assignedRolesList}); 
+
+	}
+	
+	
+	//用户修改时新密码与重复密码验证（动态启用、关闭验证）
+	if("$_type" == "edit"){
+		$("#repassword").attr("novalidate","true");
+		
+		$("#userpassword").keyup(function(){
+			if($("#userpassword").val().length==0 && $("#repassword").val().length==0){
+				$("#repassword").attr("novalidate","true");
+				$("#repassword").removeClass("n-invalid k-textbox-error");
+			}else{
+				$("#repassword").removeAttr("novalidate");
+			}
+		});
+		$("#repassword").keyup(function(){
+			if($("#userpassword").val().length ==0 && $("#repassword").val().length==0){
+				$("#repassword").attr("novalidate","true");
+				$("#repassword").removeClass("n-invalid k-textbox-error");
+			}else{
+				$("#repassword").removeAttr("novalidate");
+			}
+		});
+		$("#repassword").blur(function(){
+			if($("#userpassword").val().length ==0 && $("#repassword").val().length==0){
+				$("#repassword").attr("novalidate","true");
+				$("#repassword").removeClass("n-invalid k-textbox-error");
+			}else{
+				$("#repassword").removeAttr("novalidate");
+			}
+		});
+	}
+	
+	//重写选择角色的js，去掉id为undefined的节点
+   $.selectRole2 = function(_this, options, callback) {
+        $.commonSelect(_this, "/platform/authorization/role/select", "_select_role", "选择角色", 350, 500, function(_opt) {
+            var selected;
+            if (_opt.muilt) {
+                selected = plat_auth_role_select_tree.getCheckedNodes(true);
+            } else {
+                selected = plat_auth_role_select_tree.getSelectedNodes();
+            }
+            var selected2 = new Array();
+            if(selected){
+            	$.each(selected,function(index, item){
+            		if(item.id){
+            			selected2.push(item);
+            		}
+            	});
+            }
+            return selected2;
+        }, options);
+    };
+	
+	
+	
+	$('form').validator({
+        rules: {
+            
+        },
+        messages: {
+            required: "请填写{0}",
+            email: "邮箱地址不合法"
+        },
+        fields: {
+           
+            'user.username': '用户名:required;length[~32];',
+			'user.person.id':'关联人员:required;'
+        },
+        valid: function(form){
+			form_btn_submit('#save','#platform_auth_user_$!{_type}_form',function(res){
+    				notify("操作成功", "success");
+					window.parent.frames["_main_frame"].edited_callback();
+					close_dialog('user_$!{_type}_dlg');
+			})
+        }
+    });
+	
+	function changeDept(jgbh){
+    	$.post("$!{rc.contextPath}/xtgl/zhgl/department/getDeptsByJgbh",{jgbh : jgbh},function(result){
+    		$("#deptId").empty();
+    		$("#deptId").append('<option value="0">---请选择部门---</option>');
+    		if(result.status == "success"){
+    			$.each(result.data,function(){
+    				$("#deptId").append('<option value="'+this.id+'">'+this.name+'</option>');
+    			});
+    		}
+    	});
+	}
+		
+	$("form .k-textbox").bind({
+		mouseover: function(e) {
+			if ($(this).hasClass("n-invalid")) {
+				var msg_box = $(this).siblings(".msg-box").get(0);
+				$(msg_box).find(".n-error").show();
+			}
+		},
+		mouseout: function(e){
+			if ($(this).hasClass("n-invalid")) {
+				$(this).siblings(".msg-box").find(".n-error").hide();
+			}
+		}
+	});
+	
+	$(function(){
+		selectPerson('personId','user_$!{_type}_dlg');
+	})
+	
+</script>
+</body>
+</html>

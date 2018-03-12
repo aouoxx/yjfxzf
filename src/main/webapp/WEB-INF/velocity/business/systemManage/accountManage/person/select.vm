@@ -1,0 +1,231 @@
+#parse("platform/_header.vm")
+<link href="$!{_platform_assets_url}/css/ztree/zTreeStyle.css" rel="stylesheet">
+<script src="$!{_platform_assets_url}/js/jquery.ztree.all-3.5.min.js"></script>
+</head>
+<body>
+	
+<div class="ui-layout-west" style="border-right:solid 1px #e1e5e6;" id="leftTreeWrap">
+
+	  <div class="ui-layout-north">
+    		<div class="k-header k-grid-toolbar" style="padding-left:10px;">机构簇</div>
+	  </div>
+      <div class="ui-layout-center">
+  		   <ul id="tree" class="ztree"></ul>
+      </div>
+</div>
+
+<div class="ui-layout-center" id="subMain">
+    <div class="ui-layout-north">
+    	<form class="ui-form" id="search_form">
+		<input type="hidden" name="condition.jgbh" value="" />
+        <table width="100%">
+          <tr>
+            <td>
+              <table class="ui-search-table">
+                <tr>
+                    <td class="ui-search-name first">人员名称：</td>
+                    <td class="ui-search-c"><input name="condition.name" class="k-textbox" type="text"></td>
+                </tr>
+              </table>
+            </td>
+            <td width="150" valign="top" style="padding-top:4px;">
+              <button type="submit" class="hc_btn k-primary" id="queryBtn"><i class="fa fa-search"></i>查询</button>
+            </td>
+            <td></td>
+          </tr>
+        </table>
+    	</form>
+    </div>
+  	<div class="ui-layout-center">
+  	  <div id="grid"></div> 
+    </div>
+  </div>
+
+<div class="ui-layout-south">
+	<form method="post" action="" class="ui-dialog-form">
+		<div class="actions">
+			<button class="k-primary hc_btn" type="button" onclick="choose();"><i class="fa fa-save"></i>确定选择</button>
+		</div>
+	</form>
+</div>
+#parse("platform/_footer.vm")
+<script>
+  var ser = get_el_in_dialog("$!{dlgId}", '$!{el}').data("kendoComplexeSelect");
+  var selected = ser.value();
+  if (!selected) selected = [];
+  var selected_copy = [];
+  var selectedItems = {};
+  for (var i = 0; i < selected.length; i++) {
+    selectedItems[selected[i]] = "";
+    selected_copy.push(selected[i]);
+  }
+  var _iframe_layout;
+  $(function () {
+  		##layout配置
+    	_iframe_layout = $('body').layout({
+    	 center__maskContents: true,
+          defaults: {
+            resizable: false,
+            closable: false,
+            spacing_open: 5
+          },
+          west: {
+            size: 0.32,
+            closable: true,
+          },
+       	  south: {
+            size: 43,
+            closable: false,
+            spacing_open: 5
+       	 }
+        });
+    
+        _left_layout = $("#leftTreeWrap").layout({
+          defaults: {
+            resizable: false,
+            closable: false,
+            spacing_open: 0
+          }
+        });
+    
+        _inner_layout = $("#subMain").layout({
+          defaults: {
+            resizable: false,
+            closable: false,
+            spacing_open: 0
+          },
+          center: {
+              onresize_end: function () {
+                  var grid = $("#grid").data("kendoGrid");
+                  grid.resize();
+              }
+          }
+        })
+		
+		##树型结构
+        var tree = $.fn.zTree.init($("#tree"), {
+            data: {
+			key : {
+					name : "jgmc" 
+				},
+                simpleData: {
+                    enable: true,
+                    pIdKey: "pid",
+                    rootPId: 0
+                }
+            },
+            view: {
+                selectedMulti: false
+            }, callback: {
+                onClick: function (event, treeId, node) {
+                   $("#search_form input[name='condition.jgbh']").val(node.id);
+					 var grid = $("#grid").data("kendoGrid");
+               		 grid.dataSource.read();
+                }
+            }
+        }, $!{jgxxJson});
+		
+		##展开树节点
+		var expandNodes = tree.getNodesByParam("jgdj","1",null);
+		tree.expandAll(true);
+##		$.each(expandNodes,function(i,node){
+##			tree.expandNode(node, true, false, true, false);
+##		});
+		
+  	 quick_datagrid("#grid", "#search_form", "$!{rc.contextPath}/xtgl/zhgl/person/select-list", [
+        {
+            width: 40,
+            headerTemplate: "选择",
+            template: "<div align=\"center\"><input #:(jQuery.inArray(data.id+'',selected)>=0)?'checked':''# onclick=\"check_id(this,'#:data.name#')\" type=\"checkbox\" name=\"ids\" value=\"#:data.id #\"></div>"
+        },
+        {
+          field: "id",
+          hidden: true
+        }, {
+          field: "name",
+          title: "人员名称",
+          sortable: true,
+        }, {
+            field: "jgxxJgmc",
+            title: "所属机构",
+        },
+		 {
+            field: "ryzw",
+            title: "职务",
+        },{
+            field: "rysjhm",
+            title: "手机号码",
+            attributes :{
+            	style: "text-align: left;"
+            }
+        }
+      ],
+      {
+        sortable: false,
+		pageable: true
+      },
+      {
+        serverSorting: true
+      },
+      [
+##      {
+##        name: "确定选择",
+##		icon: "fa fa-check-square-o",
+##        onclick: function () {
+##          $.each(selectedItems, function (idx, it) {
+##            ser.add(idx, it);
+##          });
+##          $.each(selected_copy, function(idx, it){
+##            if(it){
+##              var is_exist = selectedItems[it] ? true : (selectedItems[it]=="" ? true : false)
+##              if(!is_exist){
+##                ser.remove(it);
+##              }
+##            }
+##          });
+##
+##          close_dialog("auth_person_select_dlg");
+##        }
+##		}
+	]
+    );
+
+  });
+
+  function check_id(o, name) {
+    if (o.checked) {
+      //单选
+      if(!($multiple)) {
+        $("#grid tbody tr input[type=checkbox]").not(o).removeAttr("checked");
+        selectedItems = {};
+      }
+      selectedItems[o.value] = name;
+    }
+    else {
+      delete selectedItems[o.value];
+    }
+  }
+  
+  function choose(){
+  	 $.each(selectedItems, function (idx, it) {
+            ser.add(idx, it);
+      });
+      $.each(selected_copy, function(idx, it){
+        if(it){
+          var is_exist = selectedItems[it] ? true : (selectedItems[it]=="" ? true : false)
+          if(!is_exist){
+            ser.remove(it);
+          }
+        }
+      });
+     close_dialog("auth_person_select_dlg");
+  }
+  
+  function edited_callback() {
+    var grid = $("#grid").data("kendoGrid");
+    grid.dataSource.read();
+  }
+   
+</script>
+</body>
+</html>

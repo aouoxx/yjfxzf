@@ -1,0 +1,128 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+<form method="post" action="$!{rc.contextPath}/fxzf/qbb/qbbmbxx/add" class="ui-dialog-form">
+    <table width="100%">
+        <tr>
+			<td class="label">模板类型：</td>
+            <td>#dic_select2("QBB_MBXX_FLAG","QbbMbxx.flag",$!{QbbMbxx.flag},'ui-combobox','flag',"false")</td>
+			<td class="label">出字方式：</td>
+            <td>
+            	#dic_select2("QBB_WAY","QbbMbxx.czfs",${QbbMbxx.czfs},'ui-combobox','',"false")
+            </td>
+            <td></td>
+        </tr>
+		<tr>
+			<td class="label">字体：</td>
+            <td>#dic_select2("QBB_FONT","QbbMbxx.font",${QbbMbxx.font},'ui-combobox','',"false")</td>
+    		<td class="label">颜色：</td>
+            <td>
+				#dic_select2("QBB_COLOR","QbbMbxx.color",${QbbMbxx.color},'ui-combobox','',"false")
+    		</td>
+    		<td></td>
+		</tr>
+		<tr>
+			<td class="label"><span class="ui-form-required">*</span>信息内容：</td>
+            <td colspan="3">
+            	<textarea class="k-textbox" id="xxnr" name="QbbMbxx.xxnr" value="$!{QbbMbxx.xxnr}"
+                	data-rule="信息内容: required;"  >$!{QbbMbxx.xxnr}</textarea>
+            </td>
+    		<td ></td>
+		</tr>
+		<tr id="warnInfo1" style="display:none;">
+			<td></td>
+			<td>
+				<input class="hc_btn k-primary k-button" style="width:50%;height:28px;" onclick="selectTemplet(this);" value="模板选取">
+			</td>
+			<td colspan="3"></td>
+		</tr>
+		<tr id="warnInfo2"  style="display:none;">
+			<td class="label" style="color:red;">备注：</td>
+			<td colspan="3" >情报板告警模板选取按照@*@格式匹配,请勿删除@符号！</td>
+			<td></td>
+		</tr>             
+    </table>
+    <div class="actions">
+        <button class="k-primary hc_btn" type="submit"><i class="fa fa-save"></i>保 存</button>
+        <button class="hc_btn cancel" onclick="close_dialog('qbbmbxx_add_dlg')" type="button"><i class="fa fa-close"></i>取 消</button>
+    </div>
+</form>
+#parse("platform/_footer.vm")
+<script>
+	$('form').validator({
+        rules: {
+            
+        },
+        messages: {
+            required: "请填写{0}",
+        },
+        fields: {
+        },
+		msgClass: "n-bottom",
+        valid: function(form){
+            $.ajax({
+                url: "$!{rc.contextPath}/fxzf/qbb/qbbmbxx/add",
+                data: $(form).serialize(),
+				type: 'post',
+                success: function(data){
+    				if(data.status=="error"){
+        				notify(data.message, "warn");
+        			}else if(data.status=="success"){
+        				notify("操作成功", "success");
+						window.parent.frames["_main_frame"].edited_callback();
+						close_dialog('qbbmbxx_add_dlg');
+        			}
+                }
+            });
+        }
+    });
+	$("form .k-textbox").bind({
+		mouseover: function(e) {
+			if ($(this).hasClass("n-invalid")) {
+				var msg_box = $(this).siblings(".msg-box").get(0);
+				$(msg_box).find(".n-error").show();
+			}
+		},
+		mouseout: function(e){
+			if ($(this).hasClass("n-invalid")) {
+				$(this).siblings(".msg-box").find(".n-error").hide();
+			}
+		}
+	});
+    
+    $(function(){
+    	warnType();
+    })
+    
+    
+    $("#flag").change(function(){
+    	warnType();
+    })
+    
+    function warnType(){
+    	var flag = $("#flag").val();
+    	if('1'==flag){
+    		$("#warnInfo1").css("display","table-row");
+    		$("#warnInfo2").css("display","table-row");
+    	}else{
+			$("#warnInfo1").css("display","none");
+    		$("#warnInfo2").css("display","none");
+    		
+    	}
+    }
+    
+    function selectTemplet(obj){
+    	var t = new Date();
+    	var dlg_id = "qbbmbxx_add_dlg";
+    	var content = encodeURI(encodeURI($("#xxnr").val().replace(/\+/g,"-")));
+		quick_dialog("_select_qbbmbxx", "选择模板信息", "${rc.contextPath}/fxzf/qbb/qbbmbxx/app-select?content="+content+"&dlg_id="+dlg_id+"&t="+ t.getTime(),300, 360);
+    }
+    
+    function fillAppContent(content){
+    	$("#xxnr").val(content);
+    }
+    
+</script>
+</body>
+</html>
+

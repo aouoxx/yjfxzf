@@ -1,0 +1,234 @@
+## 引入文件头部及css
+#set($_title = "永嘉非现执法系统")
+#parse("platform/_header.vm")
+#parse("platform/_head.vm")
+	</head>
+	<body scroll=no class="ui-app-body">
+		<div class="ui-layout-center ui-app-container" id="AppWindow">
+			<div class="ui-app-visible-box">
+				<div class="ui-app-content">
+				</div> 	
+			</div>
+		</div>
+
+		<div class="ui-layout-north app-head">
+			<!-- <div class="app-logo"></div> -->
+			<div style="position: absolute;right: 126px;top: 5px; color: #FFF;">您好：<span id="username" style="cursor: pointer;"> </span> ,欢迎登陆！</div>
+			<a href="$!{rc.contextPath}/platform/logout" class="app-logout">注销</a>
+		</div>
+
+		<div class="ui-layout-west">
+			<a class="app-left"></a>
+		</div>
+		
+		<div class="ui-layout-east">
+			<a class="app-right"></a>
+		</div>
+
+		<div class="ui-layout-south app-footer" id="foot">
+			<div class="ui-app-nav-wrap">
+				<ul class="ui-app-nav"></ul>
+			</div>
+			<div class="ui-app-copyright">
+				<p>Copyright &copy; 2003-2018 永嘉县公路管理局 | 技术支持单位: 浙江浙大中控信息技术有限公司</p>
+			</div>
+		</div>
+
+		<div class="notices-w" id="notices-w">
+			<div class="notices-title">
+				通知消息
+				<i class="flodicon" onclick="fadeclose();"></i>
+				##<i class="closeIcon" onclick="minW();"></i>
+			</div>
+				<div class="notices-contents">
+					<ul id="msgContent">
+					 </ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="notices-w-min" id="notices-w-min">
+			<div class="notices-title">
+				<i class="unflodicon" onclick="fadeopen();"></i>
+				##<i class="closeIcon" onclick="closeW();"></i>
+			</div>
+			</div>
+		</div>
+
+		<div id="newMessageDIV" style="display:none;"></div>
+
+	##引入js
+	#parse("platform/_footer.vm")		
+	<script>
+
+	$(document).ready(function () {
+		var _N = document.body.clientHeight*0.26;
+		var _S = document.body.clientHeight*0.1;
+		var _WE = document.body.clientWidth*0.1;
+		var _app_layout = $('body').layout({ 
+			defaults : {
+				resizable : false,
+				closable : false,
+				spacing_open : 0
+			},
+			north : {
+				size : _N
+			},
+			south : {
+				size : _S
+			},
+			west : {
+				size : _WE
+			},
+			east : {
+				size : _WE
+			},
+		});
+
+		init();
+	});
+    var root_menu = $!{menu}; //根菜单
+	var w_left;
+	var w_num = 1, h_num = 1, pageNum = 1, page = 1; //app横向、纵向、每页、总数量
+	var total_num = root_menu.children.length;//app总数
+	##var itemLabels = new Array("交通综合分析","交通服务评价","月报系统","交通运能仿真","运力决策分析","数据中心管理");
+	var itemImg_url = "$!{rc.contextPath}/assets/images/";
+
+	// 获得每个appItem的长宽
+	var item_wh = 330; //item_wh = $(".ui-app-appItem").outerWidth();
+	var item_ht = 220; //item_ht = $(".ui-app-appItem").outerHeight();
+
+	function init(){
+		// 计算appItem数量
+		var username='$!{username}';
+		$('#username').text(username);
+		$('#username').click(function(){
+			quick_dialog('password_dlg','修改用户密码','$!{rc.contextPath}/xtgl/user/password',500,200);
+		});
+		w_num = Math.max(Math.floor(parseInt($("#AppWindow").width())/item_wh),1); //app横向数量
+		h_num = Math.max(Math.floor((parseInt($("#AppWindow").height()))/item_ht),1); //app纵向数量
+		pageNum = h_num*w_num; //每页app数量
+		page = Math.ceil(total_num/pageNum); //总页数
+		$(".ui-app-nav-wrap").width(page*25); //翻页的小圆点box
+		
+		w_left = w_num * item_wh; //每次模拟换页div移动距离
+
+		//给页面元素设置高度和宽度
+		$(".ui-app-visible-box").width(item_wh*w_num);		
+		$(".ui-app-content").width(page*w_num*item_wh).height(item_ht*h_num).animate({left:0+'px'}, 200);
+
+		var nav = "",cont = "";;	
+		for(var i = 0 ; i < page ; i++ ){	
+			if(i==0){
+				nav +="<li class=\"ui-app-trigger ui-app-trigger-active\"></li>";
+			}else{
+					nav +="<li class=\"ui-app-trigger\"></li>";
+			}		
+			var start = i * pageNum+1;
+			var end = i * pageNum+pageNum;
+			cont += "<div class=\"item\" style=\"float:left\">";
+			for(var j = start; j <= end ; j++){
+				if(j<=total_num){
+        			var menu = root_menu.children[j - 1];
+                	var url = "$!{rc.contextPath}/index?code=" + menu.code;
+					if(menu.code =="FXZF_MONITOR"){
+            		 	cont += "<div class=\"ui-app-appItem\"><div class=\"appItem-bg\"><a href=\"#\" onclick=\"openWin()\"><img src=\""+itemImg_url+"app/"+menu.code+".png\" border=\"0\"/></a><div class=\"appItem-text\">"+menu.name+"</div></div></div>";
+            		}else{
+            			cont += "<div class=\"ui-app-appItem\"><div class=\"appItem-bg\"><a href=\""+url+"\"><img src=\""+itemImg_url+"app/"+menu.code+".png\" border=\"0\"/></a><div class=\"appItem-text\">"+menu.name+"</div></div></div>";
+            		}
+				}		 
+			}
+			cont +="</div>";
+		}
+		$(".ui-app-content").html(cont);	
+		$(".ui-app-nav").html(nav);
+		$(".item").width(w_num*item_wh).height(item_ht*h_num);
+		
+		// 通过下面圆点图表进行APP翻页
+		$(".ui-app-trigger").click(function(){
+			var index = $(this).index();
+			$(this).addClass("ui-app-trigger-active").siblings().removeClass("ui-app-trigger-active");
+			var left = -(w_left*index);
+			$(".ui-app-content").animate({left:left+'px'}, 200);
+		})
+	}
+	
+	// 窗口resize事件，重新排版app item.
+	window.onresize = init;
+	
+	// APP左右翻页事件
+	var active_idx = 0;
+	$(".app-left").click(function(){
+		active_idx = $(".ui-app-trigger-active").index();
+		if(active_idx > 0){
+			$(".ui-app-trigger").eq(active_idx).removeClass("ui-app-trigger-active");
+			$(".ui-app-trigger").eq(active_idx-1).addClass("ui-app-trigger-active");
+			var left = -(w_left*active_idx - w_left);
+			$(".ui-app-content").animate({left:left+'px'}, 200);
+		};
+	})
+	$(".app-right").click(function(){
+		active_idx = $(".ui-app-trigger-active").index();
+		if(active_idx < page-1){
+			$(".ui-app-trigger").eq(active_idx).removeClass("ui-app-trigger-active");
+			$(".ui-app-trigger").eq(active_idx+1).addClass("ui-app-trigger-active");
+			var left = -(w_left*active_idx + w_left);
+			$(".ui-app-content").animate({left:left+'px'}, 200);
+		};
+	})
+	function openWin(){
+		var _w = window.screen.width;
+		var _h = window.screen.height;
+		window.open("$!{rc.contextPath}/fxzf/monitor/init?_t="+Math.random()*100000000000000 ,"台州非现执法监控系统",'height=' + _h+ ',width= ' + _w + ',titlebar=no, toolbar=no,menubar=no,scrollbars=no, resizable=no,location=yes, status=yes');
+	}
+	</script>
+	
+	<script type="text/javascript">
+	window.onload=function ()
+	{
+	    var oDrag=document.getElementById('notices-w');
+	     
+	    oDrag.onmousedown=function (ev)
+	    {
+	        var oEvent=ev||event;
+	        var disX=oEvent.clientX-oDrag.offsetLeft;//x坐标
+	        var disY=oEvent.clientY-oDrag.offsetTop;//y坐标
+	         
+	        document.onmousemove=function (ev)
+	        {
+	            var oEvent=ev||event;
+	            var l=oEvent.clientX-disX;//移动x坐标位置
+	            var t=oEvent.clientY-disY;//移动y坐标位置
+	            //限制范围
+	            if(l<0)
+	            {
+	                l=0;
+	            }
+	            else if(l>document.documentElement.clientWidth-oDrag.offsetWidth)
+	            {
+	                l=document.documentElement.clientWidth-oDrag.offsetWidth;
+	            }
+	             
+	            if(t<0)
+	            {
+	                t=0;
+	            }
+	            else if(t>document.documentElement.clientHeight-oDrag.offsetHeight)
+	            {
+	                t=document.documentElement.clientHeight-oDrag.offsetHeight;
+	            }
+	             
+	            oDrag.style.left=l+'px';
+	            oDrag.style.top=t+'px';
+	        };
+	         
+	        document.onmouseup=function ()
+	        {
+	            document.onmousemove=null;
+	            document.onmouseup=null;
+	        };
+	    };
+	};
+    </script>
+	</body>
+</html>

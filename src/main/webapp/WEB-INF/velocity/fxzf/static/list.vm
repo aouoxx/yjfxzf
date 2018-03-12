@@ -1,0 +1,557 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+<div class="ui-layout-north" id="north_div">
+    #bread_crumbs2("FXZF_STATIC")
+    <div class="ui-search-container">
+        <form id="fxzf-search-condition">
+            <table>
+                <tbody>
+##                <tr>
+##                    <td class="ui-search-name" id="rangeMark" style="width: 80px;">车辆总重：</td>
+##                    <td class="ui-search-c">
+##                        <input type="text" class="k-textbox" style="width:78px;" id="beginWeight" name="condition.beginWeight"/>
+##                        &nbsp;至&nbsp;
+##                        <input type="text" class="k-textbox" id="endWeight" style="width:78px;" name="condition.endWeight"/>
+##                    </td>
+##                    <td class="ui-search-name" id="rangeMark" style="width: 80px;">过车速度：</td>
+##                    <td class="ui-search-c">
+##                        <input type="text" class="k-textbox" style="width:80px;" id="beginSpeed" name="condition.beginSpeed"/>
+##                        &nbsp;至&nbsp;
+##                        <input type="text" class="k-textbox" id="endSpeed" style="width:80px;" name="condition.endSpeed"/>
+##                    </td>
+##                    <td class="ui-search-name" id="rangeMark" style="width: 80px;">超限率：</td>
+##                    <td class="ui-search-c">
+##                        <input type="text" class="k-textbox" style="width:80px;" id="beginOverLoadPercent" name="condition.beginOverLoadPercent"/>
+##                        &nbsp;至&nbsp;
+##                        <input type="text" class="k-textbox" id="endOverLoadPercent" style="width:80px;" name="condition.endOverLoadPercent"/>
+##                    </td>
+##                    <td colspan="6" style="padding-left: 20px;" id="chargeFlag">
+##                        <input type="checkbox" id="overLoadFlag" name="overLoadcheckbox"/> 是否超限
+##                        <input type="hidden" name="condition.overLoadFlag" id="overLoadFlagValue"/>
+##                        <span>&nbsp;&nbsp;</span>
+##                        <input type="checkbox" id="warnFlag" name="warncheckbox"/> 是否告警
+##                        <input type="hidden" name="condition.warnFlag" id="warnFlagValue"/>
+##                    </td>
+##                </tr>
+                <tr id="tr_flag">
+                    <td class="ui-search-name">车牌号:&nbsp;</td>
+                    <td><input type="text" class="k-textbox" id="inputLicense" name="condition.license" style="width: 185px;"/></td>
+                    <td class="ui-search-name" style="width: 80px;">称重时间:&nbsp;</td>
+                    <td><input type="text" name="condition.captureTime" id="datePicker1"></td>
+                    <td><span style="margin-left: 1px;width: 80px;">&nbsp;&nbsp;至&nbsp;&nbsp;</span></td>
+                    <td><input type="text" name="condition.backTime" id="datePicker2"></td>
+                    <td colspan="6">
+                        <button type="submit" class="hc_btn k-primary search-btn" style="margin-left: 170px;">查询</button>
+                        <button type="reset" class="hc_btn k-primary reset-btn" style="margin-left: 10px;" id="resetForm"></i>重置</button>
+                        <button type="button" class="hc_btn k-primary refresh-btn" style="margin-left: 10px; width: 100px;" id="refresh">自动刷新</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+
+<div class="ui-layout-center" id="centerMain">
+    <div class="ui-layout-center">
+        <div id="fxzf_datalist"></div>
+    </div>
+</div>
+
+<div id="treeContent" class="menuContent" style="display:none;position:absolute;background-color:#c5c5c5">
+    <ul id="tree" class="ztree" style="margin-top:0;width:175px;"></ul>
+</div>
+    #parse("platform/_footer.vm")
+<script>
+    $(document).ready(function () {
+        var start = $("#datePicker1").hcDateTimePicker({
+            culture: "zh-CN",
+            format: "yyyy-MM-dd HH:mm:ss",
+            change: startChange
+        }).data("kendoDateTimePicker");
+        var end = $("#datePicker2").hcDateTimePicker({
+            culture: "zh-CN",
+            format: "yyyy-MM-dd HH:mm:ss",
+            change: endChange
+        }).data("kendoDateTimePicker");
+
+        function startChange() {
+            var startDate = start.value(), endDate = end.value();
+            if (startDate) {
+                startDate = new Date(startDate);
+                startDate.setDate(startDate.getDate());
+                end.min(startDate);
+            } else if (endDate) {
+                start.max(new Date(endDate));
+            } else {
+                endDate = new Date();
+                start.max(endDate);
+            }
+        }
+        function endChange() {
+            var endDate = end.value(), startDate = start.value();
+            if (endDate) {
+                endDate = new Date(endDate);
+                endDate.setDate(endDate.getDate());
+                start.max(endDate);
+            } else if (startDate) {
+                end.min(new Date(startDate));
+            } else {
+                endDate = new Date();
+                start.max(endDate);
+            }
+        }
+        startChange();
+        endChange();
+    });
+
+    var _iframe_layout, _inner_layout;
+    var imageServer;
+    var refreshTime;
+    $(function () {
+//        overLoadStatus();
+//        overLoadPunish();
+        _iframe_layout = $('body').layout({
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            },
+            center: {
+                onresize_end: function () {
+                }
+            },
+            north: {size: 75}
+        });
+        _inner_layout = $('#centerMain').layout({
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            },
+            center: {
+                onresize_end: function () {
+                }
+            },
+            east: {
+                size: 30,
+                closable: true,
+                spacing_open: 5
+            }
+        });
+
+        quick_datagrid("#fxzf_datalist", "#fxzf-search-condition", "$!{rc.contextPath}/fxzf/search/list", [
+            {
+                field: "id",
+                hidden: true
+            }, {
+                field: "captureTime",
+                width: "30%",
+                title: "称重时间"
+            }, {
+                field: "license",
+                width: "20%",
+                title: "车牌号",
+                template: "<a href=\"javascript:void(0)\" title=\"查看过车信息\" onclick=\"quick_dialog('view_Dlg','查看过车信息','$!{rc.contextPath}/fxzf/search/view?id=#: data.id #',820, 710)\">#: data.license #</a>"
+            }, {
+                field: "licenseColor",
+                title: "车牌颜色"
+            }, {
+                field: "weight",
+                title: "总重(吨)",
+                template:'<span style="font-size:14px;font-weight:700">#: data.weight # t</span>'
+            }, {
+                field: "overLoad",
+                title: "超重(吨)",
+                template:'<span style="font-size:14px;font-weight:700">#: data.overLoad # t</span>'
+            }, {
+                field: "overLoadPercent",
+                title: "超限率(%)",
+                template:'<span style="font-size:14px;font-weight:700">#: data.overLoadPercent #%</span>'
+            }, {
+                field: "axisCount",
+                title: "轴数",
+                template:'<span style="font-size:14px;font-weight:700">#: data.axisCount # 轴</span>'
+            }], {
+                columnResizeHandleWidth: 6,
+                pageable: true,
+                pageSize: 15,
+                dataBound: function (e) {
+                    grid_dataBound(e);
+                }
+            }, {
+                serverSorting: true,
+                editable: "incell"
+            }, [
+                {
+                    name: "导出本页",
+                    icon: "fa fa-download",
+                    onclick: function (obj, grid) {
+                        exportExcelPage();
+                    }
+                },
+                {
+                    name: "导出全部",
+                    icon: "fa fa-download",
+                    onclick: function (obj, grid) {
+                        exportExcelAll();
+                    }
+                }
+            ]
+        );
+        ## 页面自动刷新,每10s刷新一次
+        refreshTime = "$!{refreshTime}";
+    });
+
+    ## 重置页面后刷新页面
+    $('#resetForm').click(function () {
+        $('#inputLicense').val('');
+        $('#datePicker1').val('');
+        $('#datePicker2').val('');
+        edited_callback();
+    });
+
+    ##刷新一次表格
+    var timeCount;
+    var autoflag = true;
+    ##切换刷新
+    $('#refresh').click(function () {
+        if (autoflag) {
+            autoflag = false;
+            $('#refresh').text('停止刷新');
+            autoflush();
+        } else {
+            autoflag = true;
+            $('#refresh').text('自动刷新');
+            stopflush();
+        }
+    });
+    function autoflush() {
+        var date = parseInt(refreshTime);
+        edited_callback()
+        timeCount = setTimeout("autoflush()", date * 1000);
+    }
+    ##停止刷新
+    function stopflush() {
+        clearTimeout(timeCount);
+    }
+    ##	初始化后绑定列表
+    var change_oldLicense;
+    function grid_dataBound(e) {
+        var data = e.sender._data;
+        ## 查询结果为空
+        if (data.length != 0) {
+            ## 默认选中第一行
+            var grid = $("#fxzf_datalist").data("kendoGrid");
+            grid.select("tr:eq(3)");
+##            ## 计算图片的高度和宽度
+##            var node = $('#centerMain').css("height");
+##            node = node.substring(0, node.length - 2);
+##            var height1 = 2 * (node - 28 - 29 - 29) / 5 + "px";
+##            var height2 = 3 * (node - 28 - 29 - 29) / 5 + "px";
+##            $('#ftpimageHead').css("height", height1);
+##            $('#ftpimageTail').css("height", height2);
+##            ##默认显示第一行选中的图片
+##            if (0 == data[0].overLoadPunish) {
+##                imageShow(data[0].headCarPicdir, data[0].tailCarPicdir, '正常通车');
+##            } else {
+##                imageShow(data[0].headCarPicdir, data[0].tailCarPicdir, '超限通车');
+##            }
+##            sender = e.sender;
+##            for (var i = 0; i < data.length; i++) {
+##                $(e.sender.tbody[0].childNodes[i]).children().eq(3).bind('dblclick', function () {
+##                    grid.editCell(grid.select().children().eq(3));
+##                    var data = grid.dataItem(grid.select());
+##                    change_oldLicense = data.license;
+##                });
+##            }
+##            for (var i = 0; i < data.length; i++) {
+##                $(e.sender.tbody[0].childNodes[i]).children().eq(3).bind('focusout', function () {
+##                    var grid = $("#fxzf_datalist").data("kendoGrid");
+##                    var data = grid.dataItem(grid.select());
+##                    licenseChange(data, change_oldLicense);
+##                });
+##            }
+##            ##双击序号弹出对应的过车详细信息
+##            for (var i = 0; i < data.length; i++) {
+##                $(e.sender.tbody[0].childNodes[i]).children().eq(0).bind('dblclick', function () {
+##                    var id = grid.dataItem(grid.select()).id + '';
+##                    viewItem(id);
+##                });
+##            }
+##            for (var i = 0; i < data.length; i++) {
+##                $(e.sender.tbody[0].childNodes[i]).bind('click', function () {
+##                    var headCarPicdir = $(this).children().eq(14).text();
+##                    var tailCarPicdir = $(this).children().eq(15).text();
+##                    var status = $(this).children().eq(13).text();
+##                    imageShow(headCarPicdir, tailCarPicdir, status);
+##                });
+##            }
+        }
+//        else {
+//            $('#ftpimageHead').html('');
+//            $('#ftpimageTail').html('');
+//        }
+    }
+
+    ##更新车牌号
+    function licenseChange(data, license) {
+        if (typeof(license) == 'undefined') {
+            license = '';
+        }
+        if (data.license == license) {
+            return 1;
+        }
+        if (data.license.replace(/(^s*)|(s*$)/g, '').length == 0 || data.license == '' || data.license == null) {
+            notify("车牌不可以修改为空", "error");
+            return 1;
+        }
+        $.ajax({
+            url: "$!{rc.contextPath}/fxzf/search/change",
+            dataType: "json",
+            type: "post",
+            data: {
+                license: data.license,
+                oldlicense: license,
+                id: data.id,
+                color: data.licenseColor
+            },
+            success: function (data, textStatus) {
+                if (data.data == 200) {
+                    notify("车牌号修改成功！", "success");
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+            }
+        });
+    }
+
+    ## 查看详细过车信息
+    function viewItem(id) {
+        quick_dialog('view_Dlg', '查看过车信息', '$!{rc.contextPath}/fxzf/search/view?id=' + id, 820, 710);
+    }
+
+    $('form').validator({
+        rules: {
+//            beginWeight: function (element) {
+//                var data = element.value;
+//                var end = $('#endWeight').val();
+//                if (end != '') {
+//                    if (data <= end) {
+//                        return true;
+//                    }
+//                    else {
+//                        return false;
+//                    }
+//                }
+//                return true;
+//            },
+//            endWeight: function (element) {
+//                var data = element.value;
+//                var begin = $('#beginWeight').val();
+//                if (begin != '') {
+//                    if (data >= begin) {
+//                        return true;
+//                    } else {
+//                        return false;
+//                    }
+//                }
+//                return true;
+//            },
+//            no: function (element) {
+//                var data = element.value;
+//                if (!isNaN(data)) {
+//                    return true;
+//                } else {
+//                    return false;
+//                }
+//            }
+        },
+        messages: {
+//            beginWeight: "起止重量必须小于等于截止重量",
+//            endWeight: "截止重量需大于等于起止重量",
+//            no: "请输入数字"
+        },
+        fields: {
+//            "condition.beginWeight": "no,beginWeight",
+//            "condition.endWeight": "no,endWeight"
+        }
+    });
+
+    ##查看图片
+    function imageShow(headCarPicdir, tailCarPicdir, status) {
+        var height1 = $('#ftpimageHead').css("height");
+        var height2 = $('#ftpimageTail').css("height");
+        var width = $('#ftpimageHead').css("width");
+        var headPic = headCarPicdir;
+        if (headPic) {
+            headPic = headCarPicdir.replace(/\#/g, '%23');
+            ;
+        }
+        var tailPic = tailCarPicdir;
+        if (tailPic) {
+            tailPic = tailCarPicdir.replace(/\#/g, '%23');
+            ;
+        }
+        headCarPicdir = imageServer + headPic;
+        tailCarPicdir = imageServer + tailPic;
+        ## 查看图片详细路径
+        var imgHead = '<img title="点击查看大图" height=' + height1 + ' width=' + width + ' src=' + headCarPicdir + ' onclick="openImage(' + '\'' + headPic + '\'' + ')" border="0" onerror="this.src=\'$!{rc.contextPath}/assets/images/img404.jpg\'"></img>'
+        var imgTail = '<img title="点击查看大图" height=' + height2 + ' width=' + width + ' src=' + tailCarPicdir + ' onclick="openImage(' + '\'' + tailPic + '\'' + ')" border="0" onerror="this.src=\'$!{rc.contextPath}/assets/images/img404.jpg\'"></img>'
+        $('#ftpimageHead').html(imgHead);
+        $('#ftpimageTail').html(imgTail);
+    }
+
+    function openImage(carPicdir) {
+        window.open(imageServer + carPicdir);
+    }
+
+    ##  回调函数
+    function edited_callback() {
+        var grid = $("#fxzf_datalist").data("kendoGrid");
+        grid.dataSource.read();
+    }
+
+    ##   获取违法程度
+    function overLoadStatus() {
+        $.ajax({
+            url: "$!{rc.contextPath}/fxzf/search/overLoadStatus",
+            dataType: "json",
+            type: "post",
+            data: {},
+            success: function (data, textStatus) {
+                var html = '<select id="overLoadStatus" multiple="multipe" name="condition.overStatus" class="ui-combobox"><option></option>';
+                for (var i = 0; i < data.data.length; i++) {
+                    var status = data.data[i].split(":");
+                    html = html + '<option value="' + status[0] + '">' + status[1] + '</option>';
+                }
+                html = html + '</select>';
+                $("#overLoadStatusName").html(html);
+                $("#overLoadStatus").hcMultiSelect();
+                $("#overLoadStatus").change(function () {
+                ##去除只看超限,查看选中的违法程度
+                    $('#overLoadFlag').prop("checked", false);
+                    $('#overLoadFlagValue').val("");
+                })
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+            }
+        });
+    }
+
+    ##   获取处罚结果
+    function overLoadPunish() {
+        $.ajax({
+            url: "$!{rc.contextPath}/fxzf/search/overLoadPunish",
+            dataType: "json",
+            type: "post",
+            data: {},
+            success: function (data, textStatus) {
+                var html = '<select id="overLoadPunish"  multiple="multipe" name="condition.overPunish" class="ui-combobox"><option></option>';
+                for (var i = 0; i < data.data.length; i++) {
+                    var punish = data.data[i].split(":");
+                    html = html + '<option value="' + punish[0] + '">' + punish[1] + '</option>';
+                }
+                html = html + '</select>';
+                $("#overLoadPunishName").html(html);
+                $("#overLoadPunish").hcMultiSelect();
+                ##去除只看超限,查看选中的违法等级
+                $("#overLoadPunish").change(function () {
+                    $('#overLoadFlag').prop("checked", false);
+                    $('#overLoadFlagValue').val("");
+                })
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+            }
+        });
+    }
+
+    ## 导出本页
+    function exportExcelPage(obj, grid) {
+        var total = sender.pager.dataSource._total;
+        var pageNo = sender.pager.dataSource._page;
+        if (total == 0) {
+            notify("列表数据为空,不允许导出", "warn");
+            return;
+        }
+        if (total > 20 * (pageNo - 1)) {
+            total = total - (pageNo - 1) * 20;
+        }
+        var license = $('#inputLicense').val();
+        license = encodeURI(encodeURI(license));
+//        var overLoadStatus = $('#overLoadStatus').val();
+//        var overLoadPunish = $('#overLoadPunish').val();
+        var overLoadStatus = '';
+        var overLoadPunish = '';
+        var begin = '';
+        var end = '';
+        var warnFlag = '';
+##        var warnFlag = $('#warnFlagValue').val();
+##        if ($("input[type='checkbox']").is(':checked')) {
+##        ## 选中违法信息获取全部违章信息
+##            overLoadStatus = "1,2,3,4,5";
+##        }
+        if ($("#datePicker2").data("kendoDateTimePicker").value() != null) {
+            end = $("#datePicker2").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+        }
+        if ($("#datePicker1").data("kendoDateTimePicker").value() != null) {
+            begin = $("#datePicker1").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+        }
+        window.location.href = "$!{rc.contextPath}/fxzf/search/exportPage?pageNo=" + pageNo + "&condition.captureTime=" + begin +
+                "&condition.backTime=" + end +
+                "&condition.overStatus=" + overLoadStatus + "&condition.overPunish=" + overLoadPunish + "&condition.license=" + license +
+                "&condition.warnFlag=" + warnFlag;
+    }
+
+    ## 导出全部
+    function exportExcelAll() {
+        var total = sender.pager.dataSource._total;
+        if (total == 0) {
+            notify("列表数据为空,不允许导出", "warn");
+            return;
+        } else if (total > 2000 && total < 65535) {
+            if (!confirm("列表数据超过2000条,确定导出吗?"))return;
+        }
+        if (total >= 65535) {
+            notify("导出的数据不可以超出65535条记录", 'warn')
+        } else {
+//            var overLoadStatus = $('#overLoadStatus').val();
+//            var overLoadPunish = $('#overLoadPunish').val();
+            var overLoadStatus = '';
+            var overLoadPunish = '';
+            var begin = '';
+            var end = '';
+            var warnFlag = '';
+            var license = $('#inputLicense').val();
+//            var warnFlag = $('#warnFlagValue').val();
+            license = encodeURI(encodeURI(license));
+##            if ($("input[type='checkbox']").is(':checked')) {
+##            ## 选中违法信息获取全部违章信息
+##                overLoadStatus = "1,2,3,4,5";
+##            }
+            if ($("#datePicker2").data("kendoDateTimePicker").value() != null) {
+                end = $("#datePicker2").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+            }
+            if ($("#datePicker1").data("kendoDateTimePicker").value() != null) {
+                begin = $("#datePicker1").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+            }
+            window.location.href = "$!{rc.contextPath}/fxzf/search/exportAll?condition.captureTime=" + begin +
+                    "&condition.backTime=" + end +
+                    "&condition.overStatus=" + overLoadStatus + "&condition.overPunish=" + overLoadPunish + "&condition.license=" + license +
+                    "&condition.warnFlag=" + warnFlag;
+        }
+    }
+</script>
+</body>
+<style>
+    span {
+        font-family: tahoma, arial, "宋体", "Microsoft Yahei", \5b8b\4f53;
+        font-size: 12px;
+    }
+
+    .ui-layout-pane-center {
+        overflow: inherit;
+    }
+</style>
+</html>

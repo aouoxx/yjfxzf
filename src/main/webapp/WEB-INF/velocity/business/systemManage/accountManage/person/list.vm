@@ -1,0 +1,224 @@
+#parse("platform/_header.vm")
+<link href="$!{_platform_assets_url}/css/ztree/zTreeStyle.css" rel="stylesheet">
+<script src="$!{_platform_assets_url}/js/jquery.ztree.all-3.5.min.js"></script>
+</head>
+<body>
+<div class="ui-layout-north">
+    #bread_crumbs2("XTGL_ZHGL_PERSON")
+</div>
+<div class="ui-layout-west" style="border-right:solid 1px #e1e5e6;" id="department_tree_container">
+
+    <div class="ui-layout-north">
+        <div class="k-header k-grid-toolbar" style="padding-left:10px;">机构簇</div>
+    </div>
+    <div class="ui-layout-center">
+        <ul id="tree" class="ztree"></ul>
+    </div>
+</div>
+
+<div class="ui-layout-center" id="subMain">
+    <div class="ui-layout-north">
+        <div class="ui-search-container">
+            <form class="ui-form" id="search_form">
+                <input type="hidden" name="condition.jgbh" id="jgbh" value=""/>
+                <table width="100%">
+                    <tr>
+                        <td>
+                            <table class="ui-search-table">
+                                <tr>
+                                    <td class="ui-search-name first">人员姓名：</td>
+                                    <td class="ui-search-c"><input name="condition.name" class="k-textbox" type="text">
+                                    </td>
+                                    <td class="ui-search-name">人员编码：</td>
+                                    <td class="ui-search-c">
+                                        <input class="k-textbox" type="text" name="condition.code"
+                                               value="$!{condition.code}"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td width="150" valign="top" style="padding-top:4px;">
+                            <button type="submit" class="hc_btn k-primary" id="queryBtn"><i class="fa fa-search"></i>查询
+                            </button>
+                        </td>
+                        <td></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <div class="ui-layout-center">
+        <div id="grid"></div>
+    </div>
+</div>
+
+    #parse("platform/_footer.vm")
+<script>
+    var _iframe_layout;
+    $(function () {
+        _iframe_layout = $('body').layout({
+            center__maskContents: true,
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            },
+            west: {
+                size: 300,
+                closable: true,
+                spacing_open: 5
+            }, north: {
+                size: 34
+            }
+        });
+
+        _left_layout = $("#department_tree_container").layout({
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            }
+        });
+
+        _inner_layout = $("#subMain").layout({
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            },
+            center: {
+                onresize_end: function () {
+                    var grid = $("#grid").data("kendoGrid");
+                    grid.resize();
+                }
+            }
+        })
+
+        var tree = $.fn.zTree.init($("#tree"), {
+            data: {
+                key: {
+                    name: "jgmc"
+                },
+                simpleData: {
+                    enable: true,
+                    pIdKey: "pid",
+                    rootPId: 0
+                }
+            },
+            view: {
+                selectedMulti: false
+            }, callback: {
+                onClick: function (event, treeId, node) {
+                    $("#search_form input[name='condition.jgbh']").val(node.id);
+                    var grid = $("#grid").data("kendoGrid");
+                    grid.dataSource.read();
+
+                }
+            }
+        }, $!{jgxxJson});
+
+    ##展开树节点
+        var expandNodes = tree.getNodesByParam("jgdj", "1", null);
+        tree.expandAll(true);
+    ##		$.each(expandNodes,function(i,node){
+    ##			tree.expandNode(node, true, false, true, false);
+    ##		});
+
+        quick_datagrid("#grid", "#search_form", "$!{rc.contextPath}/xtgl/zhgl/person/list", [
+                    {
+                        field: "name",
+                        title: "人员姓名",
+                        attributes: {
+                            style: "text-align: left;"
+                        },
+                        template: "<a href=\"javascript:void(0)\" title=\"查看人员的详细信息\" onclick=\"quick_dialog('auth_role_view_dlg','查看人员的详细信息','$!{rc.contextPath}/xtgl/zhgl/person/view?id=#: data.id #',680,420)\">#: data.name #</a>"
+                    }, {
+                        field: "jgxxJgmc",
+                        title: "所属机构",
+                        attributes: {
+                            style: "text-align: left;"
+                        }
+                    }, {
+                        field: "departmentName",
+                        title: "所属部门",
+                        attributes: {
+                            style: "text-align: left;"
+                        }
+                    }, {
+                        field: "ryzw",
+                        title: "职务",
+                        attributes: {
+                            style: "text-align: left;"
+                        }
+                    }, {
+                        field: "rysjhm",
+                        title: "手机号码",
+                        attributes: {
+                            style: "text-align: left;"
+                        }
+                    },
+
+                    {
+                        field: "ryzzmm",
+                        title: "政治面貌",
+                        attributes: {
+                            style: "text-align: left;"
+                        }
+                    }
+                ], {
+                    sortable: false,
+                    pageable: true
+                }, {
+                    serverSorting: true
+                },
+                [
+                ##				#hc_grid_buttons("XTGL_ZHGL_PERSON")#end
+                    {
+                        name: "新增", icon: "fa fa-plus", onclick: function (obj, grid) {
+                        var row = grid.select();
+                        var pid = "";
+                        if (row & row.length > 0) {
+                            var data = grid.dataItem(row);
+                            if (data) {
+                                pid = data.id;
+                            }
+                        } else {
+                            pid = $("#jgbh").val();
+                        }
+
+
+                        quick_dialog("person_add_dlg", "添加人员", "$!{rc.contextPath}/xtgl/zhgl/person/add?jgbh=" + pid, 690, 520, obj);
+                    }
+                    }, {
+                    name: "修改", icon: "fa fa-pencil", onclick: function (obj, grid) {
+                        var row = grid.select();
+                        if (null == row || row.length == 0) {
+                            notify("你还没有选择要修改的人员", "warn");
+                            return;
+                        }
+                        var data = grid.dataItem(row);
+                        quick_dialog("person_edit_dlg", "修改人员", "$!{rc.contextPath}/xtgl/zhgl/person/edit?id=" + data.id + "=" + data.jgxx.id, 690, 520, obj);
+                    }
+                }, {
+                    name: "删除", icon: "fa fa-remove", onclick: function (obj, grid) {
+                        var row = grid.select();
+                        if (null == row || row.length == 0) {
+                            notify("你还没有选择要删除的人员", "warn");
+                            return;
+                        }
+                        var data = grid.dataItem(row);
+                        if (!confirm("确定删除人员 【" + data.name + "】 吗？"))return;
+                        quick_ajax("$!{rc.contextPath}/xtgl/zhgl/person/delete", {id: data.id}, null, obj, grid);
+                    }
+                }
+                ]);
+    });
+
+    function edited_callback() {
+        var grid = $("#grid").data("kendoGrid");
+        grid.dataSource.read();
+    }
+
+</script>
+</body>
+</html>

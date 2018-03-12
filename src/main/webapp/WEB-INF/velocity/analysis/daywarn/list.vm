@@ -1,0 +1,260 @@
+#parse("platform/_header.vm")
+<link href="$!{rc.contextPath}/assets/css/analysis.css" rel="stylesheet">
+</head>
+
+<body>
+<div class="ui-layout-north">
+    #bread_crumbs2("DAY_WARN_ANALYSIS")
+</div>
+<div class="ui-layout-center" id="container">
+    <div class="ui-layout-center">
+        <div class="ui-mid-chart-left">
+            <div class="ui-chart-title" style="height:80px;">
+                <form id="daywarn_search">
+                    <table class="ui-search-table">
+                        <tr>
+                            <td class="ui-search-name"><span class="count-time">统计时间：</span></td>
+                            <td><input type="text" name="condition.beginDate" id="datePicker1"></td>
+                            <td style="text-align: right;">&nbsp;&nbsp;至&nbsp;&nbsp;</td>
+                            <td class="ui-search-c">
+                                <input type="text" name="condition.endDate" id="datePicker2">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="ui-search-name"><span class="count-time">所属治超站：</span></td>
+                            <td class="ui-search-c" colspan="3">
+                                <select id="detectStation" name="condition.detectStation" multiple>
+                                    #foreach($!jgzcd in $!zcdList)
+                                        <option value="$!{jgzcd.deteStation}">$!{jgzcd.deteStationName}</option>
+                                    #end
+                                </select>
+                            </td>
+                            <td>
+                                <button type="submit" class="hc_btn k-primary" style="background-color:#37ADDA;border-color:#37ADDA;" onclick="getBarData();"><i class="fa fa-search"></i>查 询</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+            <div class="ui-chart-content" id="chart-content">
+                <div class="ui-charts">
+                    <div id="lineChart"></div>
+                </div>
+            </div>
+        </div>
+    </div><!--container_center END -->
+    <div class="ui-layout-east">
+        <div class="ui-mid-chart-right">
+            <div class="ui-chart-title">
+                <span class="out-data" id="export">导出数据</span>
+            </div>
+            <div class="ui-chart-content" id="grid-content">
+                <div id="grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="$!{rc.contextPath}/assets/js/echarts/echarts-plain.js" type="text/javascript"></script>
+<script src="$!{rc.contextPath}/assets/js/echarts/overload.js" type="text/javascript"></script>
+    #parse("platform/_footer.vm")
+<script type="text/javascript">
+    $(document).ready(function () {
+        var start = $("#datePicker1").hcDatePicker({
+            culture: "zh-CN",
+            format: "yyyy-MM-dd",
+            value: new Date(),
+            change: startChange
+        }).data("kendoDatePicker");
+        var end = $("#datePicker2").hcDatePicker({
+            culture: "zh-CN",
+            format: "yyyy-MM-dd",
+            change: endChange
+        }).data("kendoDatePicker");
+        function startChange() {
+            var startDate = start.value(), endDate = end.value();
+            if (startDate) {
+                startDate = new Date(startDate);
+                startDate.setDate(startDate.getDate());
+                end.min(startDate);
+            } else if (endDate) {
+                start.max(new Date(endDate));
+            } else {
+                endDate = new Date();
+                start.max(endDate);
+            }
+        }
+        function endChange() {
+            var endDate = end.value(), startDate = start.value();
+            if (endDate) {
+                endDate = new Date(endDate);
+                endDate.setDate(endDate.getDate());
+                start.max(endDate);
+            } else if (startDate) {
+                end.min(new Date(startDate));
+            } else {
+                endDate = new Date();
+                start.max(endDate);
+            }
+        }
+        startChange();
+        endChange();
+        $("#datePicker1").val('$!{beginDate}');
+    });
+
+    $(function () {
+        var _w = window.screen.width * 0.45;
+        var _center_main_layout = $("body").layout({
+            defaults: {
+                spacing_open: 0,
+                spacing_closed: 0
+            }, north: {
+                size: 34,
+                closable: true
+            },
+            onresize_end: function () {
+            }
+        });
+        var _chartPart_layout = $('#container').layout({
+            defaults: {
+                spacing_open: 0,
+                spacing_closed: 0
+            },
+            east: {
+                size: _w,
+                closable: true
+            },
+            onresize_end: function () {
+                $("#lineChart").height(_chartPart_layout.center.state.innerHeight * 0.6);
+                $("#grid-content").height(_chartPart_layout.east.state.innerHeight - 40);
+                var grid = $("#grid").data("kendoGrid");
+                grid.resize();
+            }
+        });
+
+        $("#lineChart").height(_chartPart_layout.center.state.innerHeight * 0.6);
+        $("#grid-content").height(_chartPart_layout.east.state.innerHeight - 40);
+
+        arrdata = [];
+        var flag = '$!{jgid}';
+        var station1 = '$!{station1}';
+        var station2 = '$!{station2}';
+//        station1 = station1.substring(0, station1.length - 3) + '<br/>' + station1.substring(station1.length - 3, station1.length);
+//        station2 = station2.substring(0, station2.length - 3) + '<br/>' + station2.substring(station2.length - 3, station2.length);
+
+        if (flag == 133) {
+            arrdata.push({field: "id", hidden: true}, {field: "tjDateStr", title: "日期"},
+                    {field: "detectOne", title: station1, width: "25%"},
+                    {field: "detectTwo", title: station2, width: "25%"},
+                    {field: "detectTotal", title: "总计", width: "15%"});
+        } else {
+            arrdata.push({field: "id", hidden: true}, {field: "tjDateStr", title: "日期"},
+                    {field: "detectOne", title: station1, width: "25%"},
+                    {field: "detectTwo", title: station2, width: "25%"},
+                    {field: "detectTotal", title: "总计", width: "15%"});
+        }
+
+        myquick_datagrid("#grid", "#daywarn_search", "$!{rc.contextPath}/analysis/daywarn/list", arrdata,
+            {
+                sortable: false,
+                pageable: true,
+                pageSize: 60
+            }, {
+                serverSorting: true
+            },
+            []);
+        $("#grid .k-grid-toolbar").remove();
+        $("#detectStation").hcMultiSelect();
+        getBarData();
+    });
+
+
+    ## 表格刷新函数
+    function edited_callback() {
+        var grid = $("#grid").data("kendoGrid");
+        grid.dataSource.read();
+    }
+
+    ##获取柱状图数据显示
+    function getBarData() {
+        $.ajax({
+            url: "$!{rc.contextPath}/analysis/daywarn/getChartData",
+            dataType: "json",
+            type: "post",
+            data: $("form").serialize(),
+            success: function (data) {
+                if (data.status == "success") {
+                    if (null == data.data.xAis || data.data.xAis.length == 0) {
+                        $("#lineChart").removeAttr("_echarts_instance_");
+                        $("#lineChart").empty();
+                        $("#lineChart").html("暂无数据");
+                    } else {
+                        $('#lineChart').show();
+                        var flag = '$!{jgid}';
+                        ## 柱状图的legend
+                        var legendData = [];
+                        $.each(data.data.legend, function (i, item) {
+                            legendData.push(item.name);
+                        });
+                        ## 柱状图的xAis值
+                        var xData = [];
+                        $.each(data.data.xAis, function (i) {
+                            xData.push(data.data.xAis[i]);
+                        });
+                        ## 柱状图的yAis的值
+                        var arr0 = [];
+                        var arr1 = [];
+
+                        ## 循环yAis的值
+                        $.each(data.data.yAis, function (j, yAis) {
+                            if (flag == 133) {
+                                arr0.push(yAis.detectOne);
+                                arr1.push(yAis.detectTwo);
+                            } else {
+                                arr0.push(yAis.detectOne);
+                                arr1.push(yAis.detectTwo);
+                            }
+                        });
+                        var seriesData = [];
+                        if (flag == 133) {
+                            seriesData.push({name: legendData[0], type: 'bar', data: arr0},
+                                    {name: legendData[1], type: 'bar', data: arr1});
+                        } else {
+                            seriesData.push({name: legendData[0], type: 'bar', data: arr0},
+                                    {name: legendData[1], type: 'bar', data: arr1});
+                        }
+
+                        ## 渲染图表
+                        var position = $("#lineChart").height() - 73;
+                        areaBarChart({
+                            "title": "每日告警统计",
+                            "elementId": "lineChart",
+                            "legendData": legendData,
+                            "xData": xData,
+                            "seriesData": seriesData,
+                            "position": position
+                        });
+                    }
+                } else {
+                    $("#lineChart").removeAttr("_echarts_instance_");
+                    $("#lineChart").empty();
+                    $("#lineChart").html("暂无数据");
+                    notify("统计失败", "error");
+                }
+            }
+        });
+    }
+
+    $("#export").click(function () {
+        var datas = $("#grid").find("tr");
+        if (datas.length > 1) {
+            var beginDate = $("#datePicker1").val();
+            var endDate = $("#datePicker2").val();
+            var detectStation = $("#detectStation").val();
+            window.location.href = "$!{rc.contextPath}/analysis/daywarn/export?condition.beginDate=" + beginDate + "&condition.endDate=" + endDate + "&condition.detectStation=" + detectStation;
+        } else {
+            notify("统计数据为空,无法导出", "warn");
+        }
+    })
+</script>
+</body>
+</html>

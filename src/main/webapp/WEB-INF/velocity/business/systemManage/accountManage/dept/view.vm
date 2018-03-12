@@ -1,0 +1,45 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+		<table>
+			<tr>
+                <td class="label">
+					部门名称：
+				</td>
+                <td class="cont">
+    				$!{department.name}
+    			</td>
+                <td class="label">
+					部门编码：
+				</td>
+                <td class="cont">
+					$!{department.code}
+    			</td>
+			</tr>
+			<tr>
+                <td class="label">
+					所属机构：
+				</td>
+                <td colspan="3">
+    				$!{department.jgxx.jgmc}
+    			</td>
+               
+			</tr>	
+			<tr>
+				 <td class="label">
+					备注：
+				</td>
+                <td colspan="3" class="cont">
+					<textarea name="exercise.personRequire" class="k-textbox" readonly="readonly">$!{department.description}</textarea>
+    			</td>
+            </tr>
+			
+		</table>		
+	</body>
+<script type="text/javascript">
+$("body").css({"padding":"10px","height":"auto"});
+$("table").addClass("ui-view");
+$("table").find("tr:odd").addClass("odd");
+$("table").find("tr:even").addClass("even");
+</script>
+</html>

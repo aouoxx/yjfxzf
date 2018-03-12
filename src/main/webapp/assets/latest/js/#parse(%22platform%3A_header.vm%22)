@@ -1,0 +1,340 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+<style>
+    .ui-layout-south {
+        border-top: 1px solid #e2e2e2;
+        background: #f8f8f8;
+    }
+    .setting-actions {
+        width: 296px;
+        margin: 10px auto;
+        text-align: center;
+    }
+    .setting-actions .k-button {
+        padding: 2px 24px;
+        margin-right: 6px;
+        font-size: 14px;
+    }
+    .setting-actions .first {
+        background-color: #00b79a;
+        border-color: #00b79a;
+    }
+    .setting-actions .last {
+        background-color: #fcfdfe;
+        border-color: #cacccf;
+        color: #a3a7ac;
+    }
+    .ui-layout-center {
+        background: #f9f9f9;
+    }
+    .content {
+        border: 1px solid #e1e5e6;
+        background: #fff;
+        margin: 6px;
+    }
+    .step1 {
+        height: 225px;
+        overflow: hidden;
+    }
+    .step1 .left {
+        width: 50%;
+        float: left;
+        height: 225px;
+        overflow: hidden;
+    }
+    .step1 .left h2 {
+        background: #f8fafa;
+        border: 1px solid #eff3f4;
+        color: #808080;
+        font-size: 14px;
+        font-weight: 700;
+        padding:10px 20px;
+        height: 20px;
+        margin: 3px;
+    }
+    .step1 .right {
+        width: 50%;
+        float: left;
+        height: 225px;
+        overflow: hidden;
+    }
+    .qyjc-list {
+        overflow: hidden;
+    }
+    .qyjc-list li {
+        float: left;
+        width: 100px;
+        height: 100px;
+        margin: 10px;
+    }
+    .qysb {
+    width: 100%;
+    overflow: hidden;
+    }
+    .qysb-left {
+        width: 40%;
+        float: left;
+        border: 1px solid #c5c5c5;
+        margin-right: 5px;
+        overflow: hidden;
+    }
+    .qysb-left ul {
+
+    }
+    .qysb-left ul li {
+        float: left;
+        width: 100px;
+        height: 100px;
+    }
+    .qysb-left ul li a {
+        display: block;
+        width: 73px;
+        height: 70px;
+    }
+    .qysb-left ul li span {
+        display: block;
+        width: 100px;
+        height: 20px;
+        overflow: hidden;
+    }
+    .qysb-right {
+        width: 25%;
+        float: left;
+        border: 1px solid #c5c5c5;
+        margin-right: 5px;
+        overflow: hidden;
+    }
+    .terminal {
+        width: 30%;
+        float: left;
+        overflow: hidden;
+    }
+</style>
+
+<!--<h2>1、选择区域监测场景</h2>
+<div style="width:100%;overflow: hidden;">
+<ul class="qyjc-list">
+    <li><a href="#"><img src="http://ued.supconit.com/latest/skins/hctpl3/images/APP.png" /></a></li>
+    <li><a href="#"><img src="http://ued.supconit.com/latest/skins/hctpl3/images/APP.png" /></a></li>
+</ul>
+</div>
+<h2>2、配置区域详情</h2>
+<div style="width: 600px;overflow: hidden;">
+    <form method="post" action="#" class="ui-dialog-form">
+        <table width="100%">
+            <tr>
+                <td width="60" class="label">区域名称：</td>
+                <td width="160"><input type="text" name="" value="" class="k-textbox" autofocus="autofocus" placeholder="商场一楼进出">
+                </td>
+                <td width="120" class="label">该区域设备采集频率：</td>
+                <td>
+                    <input style="width:35px;" type="text" name="" value="" placeholder="60" class="k-textbox">
+                    <select style="width:70px;" name="condition.status" class="ui-combobox">
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="H">H</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td width="60" class="label">区域编号：</td>
+                <td  width="160"><input type="text" name="" value="" placeholder="A001" class="k-textbox">
+                </td>
+                <td class="label">该区域设备清零时间：</td>
+                <td><input type="text" name="" value="" placeholder="04:00" class="k-textbox">
+                </td>
+            </tr>
+            <tr>
+                <td width="60" class="label">区域照片：</td>
+                <td colspan="3">
+                    <input style="width: 160px;" type="text" name="" value="" placeholder="" class="k-textbox">
+                    <button type="button" class="hc_btn">上 传</button>
+                </td>
+            </tr>
+            <tr>
+                <td class="label">区域描述：</td>
+                <td colspan="3">
+                    <textarea style="height: 50px;" type="textarea" name="" value=""  class="k-textbox"></textarea>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<h2>3、配置区域设备</h2>
+<div class="qysb">
+    <div class="qysb-left">
+            <h3>商场一楼进出</h3>
+            <ul>
+                <li class="complete">
+                    <a href="#"></a>
+                    <span>东口监测设备</span>
+                </li>
+                <li class="complete">
+                    <a href="#"></a>
+                    <span>西口监测设备</span>
+                </li>
+                <li class="complete">
+                    <a href="#"></a>
+                    <span>南口监测设备</span>
+                </li>
+                <li class="edit">
+                    <a href="#"></a>
+                    <span>设备4</span>
+                </li>
+                <li class="edit">
+                    <a href="#"></a>
+                    <span>设备5</span>
+                </li>
+                <li class="edit">
+                    <a href="#"></a>
+                    <span>设备6</span>
+                </li>
+                <li class="add">
+                    <a href="#"></a>
+                    <span>添加设备</span>
+                </li>
+            </ul>
+    </div>
+    <div class="qysb-right">
+            <h3>
+                <span>设备配置</span>
+                <button class="k-primary hc_btn" type="button">已添加设备</button>
+                <button class="hc_btn" type="button" id="hook_terminal">连接测试</button>
+            </h3>
+            <form method="post" action="/platform/login" class="ui-dialog-form">
+                <table width="100%">
+                    <tr>
+                        <td width="30" class="label">IP：</td>
+                        <td width="120" colspan="2"><input type="text" name="" value="" class="k-textbox" autofocus="autofocus" placeholder="192.168.1.123">
+                        </td>
+                        <td width="30" class="label">Port：</td>
+                        <td width="50" ><input type="text" name="" value="" placeholder="5212" class="k-textbox"></td>
+                    </tr>
+                    <tr>
+                        <td width="50" class="label">设备名称：</td>
+                        <td colspan="3"><input type="text" name="" value="" placeholder="南口监测设备" class="k-textbox">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="50" class="label">设备编号：</td>
+                        <td colspan="3"><input type="text" name="" value="" placeholder="SN10293003" class="k-textbox">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="50" class="label">设备型号：</td>
+                        <td colspan="3">
+                            <select name="condition.status" class="ui-combobox">
+                                <option value="IRC3009">IRC3009</option>
+                                <option value="IRC3110">IRC3110</option>
+                                <option value="IRC3111">IRC3111</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="50" class="label">设备型号：</td>
+                        <td colspan="3">
+                            <textarea type="textarea" name="" value=""  class="k-textbox"></textarea>
+                        </td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td width="50" class="label">Line1：</td>
+                        <td width="60">
+                            <select name="condition.status" class="ui-combobox">
+                                <option value="">进</option>
+                                <option value="">出</option>
+                            </select>
+                        </td>
+                        <td width="50" class="label">Line2：</td>
+                        <td width="60">
+                            <select name="condition.status" class="ui-combobox">
+                                <option value="">进</option>
+                                <option value="">出</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <button type="submit" class="hc_btn k-primary">重 置</button>
+                            <button type="submit" class="hc_btn">保 存</button>
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </form>
+    </div>
+    <div id="terminal" class="terminal">
+        <textarea type="textarea" name="" value="" style="width:300px;height: 300px;" class="k-textbox">
+            ......
+            建立至【南口监测设备】连接失败 >>>>> 请使用Ping或者Telnet工具测试网络状况
+            ping 192.168.1.123
+            64 bytes from 192.168.1.123 : icmp_seq=0 ttl=128 time=0.758 ms
+            64 bytes from 192.168.1.123 : icmp_seq=1 ttl=128 time=0.307 ms
+            64 bytes from 192.168.1.123 : icmp_seq=2 ttl=128 time=0.323 ms
+        </textarea>
+        <div class="actions">
+            <button type="submit" class="hc_btn">Ping</button>
+            <button type="submit" class="hc_btn">Telnet</button>
+            <button type="submit" class="hc_btn">clear</button>
+            <button type="submit" class="hc_btn">close</button>
+        </div>
+    </div>
+</div>
+
+
+<h2>数据预览-商场一楼进出1</h2> -->
+
+
+<div class="ui-layout-center">
+    <div class="content">
+        <div class="step1">
+            <div class="left">
+                <h2>选择区域监测场景</h2>
+                <ul class="qyjc-list">
+                    <li><a href="#"><img src="http://ued.supconit.com/latest/skins/peoplcounting/1-1.png" /></a></li>
+                    <li><a href="#"><img src="http://ued.supconit.com/latest/skins/peoplcounting/2.png" /></a></li>
+                    <li><a href="#"><img src="http://ued.supconit.com/latest/skins/peoplcounting/3.png" /></a></li>
+                </ul>
+            </div>
+            <div class="right">
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="ui-layout-south">
+    <div class="setting-actions">
+        <button type="button" class="hc_btn k-primary first">发布</button>
+        <button type="button" class="hc_btn k-primary">保存</button>
+        <button type="button" class="hc_btn last">预览</button>
+    </div>
+</div>
+
+
+#parse("platform/_footer.vm")
+<script>
+    var _iframe_layout;
+    $(function () {
+        _iframe_layout = $('body').layout({
+            center__maskContents: true,
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            },
+            south: {
+                size: 50,
+                closable: false,
+                spacing_open: 0
+            }
+        });
+
+
+    })
+</script>
+</body>
+</html>

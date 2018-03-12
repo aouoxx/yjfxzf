@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.supconit.kqfx.web.list.entities.BlackList">
+
+	<resultMap type="com.supconit.kqfx.web.list.entities.BlackList" id="BlackListResultMap">
+		<id property="id" column="ID" />
+		<result property="license" column="LICENSE" />
+		<result property="plateColor" column="PLATE_COLOR"/>
+		<result property="overloadTimes" column="OVERLOAD_TIMES"/>
+		<result property="updateTime" column="UPDATE_TIME"/>
+		<result property="illustrate" column="ILLUSTRATE"/>
+		<result property="operator" column="OPERATOR"/>
+		<result property="operateTime" column="OPERATE_TIME"/>
+		<result property="addByOperatorFlag" column="ADD_BY_OPERATOR_FLG"/>
+		<result property="deleted" column="DELETED"/>
+	</resultMap>
+	
+	<sql id="TABLE_NAME" lang="velocity">T_BLACK_LIST</sql>
+	<sql id="SELECT_PRE" lang="velocity">SELECT * FROM <include refid="TABLE_NAME"/></sql>
+	<sql id="COUNT_PRE" lang="velocity">SELECT COUNT(1) FROM <include refid="TABLE_NAME"/></sql>
+
+	<sql id="SEARCH_CONDITION_SQL" lang="velocity">
+	<![CDATA[
+		#where()
+			#if($_parameter.condition.license && $_parameter.condition.license != '')
+			   AND LICENSE #set($_license = '%' + $_parameter.condition.license + '%')
+						LIKE @{_license,jdbcType=VARCHAR}
+		    #end
+		    #if($_parameter.condition.plateColor && $_parameter.condition.plateColor != '')
+			   AND PLATE_COLOR = @{_parameter.condition.plateColor,jdbcType=VARCHAR}
+		    #end
+		    #if($_parameter.condition.overloadTimes && $_parameter.condition.overloadTimes != '')
+			   AND OVERLOAD_TIMES = @{_parameter.condition.overloadTimes,jdbcType=NUMERIC}
+		    #end
+		    #if($_parameter.condition.updateTime && $_parameter.condition.updateTime != '')
+			   AND UPDATE_TIME > @{_parameter.condition.updateTime,jdbcType=TIMESTAMP}
+		    #end
+		     #if($_parameter.condition.operateTime && $_parameter.condition.operateTime != '')
+			   AND UPDATE_TIME < @{_parameter.condition.operateTime,jdbcType=TIMESTAMP}
+		    #end
+		       AND DELETED=0
+		#end
+		]]>
+	</sql>
+	
+	
+	<select id="getById" resultMap="BlackListResultMap" parameterType="string" lang="velocity">
+		<include refid="SELECT_PRE" />
+				WHERE ID = @{_parameter, jdbcType=VARCHAR} AND DELETED = 0
+	</select>
+	
+	<select id="findByPlate" resultType="int" parameterType="com.supconit.kqfx.web.list.entities.BlackList" lang="velocity">
+		SELECT COUNT(*) FROM
+		<include refid="TABLE_NAME" />
+		<include refid="SEARCH_COUNT_SQL" />
+	</select>
+	<sql id="SEARCH_COUNT_SQL" lang="velocity">
+		<![CDATA[
+			#where()
+				#if($_parameter.license && $_parameter.license != '')
+				   AND LICENSE = @{_parameter.license,jdbcType=VARCHAR}
+			    #end
+			    #if($_parameter.plateColor && $_parameter.plateColor != '')
+				   AND PLATE_COLOR = @{_parameter.plateColor,jdbcType=VARCHAR}
+				#else
+				   AND PLATE_COLOR IS NULL
+			    #end
+			        AND DELETED = 0
+		    #end
+		    ]]>
+	</sql>
+	
+	<select id="findByPlateAndColor" resultMap="BlackListResultMap" parameterType="com.supconit.kqfx.web.list.entities.BlackList" lang="velocity">
+		SELECT * FROM
+		<include refid="TABLE_NAME" />
+		<include refid="SEARCH_COUNT_SQL" />
+	</select>
+	
+	
+	
+	<select id="getAll" resultMap="BlackListResultMap" parameterType="string" lang="velocity">
+		<include refid="SELECT_PRE" />
+				WHERE DELETED = 0 ORDER BY UPDATE_TIME DESC
+	</select>
+			
+	<select id="selectPager" lang="velocity" resultMap="BlackListResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+		<include refid="SELECT_PRE"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+		#order($_parameter.condition,"UPDATE_TIME DESC")
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	</select>
+
+	<select id="countPager" lang="velocity" resultType="long">
+		<include refid="COUNT_PRE"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+	</select>
+	
+	<sql id="INSERT_SQL" lang="velocity">
+		INSERT INTO <include refid="TABLE_NAME"/>(
+		#if($_databaseId == 'oracle') ID,#end
+								 LICENSE
+								,PLATE_COLOR
+								,OVERLOAD_TIMES
+								,UPDATE_TIME
+								,ILLUSTRATE
+								,ADD_BY_OPERATOR_FLG
+								,OPERATOR
+								,OPERATE_TIME
+								,DELETED
+		) VALUES (
+		#if($_databaseId == 'oracle') @{_parameter.id,jdbcType=VARCHAR},#end
+								@{_parameter.license,jdbcType=VARCHAR}
+								,@{_parameter.plateColor,jdbcType=VARCHAR}
+								,@{_parameter.overloadTimes,jdbcType=NUMERIC}
+								,@{_parameter.updateTime,jdbcType=TIMESTAMP}
+								,@{_parameter.illustrate,jdbcType=VARCHAR}
+								,@{_parameter.addByOperatorFlag,jdbcType=VARCHAR}
+								,@{_parameter.operator,jdbcType=VARCHAR}
+								,@{_parameter.operateTime,jdbcType=TIMESTAMP}
+								,@{_parameter.deleted,jdbcType=NUMERIC}
+	)
+	</sql>
+	
+	<insert id="insert" parameterType="com.supconit.kqfx.web.list.entities.BlackList" 
+		keyProperty="ID" keyColumn="ID" 		lang="velocity" databaseId="oracle">
+		  <include refid="INSERT_SQL" />
+	</insert>
+	<insert id="insert" parameterType="com.supconit.kqfx.web.list.entities.BlackList" 
+		keyProperty="ID" keyColumn="ID" 		 lang="velocity">
+        <include refid="INSERT_SQL"/>
+        <selectKey keyProperty="ID" resultType="string" order="AFTER"><include refid="_PUBLIC_V.SELECT_KEY"/> </selectKey>    </insert>
+    
+	<update id="update" parameterType="com.supconit.kqfx.web.list.entities.BlackList" lang="velocity">
+		UPDATE <include refid="TABLE_NAME"/> 
+		#mset()
+		<![CDATA[
+			#if($_parameter.license)LICENSE = @{_parameter.license,jdbcType=VARCHAR},#end
+			#if($_parameter.plateColor)PLATE_COLOR = @{_parameter.plateColor,jdbcType=VARCHAR},#end
+			#if($_parameter.overloadTimes)OVERLOAD_TIMES = @{_parameter.overloadTimes,jdbcType=NUMERIC},#end
+			#if($_parameter.updateTime)UPDATE_TIME = @{_parameter.updateTime,jdbcType=VARCHAR},#end
+			#if($_parameter.illustrate)ILLUSTRATE = @{_parameter.illustrate,jdbcType=VARCHAR},#end
+			#if($_parameter.addByOperatorFlag)ADD_BY_OPERATOR_FLG = @{_parameter.addByOperatorFlag,jdbcType=NUMERIC},#end
+			#if($_parameter.operator)OPERATOR = @{_parameter.operator,jdbcType=VARCHAR},#end
+			#if($_parameter.operateTime)OPERATE_TIME = @{_parameter.operateTime,jdbcType=TIMESTAMP},#end
+			#if($_parameter.deleted)DELETED = @{_parameter.deleted,jdbcType=NUMERIC},#end
+		]]>
+		#end
+		WHERE ID = @{_parameter.id,jdbcType=VARCHAR}
+	</update>
+	
+	<update id="updateHandlerOverTimes" parameterType="com.supconit.kqfx.web.list.entities.BlackList" lang="velocity">
+		UPDATE <include refid="TABLE_NAME"/> 
+		#mset()
+		<![CDATA[
+			#if($_parameter.overloadTimes)OVERLOAD_TIMES = @{_parameter.overloadTimes,jdbcType=NUMERIC},#end
+		]]>
+		#end
+		<![CDATA[
+		   #where()
+				#if($_parameter.license && $_parameter.license != '')
+				   AND LICENSE = @{_parameter.license,jdbcType=VARCHAR}
+			    #end
+			    #if($_parameter.plateColor && $_parameter.plateColor != '')
+				   AND PLATE_COLOR = @{_parameter.plateColor,jdbcType=VARCHAR}
+			    #end
+			       AND DELETED = 0  
+		    #end
+		]]>
+	</update>
+	
+	<update id="deleteById" parameterType="string" lang="velocity">
+		UPDATE <include refid="TABLE_NAME" /> SET DELETED = 1
+		 WHERE ID = @{_parameter,jdbcType=VARCHAR}
+	</update>
+	
+	<update id="OverLoadTimes" parameterType="com.supconit.kqfx.web.list.entities.BlackList" lang="velocity">
+		UPDATE <include refid="TABLE_NAME"/> SET DELETED = 1
+		<![CDATA[
+		   #where()
+				#if($_parameter.overloadTimes && $_parameter.overloadTimes != '')
+				   AND OVERLOAD_TIMES <= @{_parameter.overloadTimes,jdbcType=NUMERIC}
+			    #end
+			        AND ADD_BY_OPERATOR_FLG=0
+		    #end
+		]]>
+	</update>
+	
+	
+	<select id="getAllHandler" resultMap="BlackListResultMap" parameterType="string" lang="velocity">
+		<include refid="SELECT_PRE" />
+				WHERE DELETED = 0  AND ADD_BY_OPERATOR_FLG = 1 ORDER BY UPDATE_TIME DESC
+	</select>
+	
+	<delete id="deleteAllNoHandler" parameterType="java.util.List" lang="velocity">
+		DELETE FROM 
+		<include refid="TABLE_NAME"/> 
+		WHERE ADD_BY_OPERATOR_FLG=0
+	</delete>
+	
+	
+	<delete id="batchDeleteBlackList" parameterType="java.util.List" lang="velocity">
+		DELETE FROM 
+		<include refid="TABLE_NAME"/> 
+		WHERE ID IN
+		<foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+			 #{item}
+		</foreach>
+	</delete>
+	
+	<insert id="batchInertBlackList" parameterType="java.util.List" lang="velocity" databaseId="oracle">
+		INSERT INTO T_BLACK_LIST
+							( 	ID
+								,LICENSE
+								,PLATE_COLOR
+								,OVERLOAD_TIMES
+								,UPDATE_TIME
+								,ILLUSTRATE
+								,ADD_BY_OPERATOR_FLG
+								,OPERATOR
+								,OPERATE_TIME
+								,DELETED)
+								)
+  	<foreach collection="list" item="item" index="index" separator="union all" > 
+  	(SELECT 					 @{_parameter.id,jdbcType=VARCHAR}
+								,@{_parameter.license,jdbcType=VARCHAR}
+								,@{_parameter.plateColor,jdbcType=VARCHAR}
+								,@{_parameter.overloadTimes,jdbcType=NUMERIC}
+								,@{_parameter.updateTime,jdbcType=TIMESTAMP}
+								,@{_parameter.illustrate,jdbcType=VARCHAR}
+								,@{_parameter.addByOperatorFlag,jdbcType=VARCHAR}
+								,@{_parameter.operator,jdbcType=VARCHAR}
+								,@{_parameter.operateTime,jdbcType=TIMESTAMP}
+								,@{_parameter.deleted,jdbcType=NUMERIC}
+	FROM DUAL)
+	</foreach>
+	</insert>
+    		
+</mapper>

@@ -1,0 +1,58 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+<form id="save_form" method="post" action="" class="ui-dialog-form">
+    <table width="100%" style="padding-bottom:10px;font-size:16px;">
+        <tr>
+            <td>确定向<span id="phones" style="color:blue;"></span>发送如下信息吗：<br/><br/><span id="content" style="padding-left:10px;"></span></td>
+        </tr>
+    </table>
+    <div class="actions">
+        <button class="k-primary hc_btn" type="button" onclick="save()"><i class="fa fa-check-square-o"></i>确定</button>
+        <button class="hc_btn cancel" onclick="close_dialog('confirm_dlg')" type="button"><i class="fa fa-close"></i>取消</button>
+    </div>
+</form>
+<script>
+	var parent;
+	$(function () {	
+		if("$!{dlgId}" != ""){
+        	parent = get_fun_in_dialog('$!{dlgId}');
+        }else{
+        	parent = top.window.frames['_main_frame'];
+        }
+        if(parent.$("#groupName").val()){
+        	$("#phones").text(parent.$("#groupName").val()+"组");
+        }else{
+        	$("#phones").text(parent.$("#sendPhones").val());
+        }
+    	$("#content").text(parent.$("#msgContent").val());
+	});
+	function save(){
+		top.window.$(".k-overlay").css("z-index","50000");
+		top.window.$("#platform_loading").css("z-index","50001");
+		top.window.$("#platform_loading").show();
+		$.ajax({
+            url: "$!{rc.contextPath}/message/messagePub/add",
+            data: parent.$("#jcjk_dxfs_add_form").serialize(),
+			type: 'post',
+            success: function(data){
+            	top.window.$("#platform_loading").hide();
+				if(data.status=="error"){
+    				notify(data.message, "warn");
+    				try{
+    					parent.edited_callback();
+    				}catch(e){}
+    				parent.close_dialog('confirm_dlg');
+    			}else if(data.status=="success"){
+    				notify("操作成功", "success");
+    				try{
+    					parent.edited_callback();
+    				}catch(e){}
+					parent.close_dialog('confirm_dlg');
+    			}
+            }
+        });
+	}
+</script>
+</body>
+</html>

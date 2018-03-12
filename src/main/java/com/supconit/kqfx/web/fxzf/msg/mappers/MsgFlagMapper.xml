@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.supconit.kqfx.web.fxzf.msg.entities.MsgFlag">
+  
+   <sql id="TABLE_NAME" lang="velocity">T_MSG_FLAG</sql>
+  
+   <resultMap type="com.supconit.kqfx.web.fxzf.msg.entities.MsgFlag" id="MsgFlagResultMap">
+			 <result property="id" column="ID" />
+			 <result property="userId" column="USERID" />
+			 <result property="flag" column="FLAG" />
+	</resultMap>
+  
+   
+	
+	
+	
+	<sql id="INSERT_SQL" lang="velocity">
+		INSERT INTO <include refid="TABLE_NAME"/>(
+		#if($_databaseId == 'oracle') ID,#end
+								 USERID
+								,FLAG
+		) VALUES (
+		#if($_databaseId == 'oracle') @{_parameter.id,jdbcType=VARCHAR},#end
+								@{_parameter.userId,jdbcType=VARCHAR}
+								,@{_parameter.flag,jdbcType=VARCHAR}
+	)
+	</sql>
+	
+	<insert id="insert" parameterType="com.supconit.kqfx.web.fxzf.msg.entities.MsgFlag" 
+		keyProperty="ID" keyColumn="ID" 		lang="velocity" databaseId="oracle">
+		  <include refid="INSERT_SQL" />
+	</insert>
+	<insert id="insert" parameterType="com.supconit.kqfx.web.fxzf.msg.entities.MsgFlag" 
+		keyProperty="ID" keyColumn="ID" 		 lang="velocity">
+        <include refid="INSERT_SQL"/>
+        <selectKey keyProperty="ID" resultType="string" order="AFTER"><include refid="_PUBLIC_V.SELECT_KEY"/> </selectKey>    </insert>
+	
+	
+	
+	<sql id="SELECT_PRE" lang="velocity">SELECT * FROM <include refid="TABLE_NAME"/></sql>
+	<select id="getByUserId" resultMap="MsgFlagResultMap" parameterType="string" lang="velocity">
+	<include refid="SELECT_PRE" />
+			WHERE USERID = @{_parameter, jdbcType=VARCHAR}
+	</select>
+	
+	<select id="getCountByUserId" parameterType="string" resultType="int" lang="velocity">
+		SELECT COUNT(1) FROM  <include refid="TABLE_NAME"/>
+		WHERE USERID = @{_parameter, jdbcType=VARCHAR}
+	</select>
+	
+  	<update id="updateByUserId" parameterType="com.supconit.kqfx.web.fxzf.msg.entities.MsgFlag" lang="velocity">
+  		UPDATE <include refid="TABLE_NAME"/> 
+		#mset()
+		 <![CDATA[
+			#if($_parameter.flag) FLAG = @{_parameter.flag,jdbcType=VARCHAR},#end
+		]]>
+		#end
+		<![CDATA[
+		   #where()
+				#if($_parameter.userId && $_parameter.userId != '')
+				   AND USERID = @{_parameter.userId,jdbcType=VARCHAR}
+			    #end
+		   #end
+  		]]>
+  	</update>
+  
+  </mapper>

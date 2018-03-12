@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://hc.supconit.com/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.supconit.kqfx.web.analysis.entities.TimeZone">
+    <resultMap type="com.supconit.kqfx.web.analysis.entities.TimeZone" id="TimeZoneResultMap">
+        <id property="id" column="ID"/>
+        <result property="jgid" column="JGID"/>
+        <result property="detectStation" column="DETECT_STATION"/>
+        <result property="overloadStatus" column="OVERLOAD_STATUS"/>
+        <result property="reportTimes" column="REPORT_TIMES"/>
+        <result property="beginTime" column="BEGIN_TIME"/>
+        <result property="endTime" column="END_TIME"/>
+        <result property="tjDate" column="TJ_DATE"/>
+        <result property="updateTime" column="UPDATE_TIME"/>
+    </resultMap>
+
+    <sql id="TABLE_NAME" lang="velocity">T_FXZF_TIMEZONE</sql>
+    <sql id="SELECT_PRE" lang="velocity">SELECT * FROM<include refid="TABLE_NAME"/></sql>
+    <sql id="COUNT_PRE" lang="velocity">SELECT COUNT(1) FROM<include refid="TABLE_NAME"/></sql>
+
+    <sql id="SEARCH_CONDITION_SQL" lang="velocity">
+        <![CDATA[
+		#where()
+			
+		#end
+		]]>
+    </sql>
+
+    <select id="getById" resultMap="TimeZoneResultMap" parameterType="string" lang="velocity">
+        <include refid="SELECT_PRE"/>
+        WHERE ID = @{_parameter, jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectPager" lang="velocity" resultMap="TimeZoneResultMap">
+        <include refid="_PUBLIC_V.PAGER_BEFORE"/>
+        <include refid="SELECT_PRE"/>
+        <include refid="SEARCH_CONDITION_SQL"/>
+        #order($_parameter.condition,"UPDATE_TIME DESC")
+        <include refid="_PUBLIC_V.PAGER_AFTER"/>
+    </select>
+
+    <select id="countPager" lang="velocity" resultType="long">
+        <include refid="COUNT_PRE"/>
+        <include refid="SEARCH_CONDITION_SQL"/>
+    </select>
+
+    <sql id="INSERT_SQL" lang="velocity">
+        INSERT INTO<include refid="TABLE_NAME"/>(
+        #if($_databaseId == 'oracle') ID,#end
+            JGID
+            ,DETECT_STATION
+            ,OVERLOAD_STATUS
+            ,REPORT_TIMES
+            ,BEGIN_TIME
+            ,END_TIME
+            ,TJ_DATE
+            ,UPDATE_TIME
+        ) VALUES (
+        #if($_databaseId == 'oracle') @{_parameter.id,jdbcType=VARCHAR},#end
+            @{_parameter.jgid,jdbcType=NUMERIC}
+            ,@{_parameter.detectStation,jdbcType=VARCHAR}
+            ,@{_parameter.overloadStatus,jdbcType=NUMERIC}
+            ,@{_parameter.reportTimes,jdbcType=NUMERIC}
+            ,@{_parameter.beginTime,jdbcType=TIMESTAMP}
+            ,@{_parameter.endTime,jdbcType=TIMESTAMP}
+            ,@{_parameter.tjDate,jdbcType=TIMESTAMP}
+            ,@{_parameter.updateTime,jdbcType=TIMESTAMP}
+        )
+    </sql>
+
+    <insert id="insert" parameterType="com.supconit.kqfx.web.analysis.entities.TimeZone" keyProperty="ID" keyColumn="ID" lang="velocity" databaseId="oracle">
+        <include refid="INSERT_SQL"/>
+    </insert>
+
+    <insert id="insert" parameterType="com.supconit.kqfx.web.analysis.entities.TimeZone" keyProperty="ID" keyColumn="ID" lang="velocity">
+        <include refid="INSERT_SQL"/>
+        <selectKey keyProperty="ID" resultType="string" order="AFTER">
+            <include refid="_PUBLIC_V.SELECT_KEY"/>
+        </selectKey>
+    </insert>
+
+    <update id="update" parameterType="com.supconit.kqfx.web.analysis.entities.TimeZone" lang="velocity">
+        UPDATE
+        <include refid="TABLE_NAME"/>
+        #mset()
+        <![CDATA[
+			#if($_parameter.jgid) JGID = @{_parameter.jgid,jdbcType=NUMERIC},#end
+			#if($_parameter.detectStation) DETECT_STATION = @{_parameter.detectStation,jdbcType=VARCHAR},#end
+			#if($_parameter.overloadStatus) OVERLOAD_STATUS = @{_parameter.overloadStatus,jdbcType=NUMERIC},#end
+			#if($_parameter.reportTimes) REPORT_TIMES = @{_parameter.reportTimes,jdbcType=NUMERIC},#end
+			#if($_parameter.beginTime) BEGIN_TIME = @{_parameter.beginTime,jdbcType=TIMESTAMP},#end
+			#if($_parameter.endTime) END_TIME = @{_parameter.endTime,jdbcType=TIMESTAMP},#end
+			#if($_parameter.tjDate) TJ_DATE = @{_parameter.tjDate,jdbcType=TIMESTAMP},#end
+			#if($_parameter.updateTime) UPDATE_TIME = @{_parameter.updateTime,jdbcType=TIMESTAMP},#end
+		]]>
+        #end
+        WHERE ID = @{_parameter.id,jdbcType=VARCHAR}
+    </update>
+
+    <delete id="deleteById" parameterType="string" lang="velocity">
+        DELETE FROM <include refid="TABLE_NAME"/>
+        WHERE ID = @{_parameter,jdbcType=VARCHAR}
+    </delete>
+
+    <resultMap type="com.supconit.kqfx.web.analysis.entities.TimeZone" id="PartTimeMapResultMap">
+        <result property="detectStation" column="DETECT_STATION"/>
+        <result property="ah" column="AH"/>
+        <result property="bh" column="BH"/>
+        <result property="ch" column="CH"/>
+        <result property="dh" column="DH"/>
+        <result property="eh" column="EH"/>
+        <result property="fh" column="FH"/>
+        <result property="gh" column="GH"/>
+        <result property="hh" column="HH"/>
+        <result property="ih" column="IH"/>
+        <result property="jh" column="JH"/>
+        <result property="kh" column="KH"/>
+        <result property="lh" column="LH"/>
+        <result property="mh" column="MH"/>
+        <result property="nh" column="NH"/>
+        <result property="oh" column="OH"/>
+        <result property="ph" column="PH"/>
+        <result property="qh" column="QH"/>
+        <result property="rh" column="RH"/>
+        <result property="sh" column="SH"/>
+        <result property="th" column="TH"/>
+        <result property="uh" column="UH"/>
+        <result property="vh" column="VH"/>
+        <result property="wh" column="WH"/>
+        <result property="xh" column="XH"/>
+    </resultMap>
+
+    <select id="getByPartTime" parameterType="com.supconit.kqfx.web.analysis.entities.TimeZone" lang="velocity" resultMap="PartTimeMapResultMap">
+        <include refid="SELECTTJ_PRE"/>
+    </select>
+
+    <sql id="SELECTTJ_PRE">
+        SELECT DETECT_STATION,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '00:00:00', REPORT_TIMES,null)) as ah,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '01:00:00', REPORT_TIMES,null)) as bh,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '02:00:00', REPORT_TIMES,null)) as ch,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '03:00:00', REPORT_TIMES,null)) as dh,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '04:00:00', REPORT_TIMES,null)) as eh,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '05:00:00', REPORT_TIMES,null)) as fh,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '06:00:00', REPORT_TIMES,null)) as gh,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '07:00:00', REPORT_TIMES,null)) as hh,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '08:00:00', REPORT_TIMES,null)) as ih,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '09:00:00', REPORT_TIMES,null)) as jh,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '10:00:00', REPORT_TIMES,null)) as kh,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '11:00:00', REPORT_TIMES,null)) as lh,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '12:00:00', REPORT_TIMES,null)) as mh,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '13:00:00', REPORT_TIMES,null)) as nh,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '14:00:00', REPORT_TIMES,null)) as oh,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '15:00:00', REPORT_TIMES,null)) as ph,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '16:00:00', REPORT_TIMES,null)) as qh,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '17:00:00', REPORT_TIMES,null)) as rh,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '18:00:00', REPORT_TIMES,null)) as sh,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '19:00:00', REPORT_TIMES,null)) as th,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '20:00:00', REPORT_TIMES,null)) as uh,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '21:00:00', REPORT_TIMES,null)) as vh,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '22:00:00', REPORT_TIMES,null)) as wh,
+            SUM(decode(to_char(BEGIN_TIME,'HH24:mi:ss'), '23:00:00', REPORT_TIMES,null)) as xh
+        FROM <include refid="TABLE_NAME"/>
+        <include refid="SEARCH_BYDETECION_SQL"/>
+        GROUP BY DETECT_STATION
+        ORDER BY DETECT_STATION
+    </sql>
+
+    <sql id="SEARCH_BYDETECION_SQL" lang="velocity">
+        <![CDATA[
+			#where()
+				#if($_parameter.detectStation && $_parameter.detectStation != '')
+				   AND DETECT_STATION = @{_parameter.detectStation,jdbcType=VARCHAR}
+			    #end
+			    #if($_parameter.jgid && $_parameter.jgid != '')
+				   AND JGID = @{_parameter.jgid,jdbcType=NUMERIC}
+			    #end
+			    #if($_parameter.tjDate && $_parameter.tjDate != '')
+				   AND BEGIN_TIME >= @{_parameter.tjDate,jdbcType=TIMESTAMP}
+			    #end
+			    #if($_parameter.updateTime && $_parameter.updateTime != '')
+				   AND BEGIN_TIME <= @{_parameter.updateTime,jdbcType=TIMESTAMP}
+			    #end
+			    AND OVERLOAD_STATUS !=0
+		    #end
+		]]>
+    </sql>
+
+    <resultMap type="com.supconit.kqfx.web.analysis.entities.TimeZone" id="TimeStationPartResultMap">
+        <result property="timeString" column="HDTIME"/>
+        <result property="stationA" column="A"/>
+        <result property="stationB" column="B"/>
+        <result property="stationC" column="C"/>
+        <result property="stationD" column="D"/>
+        <result property="stationE" column="E"/>
+    </resultMap>
+
+    <select id="selectPartPager" lang="velocity" resultMap="TimeStationPartResultMap">
+        <include refid="_PUBLIC_V.PAGER_BEFORE"/>
+        SELECT to_char(BEGIN_TIME,'HH24:mi:ss'）as HDTIME,
+            SUM(decode(DETECT_STATION, '1', REPORT_TIMES,null)) as A,
+            SUM(decode(DETECT_STATION, '2', REPORT_TIMES,null)) as B,
+            SUM(decode(DETECT_STATION, '3', REPORT_TIMES,null)) as C,
+            SUM(decode(DETECT_STATION, '4', REPORT_TIMES,null)) as D,
+            SUM(decode(DETECT_STATION, '5', REPORT_TIMES,null)) as E
+        FROM <include refid="TABLE_NAME"/>
+        <include refid="SEARCH_BYDETECION_SQL_PAGE"/>
+        GROUP BY to_char(BEGIN_TIME,'HH24:mi:ss')
+        ORDER BY to_char(BEGIN_TIME,'HH24:mi:ss')
+        <include refid="_PUBLIC_V.PAGER_AFTER"/>
+    </select>
+
+    <select id="countPartPager" lang="velocity" resultType="long">
+        SELECT COUNT(DISTINCT(TO_CHAR(BEGIN_TIME,'HH24:mi:ss'))) FROM <include refid="TABLE_NAME"/>
+        <include refid="SEARCH_BYDETECION_SQL_PAGE"/>
+    </select>
+
+    <sql id="SEARCH_BYDETECION_SQL_PAGE" lang="velocity">
+        <![CDATA[
+			#where()
+				#if($_parameter.condition.detectStation && $_parameter.condition.detectStation != '')
+				   AND DETECT_STATION = @{_parameter.condition.detectStation,jdbcType=VARCHAR}
+			    #end
+			    #if($_parameter.condition.jgid && $_parameter.condition.jgid != '')
+				   AND JGID = @{_parameter.condition.jgid,jdbcType=NUMERIC}
+			    #end
+			    #if($_parameter.condition.tjDate && $_parameter.condition.tjDate != '')
+				   AND BEGIN_TIME >= @{_parameter.condition.tjDate,jdbcType=TIMESTAMP}
+			    #end
+			    #if($_parameter.condition.updateTime && $_parameter.condition.updateTime != '')
+				   AND BEGIN_TIME <= @{_parameter.condition.updateTime,jdbcType=TIMESTAMP}
+			    #end
+			    AND OVERLOAD_STATUS !=0
+		    #end
+		]]>
+    </sql>
+
+    <select id="selectDayPager" lang="velocity" resultMap="TimeStationPartResultMap">
+        <include refid="_PUBLIC_V.PAGER_BEFORE"/>
+        SELECT TO_CHAR(TJ_DATE, 'dd') as HDTIME,
+            SUM(decode(DETECT_STATION, '1', REPORT_TIMES,null)) as A,
+            SUM(decode(DETECT_STATION, '2', REPORT_TIMES,null)) as B,
+            SUM(decode(DETECT_STATION, '3', REPORT_TIMES,null)) as C,
+            SUM(decode(DETECT_STATION, '4', REPORT_TIMES,null)) as D,
+            SUM(decode(DETECT_STATION, '5', REPORT_TIMES,null)) as E
+        FROM <include refid="TABLE_NAME"/>
+        <include refid="SEARCH_BYDETECION_SQL_PAGE"/>
+        GROUP BY TO_CHAR(TJ_DATE, 'dd')
+        ORDER BY TO_CHAR(TJ_DATE, 'dd')
+        <include refid="_PUBLIC_V.PAGER_AFTER"/>
+    </select>
+
+    <select id="countDayPager" lang="velocity" resultType="long">
+        SELECT COUNT(DISTINCT(TO_CHAR(TJ_DATE, 'dd'))) FROM <include refid="TABLE_NAME"/>
+        <include refid="SEARCH_BYDETECION_SQL_PAGE"/>
+    </select>
+
+    <select id="getByDateTime" parameterType="com.supconit.kqfx.web.analysis.entities.TimeZone" lang="velocity" resultMap="DateTimeMapResultMap">
+        <include refid="SELECTDATE_PRE"/>
+    </select>
+
+    <sql id="SELECTDATE_PRE">
+        SELECT DETECT_STATION,
+            SUM(decode(to_char(TJ_DATE,'dd'), '01', REPORT_TIMES,null)) as aday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '02', REPORT_TIMES,null)) as bday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '03', REPORT_TIMES,null)) as cday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '04', REPORT_TIMES,null)) as dday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '05', REPORT_TIMES,null)) as eday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '06', REPORT_TIMES,null)) as fday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '07', REPORT_TIMES,null)) as gday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '08', REPORT_TIMES,null)) as hday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '09', REPORT_TIMES,null)) as iday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '10', REPORT_TIMES,null)) as jday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '11', REPORT_TIMES,null)) as kday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '12', REPORT_TIMES,null)) as lday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '13', REPORT_TIMES,null)) as mday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '14', REPORT_TIMES,null)) as nday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '15', REPORT_TIMES,null)) as oday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '16', REPORT_TIMES,null)) as pday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '17', REPORT_TIMES,null)) as qday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '18', REPORT_TIMES,null)) as rday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '19', REPORT_TIMES,null)) as sday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '20', REPORT_TIMES,null)) as tday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '21', REPORT_TIMES,null)) as uday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '22', REPORT_TIMES,null)) as vday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '23', REPORT_TIMES,null)) as wday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '24', REPORT_TIMES,null)) as xday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '25', REPORT_TIMES,null)) as yday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '26', REPORT_TIMES,null)) as zday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '27', REPORT_TIMES,null)) as aaday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '28', REPORT_TIMES,null)) as abday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '29', REPORT_TIMES,null)) as acday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '30', REPORT_TIMES,null)) as aeday,
+            SUM(decode(to_char(TJ_DATE,'dd'), '31', REPORT_TIMES,null)) as afday
+        FROM <include refid="TABLE_NAME"/>
+        <include refid="SEARCH_BYDETECION_SQL"/>
+        GROUP BY DETECT_STATION
+        ORDER BY DETECT_STATION
+    </sql>
+
+    <resultMap type="com.supconit.kqfx.web.analysis.entities.TimeZone" id="DateTimeMapResultMap">
+        <result property="detectStation" column="DETECT_STATION"/>
+        <result property="aday" column="ADAY"/>
+        <result property="bday" column="BDAY"/>
+        <result property="cday" column="CDAY"/>
+        <result property="dday" column="DDAY"/>
+        <result property="eday" column="EDAY"/>
+        <result property="fday" column="FDAY"/>
+        <result property="gday" column="GDAY"/>
+        <result property="hday" column="HDAY"/>
+        <result property="iday" column="IDAY"/>
+        <result property="jday" column="JDAY"/>
+        <result property="kday" column="KDAY"/>
+        <result property="lday" column="LDAY"/>
+        <result property="mday" column="MDAY"/>
+        <result property="nday" column="NDAY"/>
+        <result property="oday" column="ODAY"/>
+        <result property="pday" column="PDAY"/>
+        <result property="qday" column="QDAY"/>
+        <result property="rday" column="RDAY"/>
+        <result property="sday" column="SDAY"/>
+        <result property="tday" column="TDAY"/>
+        <result property="uday" column="UDAY"/>
+        <result property="vday" column="VDAY"/>
+        <result property="wday" column="WDAY"/>
+        <result property="xday" column="XDAY"/>
+        <result property="yday" column="YDAY"/>
+        <result property="zday" column="ZDAY"/>
+        <result property="aaday" column="AADAY"/>
+        <result property="abday" column="ABDAY"/>
+        <result property="acday" column="ACDAY"/>
+        <result property="aeday" column="AEDAY"/>
+        <result property="afday" column="AFDAY"/>
+    </resultMap>
+
+    <select id="getByDateTimesCount" parameterType="com.supconit.kqfx.web.analysis.entities.TimeZone" lang="velocity" resultMap="DateTimeMapResultMap">
+        SELECT
+            SUM(decode(DDAY, '01', CNT,null)) as aday,
+            SUM(decode(DDAY, '02', CNT,null)) as bday,
+            SUM(decode(DDAY, '03', CNT,null)) as cday,
+            SUM(decode(DDAY, '04', CNT,null)) as dday,
+            SUM(decode(DDAY, '05', CNT,null)) as eday,
+            SUM(decode(DDAY, '06', CNT,null)) as fday,
+            SUM(decode(DDAY, '07', CNT,null)) as gday,
+            SUM(decode(DDAY, '08', CNT,null)) as hday,
+            SUM(decode(DDAY, '09', CNT,null)) as iday,
+            SUM(decode(DDAY, '10', CNT,null)) as jday,
+            SUM(decode(DDAY, '11', CNT,null)) as kday,
+            SUM(decode(DDAY, '12', CNT,null)) as lday,
+            SUM(decode(DDAY, '13', CNT,null)) as mday,
+            SUM(decode(DDAY, '14', CNT,null)) as nday,
+            SUM(decode(DDAY, '15', CNT,null)) as oday,
+            SUM(decode(DDAY, '16', CNT,null)) as pday,
+            SUM(decode(DDAY, '17', CNT,null)) as qday,
+            SUM(decode(DDAY, '18', CNT,null)) as rday,
+            SUM(decode(DDAY, '19', CNT,null)) as sday,
+            SUM(decode(DDAY, '20', CNT,null)) as tday,
+            SUM(decode(DDAY, '21', CNT,null)) as uday,
+            SUM(decode(DDAY, '22', CNT,null)) as vday,
+            SUM(decode(DDAY, '23', CNT,null)) as wday,
+            SUM(decode(DDAY, '24', CNT,null)) as xday,
+            SUM(decode(DDAY, '25', CNT,null)) as yday,
+            SUM(decode(DDAY, '26', CNT,null)) as zday,
+            SUM(decode(DDAY, '27', CNT,null)) as aaday,
+            SUM(decode(DDAY, '28', CNT,null)) as abday,
+            SUM(decode(DDAY, '29', CNT,null)) as acday,
+            SUM(decode(DDAY, '30', CNT,null)) as aeday,
+            SUM(decode(DDAY, '31', CNT,null)) as afday
+        FROM(
+            SELECT TO_CHAR(TA.M_DATE,'dd') AS DDAY ,COUNT(1) AS CNT FROM
+            (
+                SELECT DISTINCT T.TJ_DATE AS M_DATE FROM T_FXZF_TIMEZONE T
+                    <![CDATA[
+                        #where()
+                            #if($_parameter.tjDate && $_parameter.tjDate != '')
+                               AND TJ_DATE >= @{_parameter.tjDate,jdbcType=TIMESTAMP}
+                            #end
+                            #if($_parameter.updateTime && $_parameter.updateTime != '')
+                               AND TJ_DATE <= @{_parameter.updateTime,jdbcType=TIMESTAMP}
+                            #end
+                            AND OVERLOAD_STATUS !=0
+                        #end
+                    ]]>
+            ) TA GROUP BY TO_CHAR(TA.M_DATE,'dd')
+        )
+    </select>
+
+    <select id="getByPartTimesCnt" parameterType="com.supconit.kqfx.web.analysis.entities.TimeZone" lang="velocity" resultMap="PartTimeMapResultMap">
+        SELECT
+            SUM(decode(DDAY, '00', CNT,null)) as ah,
+            SUM(decode(DDAY, '01', CNT,null)) as bh,
+            SUM(decode(DDAY, '02', CNT,null)) as ch,
+            SUM(decode(DDAY, '03', CNT,null)) as dh,
+            SUM(decode(DDAY, '04', CNT,null)) as eh,
+            SUM(decode(DDAY, '05', CNT,null)) as fh,
+            SUM(decode(DDAY, '06', CNT,null)) as gh,
+            SUM(decode(DDAY, '07', CNT,null)) as hh,
+            SUM(decode(DDAY, '08', CNT,null)) as ih,
+            SUM(decode(DDAY, '09', CNT,null)) as jh,
+            SUM(decode(DDAY, '10', CNT,null)) as kh,
+            SUM(decode(DDAY, '11', CNT,null)) as lh,
+            SUM(decode(DDAY, '12', CNT,null)) as mh,
+            SUM(decode(DDAY, '13', CNT,null)) as nh,
+            SUM(decode(DDAY, '14', CNT,null)) as oh,
+            SUM(decode(DDAY, '15', CNT,null)) as ph,
+            SUM(decode(DDAY, '16', CNT,null)) as qh,
+            SUM(decode(DDAY, '17', CNT,null)) as rh,
+            SUM(decode(DDAY, '18', CNT,null)) as sh,
+            SUM(decode(DDAY, '19', CNT,null)) as th,
+            SUM(decode(DDAY, '20', CNT,null)) as uh,
+            SUM(decode(DDAY, '21', CNT,null)) as vh,
+            SUM(decode(DDAY, '22', CNT,null)) as wh,
+            SUM(decode(DDAY, '23', CNT,null)) as xh
+        FROM(
+            SELECT TO_CHAR(TA.M_DATE,'HH24') AS DDAY ,COUNT(1) AS CNT FROM
+            (
+                SELECT DISTINCT T.BEGIN_TIME AS M_DATE FROM T_FXZF_TIMEZONE T
+                    <![CDATA[
+                        #where()
+                            #if($_parameter.tjDate && $_parameter.tjDate != '')
+                               AND BEGIN_TIME >= @{_parameter.tjDate,jdbcType=TIMESTAMP}
+                            #end
+                            #if($_parameter.updateTime && $_parameter.updateTime != '')
+                               AND BEGIN_TIME <= @{_parameter.updateTime,jdbcType=TIMESTAMP}
+                            #end
+                            AND OVERLOAD_STATUS !=0
+                        #end
+                    ]]>
+            ) TA GROUP BY TO_CHAR(TA.M_DATE,'HH24')
+        )
+    </select>
+</mapper>

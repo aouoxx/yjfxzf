@@ -1,0 +1,51 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+
+<form method="post" action="$!{rc.contextPath}/platform/authorization/menu/view" class="ui-dialog-form">
+    <table width="100%">
+        <tr>
+            <td class="label">操作编码：</td>
+            <td>$!{operate.code}</td>
+            <td class="label">操作名称：</td>
+            <td>$!{operate.name}</td>
+        </tr>
+		<tr>
+            <td class="label">所属菜单：</td>
+            <td>$!{operate.menu.name}</td>
+			<td class="label">显示按键：</td>
+            <td>#if($operate.listButton == true) 是#{else}否 #{end}</td>
+        </tr>
+		<tr>
+            <td class="label">按键图标：</td>
+            <td>$!{operate.icon}</td>
+			<td class="label">排序值：</td>
+            <td>$!{operate.sortValue}</td>
+        </tr>
+		<tr>
+            <td class="label">操作代码：</td>
+            <td colspan="3"><textarea name="operate.onclick" class="k-textbox" readonly>$!{operate.onclick}</textarea></td>
+        </tr>
+		<tr>
+            <td class="label">控制URL：<br>(一行一个)</td>
+            <td colspan="3"><textarea name="operate.resources" class="k-textbox" readonly>$!{operate.resources}</textarea></td>
+        </tr>
+		<tr>
+            <td class="label">备注：</td>
+            <td colspan="3"><textarea name="operate.description" class="k-textbox" readonly>$!{operate.description}</textarea></td>
+        </tr>
+    </table>
+    <div class="actions">
+        <button class="hc_btn close-s" onclick="close_dialog('operate_view_dlg')" type="button">取 消</button>
+    </div>
+</form>
+
+    #parse("platform/_footer.vm")
+</body>
+<script type="text/javascript">
+$("body").css({"padding":"10px","height":"auto"});
+$("table").addClass("ui-view");
+$("table").find("tr:odd").addClass("odd");
+$("table").find("tr:even").addClass("even");
+</script>
+</html>

@@ -1,0 +1,118 @@
+#parse("platform/_header.vm")
+<style type="text/css">
+	#plat_auth_role_assign_menu_tree li a span.button{background:none;height:auto;width:auto;}
+</style>
+</head>
+<body>
+<div class="ui-layout-center">
+	<ul id="plat_auth_role_assign_menu_tree" class="ztree"></ul>
+</div>
+<div class="ui-layout-north">
+	#operate_buttons('',true)
+				<div style="background:#E1EEF6;border:1px solid #bbddf1;">
+					<a href="javascript:void(0)" style="line-height:26px;">当前操作角色为：<b style="color:blue">$!{role.name} ($!{role.code})</b></a>
+##					<button class="k-primary hc_btn save-s k-button" type="button" onclick="plat_auth_role_assign_menu_save(this)"><i class="iconfont icon-save"></i>保存设置</button>
+					<span class="actions" style="margin-left:30px;">
+						<button class="k-primary hc_btn save-s" type="button" onclick="plat_auth_role_assign_menu_save(this)">保存</button>
+					</span>
+				</div>
+	#end
+</div>
+#parse("platform/_footer.vm")
+<script type="text/javascript">
+	var plat_auth_role_assign_menu_tree;
+	
+	function plat_auth_role_assign_menu_save(obj){
+		if(!confirm("确定要保存吗？"))return;
+##		$.btn.running(obj);
+		var nodes = plat_auth_role_assign_menu_tree.getCheckedNodes(true);
+		var menuIds = [],operateIds=[];
+		for(var i = 0 ; i < nodes.length ; i++){
+			var node = nodes[i];
+			if(node.code.indexOf("O_")==0) operateIds.push(-node.id);
+			else menuIds.push(node.id);
+		}
+		$.ajax({
+			url : "$!{rc.contextPath}/platform/authorization/role/assign-menus",
+			type : "POST",
+			data : {menuIds:menuIds,operateIds:operateIds,roleId:"$!{role.id}"},
+			success : function(responseText){
+				notify("操作成功", "success");
+				window.location.href = "$!{rc.contextPath}/xtgl/qxgl/role/assign-menus?roleId="+$!{role.id};
+			},
+			complete : function(){
+##				$.btn.enabled(obj);
+			}
+		});
+	}
+	
+	$(function(){
+        _iframe_layout = $('body').layout({
+            center__maskContents: true,
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            },
+            center: {
+                onresize_end: function () {}
+            },
+            north: {
+                size: 34
+	      	},
+			onresize_end:function(){}
+        });	
+	
+		var assignedMenuIds = $!{assignedMenuIds};
+		var nodes = $!{menuJson};
+		var resc_nodes = function(n){
+			if(n){
+				n.name += " [" + n.code.replace("O_","") + "]";
+				if(n.code.indexOf("O_")==0){
+					// Operate
+					n.iconSkin = "iconfont icon-food ic";
+					n.name += " [操作]";
+				}
+				else{
+					// Menu
+					n.iconSkin = "iconfont icon-tasks ic";
+				}
+			
+				if($.inArray("M_"+n.code,assignedMenuIds)>=0){
+					n.checked = true;
+				} else if($.inArray(n.code,assignedMenuIds)>=0){
+					n.checked = true;
+				}
+				
+				
+				if(n.children && n.children.length > 0){
+					for(var i = 0 ; i < n.children.length ; i++){
+						resc_nodes(n.children[i]);
+					}
+				}
+			}else return;
+		};
+		resc_nodes(nodes);
+		plat_auth_role_assign_menu_tree = $.fn.zTree.init($("#plat_auth_role_assign_menu_tree"), {
+			check:{enable: true,chkboxType : { "Y" : "ps", "N" : "s"  }},
+			view : {
+				fontCss : function(treeId, treeNode){
+					if(treeNode.code.indexOf("O_")==0){
+						return {color : "blue"};
+					}else{
+						return {"font-weight":"bold"};
+					}
+				}
+			},
+			callback: {
+				onClick : function(event, treeId, treeNode) {
+				},
+				onNodeCreated : function(event, treeId, treeNode){
+				}
+			}
+		},nodes);
+		plat_auth_role_assign_menu_tree.expandAll(true);
+	});
+</script>
+</body>
+</html>

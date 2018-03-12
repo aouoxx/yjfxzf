@@ -1,0 +1,104 @@
+@charset "utf-8";
+/*CSS Document*/
+
+html,
+body{
+	height:100%;
+}
+
+.ui-login-body {
+	background:#0057A5 url(../images/login-bg.png) no-repeat 50% 50%;
+}
+
+.ui-login-bg{
+	position:absolute;
+	margin:auto;
+	top: 230px;
+	right:0;
+	left:0;
+	bottom:0;
+	z-index: 1;
+	width:1000px;
+	height:520px;
+}
+
+ .ui-login-content {
+	height:450px;
+	width:100%;
+}
+.ui-login-footer {
+	height:70px;
+	width:100%;
+	position:relative;
+}
+
+.ui-login-content .content-style {
+	position:absolute;
+	left:49%;
+	top:10%;
+}
+
+.content-style .login-welcome {
+	display:inline-block;
+	margin:15px 0;
+	font-size:2em;
+	font-weight:bold;
+	color:#fff;
+}
+
+.ui-login-form .ui-label {
+	font-size:16px;
+	color:#fff;
+	height:24px;
+	line-height:24px;
+}
+
+.ui-login-form .ui-input{
+	margin:8px 0;
+	width:200px;
+	height:24px;
+	line-height:24px;
+}
+
+
+.btn-primary {
+	border:none;
+	font-size:1.2em;
+	font-weight:bold;
+	width:92px;
+	height:30px;
+	line-height:30px;
+	color:#fff;
+	vertical-align:middle;
+	margin-top:10px;
+	
+}
+
+.submit-btn,
+.submit-btn:hover{	
+	background:url(../images/login_btn01.png) no-repeat 50% 50%;
+}
+
+.reset-btn,
+.reset-btn:hover {
+	background:url(../images/login_btn02.png) no-repeat 50% 50%;
+}
+
+
+.ui-login-footer .fonter-copyright {
+	position:absolute;
+	left:36%;
+	top:24%;
+	color:#fff;
+	font-size:1.2em;
+}
+
+
+
+
+
+
+
+
+
+

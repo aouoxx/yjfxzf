@@ -1,0 +1,1208 @@
+@charset "utf-8";
+
+*{
+  margin: 0;
+  padding: 0;
+}
+
+ul{
+	list-style: none;
+}
+
+body{
+  font-size: 12px;
+  font-family: "Microsoft Yahei","songti";
+  color: #000;
+  background: #056186;
+}
+
+.header{
+	height: 49px;
+	width: 100%;
+	background: url(../images/monitor/header-bg.png) repeat-x;
+}
+
+.header .header-title{
+	width: 1000px;
+	height: 100%;
+	margin: auto;
+	color: #0d7cab;
+}
+.header-title .head-date{
+	float: left;
+	width: 250px;
+	height: 100%;
+	line-height: 49px;
+	font-size: 14px;
+}
+
+.header-title .head-tit{
+	float: left;
+	width: 500px;
+	line-height: 49px;
+	font-size: 20px;
+	font-weight: bold;
+	text-align: center;
+}
+.header-title .head-bridge{
+	float: left;
+	width: 250px;
+	line-height: 49px;
+	font-size: 14px;
+	text-align: right;
+}
+
+.conts{
+	height: 649px;
+	width: 100%;
+	background: #056186 url(../images/monitor/conts-bg.png) repeat-x;
+}
+
+.conts .count-info{
+	width: 1000px;
+	height: 180px;
+	margin: auto;
+	padding-left: 8px;
+	/* border: 1px solid #f00; */
+}
+
+.count-info .info1{
+	height: 85px;
+}
+
+.info1 .guide{
+	float: left;
+	width: 100px;
+	margin-top: 6px;
+}
+.info1 .count-datas{
+	float: left;
+	width: 560px;
+	height: 85px;
+	color: #c4e7f5;
+}
+
+.count-datas .datas-t{
+	width: 100%;
+	height: 48px;
+	line-height: 48px;
+	font-size: 18px;
+	text-align: center;
+	text-decoration: underline;
+}
+
+.datas-state .state-item{
+	width: 100%;
+	text-align: center;
+	font-size: 14px;
+}
+
+.info1 .count-num{
+	float: left;
+	width: 204px;
+	height: 60px;
+	line-height: 24px;
+	margin-top: 25px;
+	padding-left: 50px;
+	background: url(../images/monitor/caricon.png) no-repeat 0 50%;
+	font-size: 14px;
+	color: #bbebff;
+}
+
+.info1 .fc{
+	color: #ffe400;
+}
+
+.count-info .info2{
+	/* width: 938px; */
+	padding: 10px 30px;
+	border: 1px solid #3583a4;
+	background: #313131;
+	color: #90935c;
+	line-height: 20px;
+}
+
+.info2 .info2-message{
+	height:80px;
+	overflow: hidden;
+}
+
+.info2 .li-t{
+	padding: 0 10px; 
+}
+.info2 .fr{
+	color: #de3838;
+}
+
+.conts .roadsigns{
+	margin-top: 10px;
+}
+.roadsigns .roaddic{
+	width: 1000px;
+	height:30px;
+	line-height: 30px;
+	margin: auto;
+	color: #89b4c6;
+}
+.roaddic .indicator-l{
+	width: 100px;
+	text-align: right;
+	float: left;
+	background: url(../images/monitor/lefticon.png) no-repeat 0 50%;
+}
+
+.roaddic .indicator-c{
+	float:left;
+	width: 140px;
+	height: 25px;
+	text-align: center;
+	border: 1px solid #3583a4;
+	margin-left: 4px;
+	color: black;
+	font-weight: bold;
+	background-color: #89b4c6;
+}
+
+.roaddic .indicator-r{
+	width: 100px;
+	float: right;
+	text-align: left;
+	background: url(../images/monitor/righticon.png) no-repeat 100% 50%;
+}
+
+
+/*四车道*/
+.roadsigns .roadline-4{
+	height:300px;
+	background: url(../images/monitor/road-bg-4.png) repeat-x 50%;
+}
+
+.roadline-4 .roadline-info{
+	width: 1200px;
+	height: 300px;
+	margin: auto;
+	position: relative;
+}
+
+.roadline-4 .roadline-info .move-car{
+	float: left;
+	width: 100px;
+	height: 300px;
+	line-height: 70px;
+/* 	background: url(../images/monitor/car.png) no-repeat 50%; */
+}
+.roadline-4 .move-car .car{
+	float: left;
+	width: 100px;
+	height: 70px;
+	line-height: 70px;
+	z-index: 10;
+}
+.roadline-4 .move-car .line4{
+	position: absolute;
+	left: 0;
+	top: 20px;
+}
+.roadline-4 .move-car .line3{
+	position: absolute;
+	left: 0;
+	top: 90px;
+}
+.roadline-4 .move-car .line2{
+	position: absolute;
+	left: 0;
+	top: 160px;
+}
+.roadline-4 .move-car .line1{
+	position: absolute;
+	left: 0;
+	top: 226px;
+}
+
+
+.roadline-4 .roadline-info .roadline-tips{
+	float: left;
+	width: 250px;
+	height: 260px;
+	padding-top: 10px;
+	line-height: 68px;
+}
+
+.roadline-4 .roadline-tips .tips1{
+	display: block;
+	float: left;
+	padding-left: 10px;
+	width: 65px;
+}
+.roadline-4 .tips1 .line{
+	background: url(../images/monitor/dirction1.png) no-repeat 0% 50%;
+}
+.roadline-4 .roadline-tips .tips2{
+	display: block;
+	float: left;
+	width: 40px;
+	padding-right: 25px;
+	
+}
+.roadline-4 .tips2 .tips2-li{
+	background: url(../images/monitor/tips2-4.png) no-repeat 0% 50%;
+	position: relative;
+}
+.roadline-4 .tips2 .tips2-li:hover{
+	background: url(../images/monitor/tips2-hover-4.png) no-repeat 0% 50%;
+}
+.roadline-4 .tips2 .tips2-li-hover{
+	background: url(../images/monitor/tips2-hover-4.png) no-repeat 0% 50%;
+}
+
+.roadline-4 .tips2-li .ainfo{
+	position: absolute;
+	left: 50px;
+	top: 0px;
+	width: 165px;
+	height: 104px;
+	line-height: 20px;
+	padding: 0 10px;
+	border: 1px solid #c9be63;
+	background: #e7de97;
+	color: #313131;
+	z-index: 10;
+	display: none;
+} 
+.roadline-4 .tips2-li:hover .ainfo,
+.roadline-4 .tips2-li-hover .ainfo{
+	display: block;
+}
+
+.roadline-4 .ainfo .msgitem span{
+	display: inline-block;
+	width: 60px;
+}
+
+.roadline-4 .tips2-li .tips01{
+	position: absolute;
+	left: -100px;
+	top: 44px;
+	z-index: 2;
+	width: 127px;
+	height: 25px;
+	background: url(../images/monitor/tips01.png) no-repeat 0% 50%;
+}
+
+.roadline-4 .tips2-li .tips02{
+	position: absolute;
+	left: 34px;
+	top: 44px;
+	z-index: 2;
+	width: 136px;
+	height: 56px;
+	background: url(../images/monitor/tips02.png) no-repeat 0% 50%;
+}
+
+
+.roadline-4 .roadline-tips .tips3{
+	display: block;
+	float: left;
+	width: 65px;
+}
+.roadline-4 .tips3 .line{
+	background: url(../images/monitor/dirction3.png) no-repeat 0% 50%;
+}
+
+.roadline-4 .roadline-tips .tips4{
+	display: block;
+	float: left;
+	width: 40px;
+	color: #848484;
+	font-weight: bold;
+}
+	
+.roadline-4 .roadline-info .road-camera{
+	float: left;
+	margin-left: 200px;
+	width: 110px;
+	height: 300px;
+	position: relative;
+}
+.roadline-4 .road-camera .road-hov{
+	position: absolute;
+	top: -25px;
+	left: 0;
+	width: 110px;
+	height: 315px;
+	background: url(../images/monitor/camera-hov.png) no-repeat;
+	z-index: 100;
+	padding-top: 35px;
+}
+
+.roadline-4 .road-hov .camera{
+	display: block;
+	line-height: 68px;
+	position: relative;
+}
+.line4-camera,
+.line2-camera{
+	background: url(../images/monitor/line2-camera.png) no-repeat 0 50%;
+}
+.line3-camera,
+.line1-camera{
+	background: url(../images/monitor/line1-camera.png) no-repeat 0 50%;
+}
+.line0-camera{
+	background: url(../images/monitor/line0-camera.png) no-repeat 60% 0;
+}
+
+.line4-camera:hover,
+.line2-camera:hover,
+.line4-camera.camera-hover,
+.line2-camera.camera-hover{
+	background: url(../images/monitor/line2-camera-hover.png) no-repeat 0 50%;
+}
+.line3-camera:hover,
+.line1-camera:hover,
+.line3-camera.camera-hover,
+.line1-camera.camera-hover{
+	background: url(../images/monitor/line1-camera-hover.png) no-repeat 0 50%;
+}
+
+.camera .camera-panel{
+	position: absolute;
+	left: 110px;
+	top: 0px;
+	z-index: 10;
+	width: 165px;
+	padding: 6px;
+	line-height: 22px;
+	background: #e7de97;
+	text-align: center;
+	display: none;
+}
+
+.camera-panel .panel-c img{
+	width: 165px;
+	height: 100px;
+}
+
+.camera:hover .camera-panel,
+.camera-hover .camera-panel{
+	display: block;
+}
+
+.roadline-4 .line4-camera .tips03{
+	position: absolute;
+	left: -100px;
+	top: -26px;
+	z-index: 99;
+	width: 115px;
+	height: 50px;
+	background: url(../images/monitor/tips03.png) no-repeat 0% 50%;
+}
+.roadline-4 .line4-camera .tips04{
+	position: absolute;
+	left: 100px;
+	top: -40px;
+	z-index: 99;
+	width: 120px;
+	height: 28px;
+	background: url(../images/monitor/tips04.png) no-repeat 0% 50%;
+}
+.line0-camera .tips05{
+	position: absolute;
+	left: 80px;
+	top: 26px;
+	z-index: 9;
+	width: 140px;
+	height: 50px;
+	background: url(../images/monitor/tips05.png) no-repeat 0% 50%;
+}
+
+
+.roadline-info .road-board{
+	float: left;
+	margin-left: 66px;
+	width: 220px;
+	height: 320px;
+	position: relative;
+	
+}
+.board-b{
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 98;
+	width: 220px;
+	height: 230px;
+	padding-top: 90px;
+	background: url(../images/monitor/load-board-bg.png) no-repeat 100% 100%;
+}
+
+.board-content{
+	border: 1px solid #a5a5a5;
+	background: #211f1f;
+	color: #ff0d0d;
+	width: 136px;
+	height: 60px;
+	padding: 15px 10px;
+	line-height: 30px;
+	text-align: center;
+}
+.tips06{
+	position: absolute;
+	left: 30px;
+	top: 300px;
+	z-index: 99;
+	width: 115px;
+	height: 28px;
+	background: url(../images/monitor/tips06.png) no-repeat 0% 50%;
+}
+.roadline-4 .roadline-info .roadline-s{
+	float: left;
+	line-height: 80px;
+	font-size: 16px;
+	color: #787878;
+}
+
+.roadsigns .road-equiment{
+	height: 125px;
+}
+.road-equiment .road-eqs{
+	width: 1000px;
+	margin: auto;
+}
+
+.road-eq1{
+	float: left;
+	width: 73px;
+	height: 120px;
+	margin-top: 2px;
+	margin-right: 10px;
+	background: url(../images/monitor/eq1.png) no-repeat 0% 100%;
+}
+.road-eq2{
+	float: left;
+	width: 116px;
+	height: 120px;
+	margin-top: -111px;
+	margin-right: 80px;
+	background: url(../images/monitor/eq2.png) no-repeat 0% 100%;
+}
+.road-eq3{
+	float: left;
+	width: 186px;
+	height: 120px;
+	margin-top: -101px;
+	background: url(../images/monitor/eq3.png) no-repeat 100% 100%;
+}
+
+
+
+
+/*三车道*/
+.roadsigns .roadline-3{
+	height:300px;
+	background: url(../images/monitor/road-bg-3.png) repeat-x 50%;
+}
+
+.roadline-3 .roadline-info{
+	width: 1200px;
+	height: 300px;
+/* 	padding-top: 8px; */
+	margin: auto;
+	position: relative;
+}
+
+.roadline-3 .roadline-info .move-car{
+	float: left;
+	width: 100px;
+	height: 300px;
+	line-height: 70px;
+/* 	background: url(../images/monitor/car.png) no-repeat 50%; */
+}
+.roadline-3 .move-car .car{
+	float: left;
+	width: 100px;
+	height: 90px;
+	line-height: 90px;
+	z-index: 10;
+}
+
+.roadline-3 .move-car .line3{
+	position: absolute;
+	left: 0;
+	top: 20px;
+}
+.roadline-3 .move-car .line2{
+	position: absolute;
+	left: 0;
+	top: 110px;
+}
+.roadline-3 .move-car .line1{
+	position: absolute;
+	left: 0;
+	top: 200px;
+}
+
+.roadline-3 .roadline-info .roadline-tips{
+	float: left;
+	width: 250px;
+	height: 270px;
+	padding-top: 10px;
+	line-height: 90px;
+}
+
+.roadline-3 .roadline-tips .tips1{
+	display: block;
+	float: left;
+	padding-left: 10px;
+	width: 65px;
+}
+.roadline-3 .tips1 .line{
+	background: url(../images/monitor/dirction1.png) no-repeat 0% 50%;
+}
+.roadline-3 .roadline-tips .tips2{
+	display: block;
+	float: left;
+	width: 40px;
+	padding-right: 25px;
+	
+}
+.roadline-3 .tips2 .tips2-li{
+	background: url(../images/monitor/tips2-3.png) no-repeat 0% 30%;
+	position: relative;
+}
+.roadline-3 .tips2-li:hover,
+.roadline-3 .tips2-li-hover{
+	background: url(../images/monitor/tips2-hover-3.png) no-repeat 0% 30%;
+}
+
+.roadline-3 .tips2-li .ainfo{
+	position: absolute;
+	left: 50px;
+	top: 0px;
+	width: 165px;
+	height: 104px;
+	line-height: 20px;
+	padding: 0 10px;
+	border: 1px solid #c9be63;
+	background: #e7de97;
+	color: #313131;
+	z-index: 10;
+	display: none;
+} 
+.roadline-3 .tips2-li:hover .ainfo,
+.roadline-3 .tips2-li-hover .ainfo{
+	display: block;
+}
+
+.roadline-3 .ainfo .msgitem span{
+	display: inline-block;
+	width: 60px;
+}
+
+.roadline-3 .tips2-li .tips01{
+	position: absolute;
+	left: -100px;
+	top: 64px;
+	z-index: 2;
+	width: 127px;
+	height: 25px;
+	background: url(../images/monitor/tips01.png) no-repeat 0% 50%;
+}
+
+.roadline-3 .tips2-li .tips02{
+	position: absolute;
+	left: 34px;
+	top: 64px;
+	z-index: 2;
+	width: 136px;
+	height: 56px;
+	background: url(../images/monitor/tips02.png) no-repeat 0% 50%;
+}
+
+
+.roadline-3 .roadline-tips .tips3{
+	display: block;
+	float: left;
+	width: 65px;
+}
+.roadline-3 .tips3 .line{
+	background: url(../images/monitor/dirction3.png) no-repeat 0% 50%;
+}
+
+.roadline-3 .roadline-tips .tips4{
+	display: block;
+	float: left;
+	width: 40px;
+	color: #848484;
+	font-weight: bold;
+}
+
+.roadline-3 .roadline-info .road-camera{
+	float: left;
+	margin-left: 200px;
+	width: 110px;
+	height: 300px;
+	position: relative;
+}
+.roadline-3 .road-camera .road-hov{
+	position: absolute;
+	top: -25px;
+	left: 0;
+	width: 110px;
+	height: 315px;
+	background: url(../images/monitor/camera-hov.png) no-repeat;
+	z-index: 100;
+	padding-top: 35px;
+}
+
+.roadline-3 .road-hov .camera{
+	display: block;
+	line-height: 90px;
+	position: relative;
+}
+
+.roadline-3 .line3-camera .tips03{
+	position: absolute;
+	left: -100px;
+	top: -20px;
+	z-index: 99;
+	width: 115px;
+	height: 50px;
+	background: url(../images/monitor/tips03.png) no-repeat 0% 50%;
+}
+.roadline-3 .line3-camera .tips04{
+	position: absolute;
+	left: 100px;
+	top: -40px;
+	z-index: 99;
+	width: 120px;
+	height: 28px;
+	background: url(../images/monitor/tips04.png) no-repeat 0% 50%;
+}
+
+.roadline-3 .roadline-info .roadline-s{
+	float: left;
+	line-height: 100px;
+	font-size: 18px;
+	color: #787878;
+}
+
+/*二车道*/
+.roadsigns .roadline-2{
+	height:300px;
+	background: url(../images/monitor/road-bg-2.png) repeat-x 50%;
+}
+
+.roadline-2 .roadline-info{
+	width: 1200px;
+	height: 300px;
+/* 	padding-top: 8px; */
+	margin: auto;
+	position: relative;
+}
+
+.roadline-2 .roadline-info .move-car{
+	float: left;
+	width: 100px;
+	height: 300px;
+	line-height: 150px;
+/* 	background: url(../images/monitor/car.png) no-repeat 50%; */
+}
+.roadline-2 .move-car .car{
+	float: left;
+	width: 100px;
+	height: 150px;
+	line-height: 150px;
+	z-index: 10;
+}
+
+.roadline-2 .move-car .line2{
+	position: absolute;
+	left: 0;
+	top: 16px;
+}
+.roadline-2 .move-car .line1{
+	position: absolute;
+	left: 0;
+	top: 150px;
+}
+
+.roadline-2 .roadline-info .roadline-tips{
+	float: left;
+	width: 250px;
+	height: 270px;
+	padding-top: 10px;
+	line-height: 135px;
+}
+
+.roadline-2 .roadline-tips .tips1{
+	display: block;
+	float: left;
+	padding-left: 10px;
+	width: 65px;
+}
+.roadline-2 .tips1 .line{
+	background: url(../images/monitor/dirction1.png) no-repeat 0% 50%;
+}
+.roadline-2 .roadline-tips .tips2{
+	display: block;
+	float: left;
+	width: 40px;
+	padding-right: 25px;
+	
+}
+.roadline-2 .tips2 .tips2-li{
+	background: url(../images/monitor/tips2-2.png) no-repeat 0% 30%;
+	position: relative;
+}
+.roadline-2 .tips2-li:hover{
+	background: url(../images/monitor/tips2-hover-2.png) no-repeat 0% 30%;
+}
+.roadline-2 .tips2 .tips2-li-hover{
+	background: url(../images/monitor/tips2-hover-2.png) no-repeat 0% 30%;
+}
+
+.roadline-2 .tips2-li .ainfo{
+	position: absolute;
+	left: 50px;
+	top: 0px;
+	width: 165px;
+	height: 104px;
+	line-height: 20px;
+	padding: 0 10px;
+	border: 1px solid #c9be63;
+	background: #e7de97;
+	color: #313131;
+	z-index: 10;
+	display: none;
+} 
+.roadline-2 .tips2-li:hover .ainfo,
+.roadline-2 .tips2-li-hover .ainfo{
+	display: block;
+}
+
+.roadline-2 .ainfo .msgitem span{
+	display: inline-block;
+	width: 60px;
+}
+
+.roadline-2 .tips2-li .tips01{
+	position: absolute;
+	left: -100px;
+	top: 104px;
+	z-index: 2;
+	width: 127px;
+	height: 25px;
+	background: url(../images/monitor/tips01.png) no-repeat 0% 50%;
+}
+
+.roadline-2 .tips2-li .tips02{
+	position: absolute;
+	left: 34px;
+	top: 104px;
+	z-index: 2;
+	width: 136px;
+	height: 56px;
+	background: url(../images/monitor/tips02.png) no-repeat 0% 50%;
+}
+
+
+.roadline-2 .roadline-tips .tips3{
+	display: block;
+	float: left;
+	width: 65px;
+}
+.roadline-2 .tips3 .line{
+	background: url(../images/monitor/dirction3.png) no-repeat 0% 50%;
+}
+
+.roadline-2 .roadline-tips .tips4{
+	display: block;
+	float: left;
+	width: 40px;
+	color: #848484;
+	font-weight: bold;
+}
+
+.roadline-2 .roadline-info .road-camera{
+	float: left;
+	margin-left: 200px;
+	width: 110px;
+	height: 300px;
+	position: relative;
+}
+.roadline-2 .road-camera .road-hov{
+	position: absolute;
+	top: -25px;
+	left: 0;
+	width: 110px;
+	height: 315px;
+	background: url(../images/monitor/camera-hov.png) no-repeat;
+	z-index: 100;
+	padding-top: 35px;
+}
+
+.roadline-2 .road-hov .camera{
+	display: block;
+	line-height: 135px;
+	position: relative;
+}
+
+.roadline-2 .line2-camera .tips03{
+	position: absolute;
+	left: -100px;
+	top: 14px;
+	z-index: 99;
+	width: 115px;
+	height: 50px;
+	background: url(../images/monitor/tips03.png) no-repeat 0% 50%;
+}
+.roadline-2 .line2-camera .tips04{
+	position: absolute;
+	left: 100px;
+	top: -40px;
+	z-index: 99;
+	width: 120px;
+	height: 28px;
+	background: url(../images/monitor/tips04.png) no-repeat 0% 50%;
+}
+
+.roadline-2 .roadline-info .roadline-s{
+	float: left;
+	line-height: 150px;
+	font-size: 20px;
+	color: #787878;
+}
+
+/*view-9*/
+.ui-header-title{
+	line-height: 40px;
+	padding-left: 10px;
+	background: #c0e7f7;	
+	color: #0a729d;
+	text-align: center;
+}
+.ui-header-title .ui-header-date{
+	display: inline-block;
+	float: left;
+	font-size: 14px;
+	padding-left: 20px;
+	
+}
+.ui-header-title .ui-header-text{
+	font-size: 20px;
+	font-weight: bold;
+	padding-left: 20px;
+}
+.ui-header-title .backicon{
+	cursor: pointer;
+	display: inline-block;
+	color: #53acd2;
+	float: right;
+	padding-right: 30px;
+	width: 110px;
+	height: 40px;
+	background: url(../images/monitor/backicon.png) no-repeat 0 50%;
+}
+.ui-header-title .backicon:hover{
+	color: #0a729d;
+}
+
+.ui-left-header{
+	height: 40px;
+	line-height: 40px;
+	padding-left: 10px;
+	background: #0699d5;
+	font-size: 16px;
+	color: #d2edf8;
+}
+
+.ui-left-header .catalogicon {
+	display: inline-block;
+	width: 20px;
+	height: 9px;
+	background: url(../images/monitor/catalogicon.png) no-repeat 50% 50%;
+}
+
+.ui-left-ztree{
+	padding: 0;
+}
+ul.ui-left-ztree > li{
+	line-height: 36px;
+	background: #acddf2;
+	border-bottom: 1px solid #d2edf8;
+}
+
+.ui-left-ztree li a.curSelectedNode{
+	height: auto;
+}
+
+ul.ui-left-ztree li a{
+	width: 170px;
+	vertical-align: middle;
+	height: 36px;
+	line-height: 36px;
+	color: #000;
+}
+ul.ui-left-ztree li ul{
+	padding: 0;
+}
+ul.ui-left-ztree li ul li{
+	line-height: 26px;
+	background: #ccecf9;
+	padding-left: 20px;
+}
+ul.ui-left-ztree li ul li a{
+	width: 150px;
+	color: #136485;	
+}
+
+ul.ui-left-ztree li ul li:hover{
+	background: #73c7ea;
+}
+
+.ui-left-ztree li span.button.ico_close{
+	height: 20px;
+	vertical-align: middle;
+	margin: 0 4px;
+	background: url(../images/monitor/ico-close.png) no-repeat 50% 30%;
+}
+.ui-left-ztree li span.button.ico_open{
+	height: 20px;
+	margin: 0 4px;
+	vertical-align: middle;
+	background: url(../images/monitor/ico-open.png) no-repeat 50% 30%;
+}
+
+.ui-left-ztree li span.button.ico_docu{
+	vertical-align: middle;
+	background: url(../images/monitor/ico-file.png) no-repeat 50% 30%;
+}
+
+.ui-left-ztree li span.button.chk.checkbox_false_full{
+	background: url(../images/monitor/ico-check.png) no-repeat 50% 50%;
+}
+.ui-left-ztree li span.button.chk.checkbox_true_full{
+	background: url(../images/monitor/ico-checked.png) no-repeat 50% 50%;
+}
+
+.ui-right-title{
+	width: 100%;
+	background: url(../images/monitor/center-bg.png)
+}
+.ui-right-content {
+	width: 100%;
+	background: #0877a4 url(../images/monitor/center-bg1.png) repeat-x;
+}
+.ui-right-title .count-info{
+	margin: 0 8%;
+}
+.ui-right-title .count-info .info1{
+	width: 100%;
+}
+
+.ui-right-title .count-info .count-num{
+	float: right;
+}
+.ui-right-title .info2{
+	border: 1px solid #62c1e8;
+}
+
+.ui-right-content .content-info {	
+	margin: 0 8%;
+	height: 100%;
+	clear: both;
+	position: relative;
+}
+
+.content-info .info1 .count-num{
+	float: right;
+}
+
+.content-info .view-content{
+	float: left;
+	width: 100%;
+	height: 100%;
+}
+.content-info .view-select{
+	position: absolute;
+	right: -4%;
+	top: 0;
+	width: 4%;
+	height: 100%;
+}
+.view-select .view-item{
+	padding-top: 15px;
+	height: 90px;
+	width: 30px;
+	border: 1px solid #62c1e8;
+	border-top-right-radius: 15px;
+	border-bottom-right-radius: 15px;
+}
+
+.view-select .view-item ul li{
+	margin-top: 6px;
+	margin-left: 4px;
+	font-size: 14px;
+	color: #c8efff;
+}
+.view-select .view-item.current{
+	width: 32px;
+	border: 1px solid #a6d86b;
+}
+.view-select .view-item.current ul li{
+	color: #a6d86b;
+	margin-left: 6px;
+}
+
+.view-select .view-item:hover{
+	border: 1px solid #a6d86b;
+}
+.view-select .view-item:hover ul li {
+	
+}
+
+.view-select .view-item.current:hover ul li{
+	
+}
+
+/*四宫格*/
+.view-content,
+.view-content .view-conts,
+.view-content .view-conts ul{
+	width: 100%;
+	height: 100%;
+}
+.view-content .view-cont-f .view-cont-item{
+	display: block;
+	float: left;
+	margin-bottom: 1%;
+	width: 49.5%;
+	height: 44%;
+	background: #084c69;
+}
+.view-content .view-cont-f .view-cont-item.mleft{
+	margin-left: 0.5%;
+}
+.view-content .view-cont-f .view-cont-item.mright{
+	margin-right: 0.5%;
+}
+
+/*六宫格*/
+.view-content .view-cont-s,
+.view-content .view-cont-s ul{
+	width: 100%;
+	height: 100%;
+}
+.view-content .view-cont-s .view-cont-item{
+	display: block;
+	float: left;
+	margin-bottom: 1%;
+	width: 49.5%;
+	height: 29%;
+	background: #084c69;
+}
+.view-content .view-cont-s .view-cont-item.mleft{
+	margin-left: 0.5%;
+}
+.view-content .view-cont-s .view-cont-item.mright{
+	margin-right: 0.5%;
+}
+
+/*九宫格*/
+.view-content .view-cont-n,
+.view-content .view-cont-n ul{
+	width: 100%;
+	height: 100%;
+}
+.view-content .view-cont-n .view-cont-item{
+	display: block;
+	float: left;
+	margin-bottom: 1%;
+	width: 32.5%;
+	height: 29%;
+	background: #084c69;
+}
+.view-content .view-cont-n .view-cont-item.mleft{
+	margin-left: 1.25%;
+}
+.view-content .view-cont-n .view-cont-item.mright{
+	margin-right: 1.25%;
+}
+
+/*line-four*/
+.view-line {
+	margin: auto;
+	margin-top: 1%;
+	width: 98%;
+	height: 97%;
+	border: 1px solid #46aad4;
+}
+.view-line .view-line-title{
+	width: 100%;
+	height: 15%;
+}
+.view-line-title .title-left{
+	float: left;
+	width: 40%;
+	height: 100%;
+	background: #0c516e;
+	text-align: center;
+	font-size: 14px;
+	color: #60c0e7;
+}
+
+.view-line-title .title-right{
+	height: 100%;
+	background: #062c3c;
+	text-align: center;
+	font-size: 14px;
+	color: #2c89ae;
+}
+
+span.fc{
+	color: #ffe400;
+}
+
+.view-line .view-line-info{
+	width: 100%;
+	height: 20%;
+	background: #034662;
+	color: #8fb4c4;
+	text-align: center;
+}
+
+
+.view-line .view-line-img{
+	width: 100%;
+	height: 65%;
+}
+.view-line .view-line-img img{
+	width: 100%;
+	height: 100%;
+}
+
+.view-cont-f .view-line-title .title-left,
+.view-cont-f .view-line-title .title-right{
+	line-height: 42px;
+}
+.view-cont-f .view-line .view-line-info{
+	line-height: 50px;
+}
+
+.view-cont-s .view-line-title .title-left,
+.view-cont-s .view-line-title .title-right{
+	line-height: 26px;
+}
+.view-cont-s .view-line .view-line-info{
+	line-height: 34px;
+}
+.view-cont-n .view-line-title .title-left,
+.view-cont-n .view-line-title .title-right{
+	line-height: 26px;
+}
+.view-cont-n .view-line .view-line-info{
+	line-height: 34px;
+}
+
+

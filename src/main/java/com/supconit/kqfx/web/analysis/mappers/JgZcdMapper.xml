@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.supconit.kqfx.web.analysis.entities.JgZcd">
+
+	<resultMap type="com.supconit.kqfx.web.analysis.entities.JgZcd" id="JgZcdResultMap">
+		<id property="id" column="ID" />
+		<result property="jgid" column="JGID" />
+		<result property="deteStation" column="DETECT_STATION" />
+	</resultMap>
+	
+	<sql id="TABLE_NAME" lang="velocity">T_FXZF_JG_ZCD</sql>
+	<sql id="SELECT_PRE" lang="velocity">SELECT * FROM <include refid="TABLE_NAME"/></sql>
+	<sql id="COUNT_PRE" lang="velocity">SELECT COUNT(1) FROM <include refid="TABLE_NAME"/></sql>
+
+	<sql id="SEARCH_CONDITION_SQL" lang="velocity">
+		<![CDATA[
+		#where()
+			
+		#end
+		]]>	
+	</sql>
+	
+	
+	<select id="getById" resultMap="JgZcdResultMap" parameterType="string" lang="velocity">
+		<include refid="SELECT_PRE" />
+				WHERE ID = @{_parameter, jdbcType=VARCHAR}
+	</select>
+	
+	<select id="getByZczId" resultMap="JgZcdResultMap" parameterType="string" lang="velocity">
+		<include refid="SELECT_PRE" />
+				WHERE DETECT_STATION = @{_parameter, jdbcType=VARCHAR}
+	</select>
+	
+	<select id="getZcdListByAuth" resultMap="JgZcdResultMap" parameterType="long" lang="velocity">
+		<include refid="SELECT_PRE" />
+			<![CDATA[
+				#where()
+					#if($_parameter && $_parameter != '')
+						AND JGID = @{_parameter, jdbcType=NUMERIC}
+					#end
+				#end
+			]]>	
+	</select>
+	
+	<select id="getZtreeNodeListByAuth" resultMap="JgZcdResultMap" parameterType="long" lang="velocity">
+		SELECT DISTINCT JGID AS JGID FROM T_FXZF_JG_ZCD
+			<![CDATA[
+				#where()
+					#if($_parameter && $_parameter != '')
+						AND JGID = @{_parameter, jdbcType=NUMERIC}
+					#end
+				#end
+				ORDER BY JGID ASC
+			]]>	
+	</select>
+	
+	<select id="getJgZcdList" resultMap="JgZcdResultMap" parameterType="string" lang="velocity">
+		SELECT JGID FROM <include refid="TABLE_NAME"/>
+				GROUP BY JGID ORDER BY JGID ASC
+	</select>
+	
+	<select id="selectPager" lang="velocity" resultMap="JgZcdResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+		<include refid="SELECT_PRE"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+		#order($_parameter.condition,"DETECT_STATION ASC")
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	</select>
+
+	<select id="countPager" lang="velocity" resultType="long">
+		<include refid="COUNT_PRE"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+	</select>
+	
+	<sql id="INSERT_SQL" lang="velocity">
+		INSERT INTO <include refid="TABLE_NAME"/>(
+		#if($_databaseId == 'oracle') ID,#end
+								 JGID
+								,DETECT_STATION
+		) VALUES (
+		#if($_databaseId == 'oracle') @{_parameter.id,jdbcType=VARCHAR},#end
+								 @{_parameter.jgid,jdbcType=NUMERIC}
+								,@{_parameter.deteStation,jdbcType=VARCHAR}
+								
+	)
+	</sql>
+	
+	<insert id="insert" parameterType="com.supconit.kqfx.web.analysis.entities.JgZcd" 
+		keyProperty="ID" keyColumn="ID" 		lang="velocity" databaseId="oracle">
+		  <include refid="INSERT_SQL" />
+	</insert>
+	<insert id="insert" parameterType="com.supconit.kqfx.web.analysis.entities.JgZcd" 
+		keyProperty="ID" keyColumn="ID" 		 lang="velocity">
+        <include refid="INSERT_SQL"/>
+        <selectKey keyProperty="ID" resultType="string" order="AFTER"><include refid="_PUBLIC_V.SELECT_KEY"/> </selectKey>    </insert>
+    
+	<update id="update" parameterType="com.supconit.kqfx.web.analysis.entities.JgZcd" lang="velocity">
+		UPDATE <include refid="TABLE_NAME"/> 
+		#mset()
+		<![CDATA[
+			#if($_parameter.jgid) JGID = @{_parameter.jgid,jdbcType=NUMERIC},#end
+			#if($_parameter.deteStation) DETECT_STATION = @{_parameter.deteStation,jdbcType=VARCHAR},#end
+		]]>
+		#end
+		WHERE ID = @{_parameter.id,jdbcType=VARCHAR}
+	</update>
+	
+	<delete id="deleteById" parameterType="string" lang="velocity">
+		DELETE FROM <include refid="TABLE_NAME" /> WHERE ID = @{_parameter,jdbcType=VARCHAR}
+	</delete>
+    		
+</mapper>

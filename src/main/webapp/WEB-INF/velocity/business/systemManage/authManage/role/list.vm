@@ -1,0 +1,259 @@
+#parse("platform/_header.vm")
+<link href="$!{_platform_assets_url}/css/ztree/zTreeStyle.css" rel="stylesheet">
+<script src="$!{_platform_assets_url}/js/jquery.ztree.all-3.5.min.js"></script>
+<script src="$!{rc.contextPath}/assets/js/xtgl/zhgl/person.js" type="text/javascript"></script>
+</head>
+<body>
+<div class="ui-layout-north">
+    #bread_crumbs2("XTGL_ZHGL_ROLE")
+</div>
+<div class="ui-layout-center">
+    <div id="tabstrip">
+        <ul>
+            <li id="tab1" class="k-state-active">已分配用户</li>
+            <li id="tab2"><a id="plat_auth_role_functions_btn" href="#" data-msg="没有选择角色！" data-reload="true"
+                             data-target="#grid">菜单操作配置</a></li>
+        </ul>
+        <div>
+            <form id="search_form"><input type="hidden" name="roleId" value=""/></form>
+            <div id="grid"></div>
+        </div>
+        <div id="plat_auth_role_functions">
+            <iframe class="ui-layout-center" id="_role_frame" scrolling="auto" style="width:100%;height:100%;"
+                    src="about:blank" frameborder="no"></iframe>
+        </div>
+    </div>
+</div>
+<div class="ui-layout-west" id="role_tree_container" style="border-right:solid 1px #e1e5e6;">
+    <div class="ui-layout-north">
+        <div class="k-header k-grid-toolbar" style="padding-left:10px;">所有角色</div>
+    </div>
+    <div class="ui-layout-center">
+        <ul id="plat_auth_role_tree" class="ztree"></ul>
+    </div>
+</div>
+
+    #parse("platform/_footer.vm")
+<script>
+    var _iframe_layout, role_id;
+    $(function () {
+
+
+        _iframe_layout = $('body').layout({
+            center__maskContents: true,
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            },
+            center: {
+                onresize_end: function () {
+                    var grid = $("#grid").data("kendoGrid");
+                    grid.resize();
+                }
+            },
+            west: {
+                size: 250,
+                closable: true,
+                spacing_open: 5
+            }, north: {
+                size: 34
+            },
+            onresize_end: function () {
+                $(".k-tabstrip>.k-content").height(_iframe_layout.state.center.innerHeight - 46);
+            }
+        });
+        $(".k-tabstrip>.k-content").height(_iframe_layout.state.center.innerHeight - 46);
+        $("#role_tree_container").layout({
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            }
+        });
+
+        var setting = {
+            callback: {
+                onClick: function (event, treeId, treeNode) {
+                    role_id = treeNode.id;
+                    onActivate();
+                    $("#search_form input[name='roleId']").val(treeNode.id);
+                    edited_callback();
+                }
+            }
+        };
+        var nodes = {"children":$!{roleJson}, "name": "角色列表"};
+        var plat_auth_role_tree = $.fn.zTree.init($("#plat_auth_role_tree"), setting, nodes);
+        plat_auth_role_tree.expandAll(true);
+
+        quick_datagrid("#grid", "#search_form", "$!{rc.contextPath}/platform/authorization/role/assigned-users", [
+                    {
+                        width: 50,
+                        template: "<div align=\"center\"><input #:(jQuery.inArray(data.name+'',selected)>=0)?'checked':''# onclick=\"check_id(this,'#:data.id#')\" type=\"checkbox\" name=\"ids\" value=\"#:data.id  #\"></div>",
+                        headerTemplate: '<input type="checkbox" id="check-all" /><label for="check-all"></label>'
+                    }, {
+                        field: "username",
+                        title: "用户名",
+                        sortable: true,
+                        attributes: {
+                            style: "text-align: left;"
+                        }
+                    }, {
+                        field: "person.name",
+                        title: "人员姓名",
+                        attributes: {
+                            style: "text-align: left;"
+                        },
+                        template: "# if(null==data.person){ var name = '';# #=name# #  }else{name = data.person.name # #=name# #  } #"
+                    }], {
+                    sortable: {
+                        mode: "multiple",
+                        allowUnsort: true
+                    },
+                    pageable: true
+                }, {
+                    serverSorting: true
+                },
+                [
+                ##				#hc_grid_buttons("XTGL_ZHGL_ROLE")#end
+                    {
+                        name: "新增角色", icon: "fa fa-plus", onclick: function (obj, grid) {
+                        var row = grid.select();
+                        var pid = "";
+                        if (row & row.length > 0) {
+                            var data = grid.dataItem(row);
+                            if (data) {
+                                pid = data.id;
+                            }
+                        }
+                        quick_dialog("role_add_dlg", "新增角色信息", "$!{rc.contextPath}/xtgl/qxgl/role/add", 690, 250, obj);
+                    }
+                    }, {
+                    name: "修改角色", icon: "fa fa-pencil", onclick: function (obj, grid) {
+                        var id = -1;
+                        try {
+                            id = plat_auth_role_tree.getSelectedNodes()[0].id;
+                        } catch (e) {
+                        }
+                        if (null == id || id < 0) {
+                            notify("你还没有选择要修改的角色", "warn");
+                            return;
+                        }
+                        quick_dialog("role_edit_dlg", "修改角色信息", "$!{rc.contextPath}/xtgl/qxgl/role/edit?id=" + id, 690, 250, obj);
+                    }
+                }, {
+                    name: "删除角色", icon: "fa fa-remove", onclick: function (obj, grid) {
+                        var id = -1;
+                        try {
+                            id = plat_auth_role_tree.getSelectedNodes()[0].id;
+                        } catch (e) {
+                        }
+                        if (null == id || id < 0) {
+                            notify("你还没有选择要删除的角色", "warn");
+                            return;
+                        }
+                        if (!confirm("确定要删除选择的角色吗？"))return;
+                        quick_ajax("/platform/authorization/role/delete", {id: id}, callback, obj, grid);
+                    }
+                }, {
+                    name: "分配用户到角色", icon: "fa fa-group", onclick: function (obj, grid) {
+
+                        var roleId = $("#search_form input[name='roleId']").val();
+                        if (roleId == "" || roleId == null) {
+                            notify("请选择角色！", "warn");
+                            return;
+                        } else {
+                            quick_dialog("mult_select_user", "分配用户到角色", "$!{rc.contextPath}/xtgl/zhgl/user/multSelectUserToRole?roleId=" + roleId, 950, 550, null);
+                        }
+
+                    }
+                }, {
+                    name: "从该角色移除用户", icon: "fa fa-mail-forward", onclick: function (obj, grid) {
+                        var roleId = $("#search_form input[name='roleId']").val();
+                        if (roleId == null || roleId == '') {
+                            notify("没有选择要移除用户的角色", "warn");
+                            return;
+                        }
+                        if (selectedItems == null || selectedItems.length == 0) {
+                            notify("没有选择任何用户", "warn");
+                            return;
+                        }
+                        var ids = [];
+                        for (var key in selectedItems) {
+                            ids.push(key);
+                        }
+                        if (ids.length == 0) {
+                            notify("没有选择任何用户", "warn");
+                            return;
+                        }
+                        if (!confirm("确定要移除这些这 " + ids.length + " 名用户吗？")) {
+                            return;
+                        }
+                        selected = [];
+                        selected_copy = [];
+                        selectedItems = {};
+                        quick_ajax("$!{rc.contextPath}/platform/authorization/role/remove-users", {
+                            roleId: roleId,
+                            ids: ids
+                        }, null, obj, grid);
+                    }
+                }
+                ]);
+    });
+
+    function edited_callback() {
+        var grid = $("#grid").data("kendoGrid");
+        grid.dataSource.read();
+        selected = [];
+        selected_copy = [];
+        selectedItems = {};
+    }
+
+    function callback() {
+        window.location.href = "$!{rc.contextPath}/xtgl/qxgl/role/list";
+    }
+
+    function onActivate() {
+        var active = $(".k-state-active").attr("id");
+        var url = "$!{rc.contextPath}/xtgl/qxgl/role/assign-menus?roleId=" + role_id;
+        if ("tab2" == active) {
+            if (role_id != "" && role_id != undefined) {
+                $("#_role_frame").attr("src", url);
+            } else {
+                notify("操作失败,请选择角色", "warn");
+            }
+        }
+    }
+
+    var tabStrip = $("#tabstrip").hcTabStrip({
+        activate: onActivate
+    }).data("kendoTabStrip");
+
+
+    var personName = "";
+    var personId = "";
+    var selected = "";
+    if (!selected) {
+        selected = [];
+    }
+    ;
+
+    var selected_copy = [];
+    var selectedItems = {};
+
+    for (var i = 0; i < selected.length; i++) {
+        selectedItems[selected[i]] = "";
+        selected_copy.push(selected[i]);
+    }
+
+    function check_id(o, id) {
+        if (o.checked) {
+            selectedItems[o.value] = id;
+        } else {
+            delete selectedItems[o.value];
+        }
+    }
+
+</script>
+</body>
+</html>

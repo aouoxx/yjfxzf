@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.supconit.kqfx.web.xtgl.entities.Xzqh">
+
+	<resultMap type="com.supconit.kqfx.web.xtgl.entities.Xzqh" id="XzqhResultMap">
+		<id property="xzqhdm" column="XZQHDM" />
+		<result property="dqmc" column="DQMC" />
+		<result property="dqqc" column="DQQC" />
+		<result property="ssqxpyjc" column="SSQXPYJC" />
+	</resultMap>
+
+
+	<sql id="TABLE_NAME" lang="velocity">T_XTGL_XZQH</sql>
+	<sql id="SELECT_PRE" lang="velocity">
+		SELECT * FROM
+		<include refid="TABLE_NAME" />
+	</sql>
+	<sql id="COUNT_PRE" lang="velocity">
+		SELECT COUNT(1) FROM
+		<include refid="TABLE_NAME" />
+	</sql>
+
+	<sql id="SEARCH_CONDITION_SQL" lang="velocity">
+		<![CDATA[
+		#where()
+		
+			#if($_parameter.xzqhdm && $_parameter.xzqhdm != '')
+				AND  XZQHDM 
+						#set($xzqhdm = $_parameter.xzqhdm)
+							LIKE @{xzqhdm,jdbcType=VARCHAR}
+			#end
+			#if($_parameter.dqmc && $_parameter.dqmc != '')
+				AND  DQMC
+						#set($_dqmc = '%'+ $_parameter.dqmc+'%')
+							LIKE @{_dqmc,jdbcType=VARCHAR}
+			#end
+		#end			
+		]]>
+	</sql>
+
+	<select id="getById" resultMap="XzqhResultMap" parameterType="string"
+		lang="velocity">
+		<include refid="SELECT_PRE" />
+		WHERE XZQHDM = @{_parameter, jdbcType=VARCHAR}
+	</select>
+
+	<select id="selectPager" lang="velocity" resultMap="XzqhResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE" />
+		<include refid="SELECT_PRE" />
+		<include refid="SEARCH_CONDITION_SQL" />
+		#order($_parameter.condition,"XZQHDM DESC")
+		<include refid="_PUBLIC_V.PAGER_AFTER" />
+	</select>
+
+	<select id="selectPager" lang="velocity" resultMap="XzqhResultMap"
+		databaseId="sqlserver">
+		<include refid="_PUBLIC_V.PAGER_BEFORE" />
+		SELECT *
+		<include refid="_PUBLIC_V.ROW_NUMBER_OVER" />
+		#order($_parameter.condition,"XZQHDM DESC")
+		<include refid="_PUBLIC_V.AS_ROW_NUM" />
+		FROM
+		<include refid="TABLE_NAME" />
+		<include refid="SEARCH_CONDITION_SQL" />
+		<include refid="_PUBLIC_V.PAGER_AFTER" />
+	</select>
+
+	<select id="countPager" lang="velocity" resultType="long">
+		<include refid="COUNT_PRE" />
+		<include refid="SEARCH_CONDITION_SQL" />
+	</select>
+
+	<sql id="INSERT_SQL" lang="velocity">
+		INSERT INTO
+		<include refid="TABLE_NAME" />
+		(
+		XZQHDM
+		,DQMC
+		,DQQC
+		,SSQXPYJC
+		) VALUES (
+		@{_parameter.xzqhdm,jdbcType=VARCHAR}
+		,@{_parameter.dqmc,jdbcType=VARCHAR}
+		,@{_parameter.dqqc,jdbcType=VARCHAR}
+		,@{_parameter.ssqxpyjc,jdbcType=VARCHAR}
+		)
+	</sql>
+
+	<insert id="insert" parameterType="com.supconit.kqfx.web.xtgl.entities.Xzqh"
+		lang="velocity" databaseId="oracle">
+		<include refid="INSERT_SQL" />
+	</insert>
+	<insert id="insert" parameterType="com.supconit.kqfx.web.xtgl.entities.Xzqh"
+		lang="velocity">
+		<include refid="INSERT_SQL" />
+	</insert>
+
+	<update id="update" parameterType="com.supconit.kqfx.web.xtgl.entities.Xzqh"
+		lang="velocity">
+		UPDATE
+		<include refid="TABLE_NAME" />
+		#mset()
+		<![CDATA[
+			#if($_parameter.dqmc)DQMC = @{_parameter.dqmc,jdbcType=VARCHAR},#end
+			#if($_parameter.dqqc)DQQC = @{_parameter.dqqc,jdbcType=VARCHAR},#end
+			#if($_parameter.ssqxpyjc)SSQXPYJC = @{_parameter.ssqxpyjc,jdbcType=VARCHAR},#end
+		]]>
+		#end
+		WHERE XZQHDM = @{_parameter.xzqhdm,jdbcType=VARCHAR}
+	</update>
+
+	<delete id="deleteById" parameterType="string" lang="velocity">
+		DELETE FROM
+		<include refid="TABLE_NAME" />
+		WHERE XZQHDM = @{_parameter,jdbcType=NUMERIC}
+	</delete>
+
+	<select id="findList" lang="velocity" resultMap="XzqhResultMap">
+		<include refid="SELECT_PRE" />
+		<include refid="SEARCH_CONDITION_SQL" />
+		#order($_parameter.condition,"XZQHDM ASC")
+	</select>
+</mapper>

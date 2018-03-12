@@ -1,0 +1,189 @@
+#parse("platform/_header.vm")
+<link href="$!{_platform_assets_url}/css/ztree/zTreeStyle.css" rel="stylesheet">
+<script src="$!{_platform_assets_url}/js/jquery.ztree.all-3.5.min.js"></script>
+</head>
+<body>
+<div class="ui-layout-north">
+    #bread_crumbs2("XTGL_QXGL_MENU")
+</div>
+<div class="ui-layout-center">
+    <form id="plat_auth_menu_search_form"><input type="hidden" name="menuId" value=""/></form>
+    <div id="grid"></div>
+</div>
+<div class="ui-layout-west" id="department_tree_container" style="border-right:solid 1px #e1e5e6;">
+    <div class="ui-layout-north">
+        <div class="k-header k-grid-toolbar" style="padding-left:10px;">所有菜单</div>
+    </div>
+    <div class="ui-layout-center">
+        <ul id="plat_auth_menu_tree" class="ztree"></ul>
+    </div>
+</div>
+
+    #parse("platform/_footer.vm")
+<script>
+    var _iframe_layout;
+    $(function () {
+
+
+        _iframe_layout = $('body').layout({
+            center__maskContents: true,
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            },
+            center: {
+                onresize_end: function () {
+                    var grid = $("#grid").data("kendoGrid");
+                    grid.resize();
+                }
+            },
+            west: {
+                size: 250,
+                closable: true,
+                spacing_open: 5
+            }, north: {
+                size: 34
+            }
+        });
+
+        $("#department_tree_container").layout({
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            }
+        });
+
+        var setting = {
+            callback: {
+                onClick: function (event, treeId, treeNode) {
+                    $("#plat_auth_menu_search_form input[name='menuId']").val(treeNode.id);
+                    edited_callback();
+                }
+            },
+            view: {
+                fontCss: function (treeId, treeNode) {
+                    if (treeNode.display == false) {
+                        return {color: "blue"};
+                    }
+                    return {};
+                }
+            }
+        };
+        var nodes = $!{menuJson};
+        var plat_auth_menu_tree = $.fn.zTree.init($("#plat_auth_menu_tree"), setting, nodes);
+        plat_auth_menu_tree.expandAll(true);
+
+        quick_datagrid("#grid", "#plat_auth_menu_search_form", "$!{rc.contextPath}/platform/authorization/operate/list", [
+                    {
+                        field: "code",
+                        title: "操作编码",
+                        attributes: {
+                            style: "text-align: left;"
+                        },
+                        template: "<a href=\"javascript:void(0)\" title=\"查看操作的详细信息\" onclick=\"quick_dialog('operate_view_dlg','查看操作信息','$!{rc.contextPath}/xtgl/qxgl/operate/view?id=#: id #',650,350)\">#: code #</a>"
+                    }, {
+                        field: "name",
+                        title: "操作名称",
+                        attributes: {
+                            style: "text-align: left;"
+                        }
+                    }, {
+                        field: "menu.name",
+                        title: "所属菜单",
+                        attributes: {
+                            style: "text-align: left;"
+                        },
+                        template: "<a href=\"javascript:void(0)\" title=\"查看菜单的详细信息\" onclick=\"quick_dialog('menu_view_dlg','查看菜单信息','$!{rc.contextPath}/xtgl/qxgl/menu/view?id=#: menuId #',650,350)\">#: menu.name #</a>"
+                    }], {
+                    sortable: false,
+                    pageable: true
+                }, {
+                    serverSorting: true
+                },
+                [
+                    {
+                        name: "添加菜单", icon: "fa fa-plus", onclick: function (obj, grid) {
+                        var pid = -1;
+                        try {
+                            pid = plat_auth_menu_tree.getSelectedNodes()[0].id;
+                        } catch (e) {
+                        }
+                        quick_dialog("menu_add_dlg", "添加新菜单信息", "$!{rc.contextPath}/xtgl/qxgl/menu/add?pid=" + pid, 650, 350, obj);
+                    }
+                    }, {
+                    name: "修改菜单", icon: "fa fa-pencil", onclick: function (obj, grid) {
+                        var id = -1;
+                        try {
+                            id = plat_auth_menu_tree.getSelectedNodes()[0].id;
+                        } catch (e) {
+                        }
+                        if (null == id || id < 0) {
+                            notify("你还没有选择要修改的菜单", "warn");
+                            return;
+                        }
+                        quick_dialog("menu_edit_dlg", "修改菜单信息", "$!{rc.contextPath}/xtgl/qxgl/menu/edit?id=" + id, 650, 350, obj);
+                    }
+                }, {
+                    name: "删除菜单", icon: "fa fa-remove", onclick: function (obj, grid) {
+                        var id = -1;
+                        try {
+                            id = plat_auth_menu_tree.getSelectedNodes()[0].id;
+                        } catch (e) {
+                        }
+                        if (null == id || id < 0) {
+                            notify("你还没有选择要删除的菜单", "warn");
+                            return;
+                        }
+                        if (!confirm("确定要删除选择的菜单吗？"))return;
+                        quick_ajax("$!{rc.contextPath}/platform/authorization/menu/delete", {id: id}, callback, obj, grid);
+                    }
+                }, {
+                    name: "导入菜单", icon: "fa fa-puzzle-piece", onclick: function (obj, grid) {
+                    }
+                }, {
+                    name: "添加操作", icon: "fa fa-plus", onclick: function (obj, grid) {
+                        var pid = -1;
+                        try {
+                            pid = plat_auth_menu_tree.getSelectedNodes()[0].id;
+                        } catch (e) {
+                        }
+                        quick_dialog("operate_add_dlg", "添加新操作信息", "$!{rc.contextPath}/xtgl/qxgl/operate/add?pid=" + pid, 650, 420, obj);
+                    }
+                }, {
+                    name: "修改操作", icon: "fa fa-pencil", onclick: function (obj, grid) {
+                        var row = grid.select();
+                        if (null == row || row.length == 0) {
+                            notify("你还没有选择要修改的操作", "warn");
+                            return;
+                        }
+                        var data = grid.dataItem(row);
+                        quick_dialog("operate_edit_dlg", "修改操作信息", "$!{rc.contextPath}/xtgl/qxgl/operate/edit?id=" + data.id, 650, 420, obj);
+                    }
+                }, {
+                    name: "删除操作", icon: "fa fa-remove", onclick: function (obj, grid) {
+                        var row = grid.select();
+                        if (null == row || row.length == 0) {
+                            notify("你还没有选择要删除的操作", "warn");
+                            return;
+                        }
+                        var data = grid.dataItem(row);
+                        if (!confirm("确定要删除选择的操作吗？"))return;
+                        quick_ajax("$!{rc.contextPath}/platform/authorization/operate/delete", {id: data.id}, callback, obj, grid);
+                    }
+                }
+##                    #hc_grid_buttons("XTGL_QXGL_MENU")#end
+                ]);
+    });
+    function edited_callback() {
+        var grid = $("#grid").data("kendoGrid");
+        grid.dataSource.read();
+    }
+
+    function callback() {
+        window.location.href = "$!{rc.contextPath}/xtgl/qxgl/menu/list";
+    }
+</script>
+</body>
+</html>

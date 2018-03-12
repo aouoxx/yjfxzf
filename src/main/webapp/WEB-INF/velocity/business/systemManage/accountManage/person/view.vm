@@ -1,0 +1,182 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+		<table >
+			<tr>
+                <td class="label">
+					人员姓名：
+				</td>
+                <td class="cont">
+    				$!{person.name}
+    			</td>
+                <td class="label">
+					人员编码：
+				</td>
+                <td class="cont">
+					$!{person.code}
+    			</td>
+			</tr>
+			<tr>
+                <td class="label">
+					工号：
+				</td>
+                <td>
+    				$!{person.rygh}
+    			</td>
+                <td class="label">
+					性别：
+				</td>
+                <td>
+    				#if($person.ryxb)
+						#dic_name("RY_SEX", "$!{person.ryxb}")
+					 #end
+					
+    			</td>
+			</tr>
+			<tr>
+                <td class="label">
+					出生日期：
+				</td>
+                <td>
+    				$!{person.rycsrq}
+    			</td>
+                <td class="label">
+					证件类型：
+				</td>
+                <td>
+					#if($person.ryzjlx)
+						#dic_name("RY_ZJLX","$!{person.ryzjlx}")
+					#end
+    			</td>
+			</tr>
+			<tr>
+                <td class="label">
+					证件号码：
+				</td>
+                <td>
+    				$!{person.ryzjhm}
+    			</td>
+                <td class="label">
+					民族：
+				</td>
+                <td>
+					$!{person.rymz}
+    			</td>
+			</tr>
+			<tr>
+                <td class="label">
+					政治面貌：
+				</td>
+                <td>
+    				$!{person.ryzzmm}
+    			</td>
+                <td class="label">
+					进机构时间：
+				</td>
+                <td>
+					$!{person.ryjjgsj}
+    			</td>
+			</tr>
+			<tr>
+                <td class="label">
+					所属机构：
+				</td>
+                <td>
+    				$!{person.jgxx.jgmc}
+    			</td>
+                <td class="label">
+					所属部门：
+				</td>
+                <td>
+					$!{person.department.name}
+    			</td>
+			</tr>
+			<tr>
+                <td class="label">
+					职务：
+				</td>
+                <td>
+    				$!{person.ryzw}
+    			</td>
+                <td class="label">
+					学历：
+				</td>
+                <td>
+					$!{person.ryxl}
+    			</td>
+			</tr>
+			<tr>
+                <td class="label">
+					毕业学校：
+				</td>
+                <td>
+    				$!{person.rybyxx}
+    			</td>
+                <td class="label">
+					所学专业：
+				</td>
+                <td>
+					$!{person.rysxzy}
+    			</td>
+			</tr>
+			<tr>
+                <td class="label">
+					职称：
+				</td>
+                <td>
+    				$!{person.ryzc}
+    			</td>
+                <td class="label">
+					手机号码：
+				</td>
+                <td>
+					$!{person.rysjhm}
+    			</td>
+			</tr>
+			<tr>
+                <td class="label">
+					虚拟网短号：
+				</td>
+                <td>
+    				$!{person.ryxnw}
+    			</td>
+                <td class="label">
+					联系方式：
+				</td>
+                <td>
+					$!{person.rylxfs}
+    			</td>
+			</tr>
+			<tr>
+                <td class="label">
+					传真：
+				</td>
+                <td>
+    				$!{person.rycz}
+    			</td>
+                <td class="label">
+					电子邮箱：
+				</td>
+                <td>
+					$!{person.rydzyx}
+    			</td>
+			</tr>
+			<tr>
+				 <td class="label">
+					备注：
+				</td>
+                <td colspan="3" class="cont">
+				<textarea class="k-textbox" readonly="readonly"  data-rule="length[~400];">$!{person.description}</textarea>
+    			</td>
+            </tr>
+			
+		</table>		
+			 
+	</body>
+<script type="text/javascript">
+$("body").css({"padding":"10px","height":"auto"});
+$("table").addClass("ui-view");
+$("table").find("tr:odd").addClass("odd");
+$("table").find("tr:even").addClass("even");
+</script>
+</html>

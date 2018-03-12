@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.supconit.kqfx.web.fxzf.search.entities.ZczTree">
+
+	<resultMap type="com.supconit.kqfx.web.fxzf.search.entities.ZczTree" id="ZczTreeResultMap">
+		<id property="id" column="ID" />
+		<result property="pid" column="PID"/>
+		<result property="name" column="NAME"/>
+		<result property="value" column="VALUE"/>
+	</resultMap>
+	
+	<sql id="TABLE_NAME" lang="velocity">T_ZCZ_TREE</sql>
+
+
+	<select id="getAllNodes" parameterType="com.supconit.kqfx.web.fxzf.search.entities.ZczTree" lang="velocity" resultMap="ZczTreeResultMap">
+		SELECT * FROM 
+		<include refid="TABLE_NAME"/>
+		<![CDATA[
+  			#where()
+  				#if($_parameter.id && $_parameter.id != '')
+			    	AND PID = @{_parameter.id,jdbcType=NUMERIC} 
+			    #end
+		    #end
+  		]]>
+	</select>
+	
+	<select id="getById" parameterType="long" lang="velocity" resultMap="ZczTreeResultMap">
+		SELECT * FROM 
+		<include refid="TABLE_NAME"/>
+		WHERE ID = @{_parameter, jdbcType=NUMERIC}	
+	</select>
+
+</mapper>

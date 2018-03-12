@@ -1,0 +1,469 @@
+#parse("platform/_header.vm")
+</head>
+
+<body>
+<div class="ui-layout-north">
+	#bread_crumbs2("ILLEGALVEHICLE_TRACK")
+	<div class="ui-search-container">
+		<form id="fxzf-search-condition">
+			<table>
+				<tr>
+				<input type="hidden"  name="condition.license" value="$!{license}" id="license"/>
+				<input type="hidden"  name="condition.licenseColor" value="$!{color}" id="licenseColor"/>
+				<input type="hidden"   value="$!{normal}" id="normal"/>
+				<input type="hidden"   value="$!{total}" id="total"/>
+				<input type="hidden"   value="$!{qingwei}" id="qingwei"/>
+				<input type="hidden"   value="$!{yiban}" id="yiban"/>
+				<input type="hidden"   value="$!{jiaozhong}" id="jiaozhong"/>
+				<input type="hidden"   value="$!{yanzhong}" id="yanzhong"/>
+				<input type="hidden"   value="$!{tebieyanzhong}" id="tebieyanzhong"/>
+				
+				<td id="contents" style="width:600px;" align="right">
+					<table border="0" width="90%" class="content-table">
+						<tr>
+							<td align="right">车牌号码</td>
+							<td><div class="input-style">$!{license}</div></td>
+							<td align="right">车辆颜色</td>
+							<td><div class="input-style">$!{color}</div></td>
+						</<tr>
+						<tr>
+							<td align="right">正常过车次数</td>
+							<td><div class="input-style">$!{normal}</div></td>
+							<td align="right">异常过车次数</td>
+							<td><div class="input-style">$!{total}</div></td>
+						</<tr>
+						<tr align="right">
+							<td></td>
+							<td colspan="3">
+							<div class="result-itme">(轻微:<span class="cishu">&nbsp;$!{qingwei}&nbsp;次</span>)</div>
+							<div class="result-itme">(一般:<span class="cishu">&nbsp;$!{yiban}&nbsp;次</span>)</div>
+							<div class="result-itme">(较重:<span class="cishu">&nbsp;$!{jiaozhong}&nbsp;次</span>)</div>
+							<div class="result-itme">(严重:<span class="cishu">&nbsp;$!{yanzhong}&nbsp;次</span>)</div>
+							<div class="result-itme">(特别严重:<span class="cishu">&nbsp;$!{tebieyanzhong}&nbsp;次</span>)</div>
+							</td>
+							
+						</tr>
+					</table>
+				</td>		
+				<td class="ui-search-name" valign="bottom" style="padding-bottom:10px;"> 
+					<input type="checkbox" id="overLoadFlag" name="overLoadcheckbox"/> 是否超限
+					<input type="hidden" name="condition.overLoadFlag" id="overLoadFlagValue" />
+				</td>
+				<td class="ui-search-name" valign="bottom" style="padding-bottom:10px;"> 
+					<input type="checkbox" id="warnFlag" name="warncheckbox"/> 是否告警
+					<input type="hidden" name="condition.warnFlag" id="warnFlagValue" />
+				</td>
+				<td valign="bottom" style="padding-bottom:0px;">
+					<button type="button" class="hc_btn k-primary back-btn" style="margin-left: 40px;" id="returnBack">返回查询</button>
+				</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+</div>
+
+<div class="ui-layout-center" id="centerMain">
+		<div class="ui-layout-center" >
+			<div id="fxzf_datalist"></div>
+		</div>
+		<div class="ui-layout-east" sytle="background-color:#EFF3F8;margin-left:0px;border: 1px solid #c3e3ef;">
+			<div class="left-msg-title"><span style="vertical-align: middle;  color: #04668e;font-weight:bold; ">车辆图片信息<span></div>
+			
+			<div class="left-msg-img1"><span>车头全景图</span></div>
+			<div id="ftpimageHead"></div>
+	
+			<div class="left-msg-img2"><span>车尾全景图</span></div>
+			<div id="ftpimageTail"></div>
+		</div>
+</div>
+
+#parse("platform/_footer.vm")
+<script>
+ 
+ $('#returnBack').click(function(){
+ 	window.location.href="$!{rc.contextPath}/fxzf/illegalTrail/list";
+ })
+ 	var  _iframe_layout,_inner_layout;
+ 	var imageServer;
+ 	$(function(){
+ 		##设置全局图片地址
+ 		imageServer="$!{imageServerAddr}";
+ 		## 默认先查看超限记录
+		$('#overLoadFlag').prop("checked",true);
+		$('#overLoadFlagValue').val("1,2,3,4,5");
+		var license = $('#license').val()
+		var licenseColor=$('#licenseColor').val();
+		
+		
+		var normal = $('#normal').val();
+		var total =$('#total').val();
+		var data = license+' '+licenseColor+':'+'正常过车次数 '+normal+' 次'+' 异常过车次数总共 '+total +' 次';
+		if(total>0){
+		
+		var qingwei = $('#qingwei').val();
+		var yiban = $('#yiban').val();
+		var jiaozhong = $('#jiaozhong').val();
+		var yanzhong = $('#yanzhong').val();
+		var tebieyanzhong = $('#tebieyanzhong').val();
+		
+		data=data+'<br/>'+'异常过车次数中：'+'轻微：'+qingwei+' 次 '+'一般：'+yiban+' 次 '+'较重：'+jiaozhong+' 次 '+
+		'严重：'+yanzhong+' 次 '+'特别严重：'+tebieyanzhong+' 次';
+		
+		}
+		$('#content').html(data);
+		 _iframe_layout = $('body').layout({
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+                },
+            center: {
+                onresize_end: function () {}
+                },
+            north: {size:153}
+            });
+        _inner_layout = $('#centerMain').layout({
+        	defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+                },
+            center: {
+                onresize_end: function () {}
+                },
+        	 east: {size:330,
+        			resizable : true,
+        	        closable : true}
+       		 });
+            
+      quick_datagrid("#fxzf_datalist", "#fxzf-search-condition", "$!{rc.contextPath}/fxzf/search/list", [
+	            {
+	                field: "id",
+	                hidden: true
+	        	},{
+	                field: "detectStation",
+	                width: "10%",
+	                title: "治超站"
+	            },{
+	                field: "detectStation",
+	                width: "7%",
+	                title: "方向"
+	            },{
+	                field: "captureTime",
+	                 width: "12%",
+	                title: "过车时间"
+	            },{
+	                field: "license",
+	                width: "10%",
+	                title: "车牌号"
+	            },{
+	                field: "licenseColor",
+	                 width: "7%",
+	                 title: "车牌颜色",
+	                 hidden:true
+	            },{
+	                field: "axisCount",
+	                width: "11%",
+	                title: "轴数/总重"
+	            },{
+	               field: "weight",
+	                title: "总重(吨)",
+	                hidden: true
+	            },{
+	               field: "overLoad",
+	                title: "超限量",
+	                width: "8%"
+	            },{
+	                 field: "overStatus",
+	                 title: "违法程度"
+	                 
+	             },{
+	                field: "overLoadPercent",
+	                title: "超限率",
+	                 width: "8%",
+	                template:'<span style="font-size:14px;font-weight:700">#: data.overLoadPercent #%</span>'
+	            },{
+	                field: "lane",
+	                 width: "5%",
+	                title: "车道"
+	            },{
+	                 field: "overLoadPunish",
+	                 title: "处罚结果"
+	            },{
+	                field: "headCarPicdir",
+	                hidden: true
+	        	},{
+	                field: "tailCarPicdir",
+	                hidden: true
+	        	},{
+	        		field: "detectStationFlag",
+	        		hidden: true
+	        	},{
+	        		title:"长*宽*高",
+	        		width: "9%",
+	        	},{
+	                field: "length",
+	                hidden: true
+	        	},{
+	                field: "width",
+	                hidden: true
+	        	},{
+	                field: "height",
+	                hidden: true
+	        	}], {
+##		             sortable: {
+##		                mode: "multiple",
+##		                allowUnsort: true
+##		            },
+	             columnResizeHandleWidth: 6,
+	             pageable:true,
+				 pageSize: 15,
+				 dataBound:function(e){
+				 	grid_dataBound(e);
+				 }
+	        	}, {
+	             serverSorting: true,
+	             editable:"incell"
+	        	},[
+	        		{
+	                name: "导出本页",
+	                icon: "fa fa-download",
+	                onclick: function (obj, grid) {
+							exportExcelPage();
+	                }
+	                },
+	                {
+	                name: "导出全部",
+	                icon: "fa fa-download",
+	                onclick: function (obj, grid) {
+	                		exportExcelAll();
+	                }
+	                }
+	                ]
+	                
+	        	);
+          });
+
+## 点击是否超限进行页面刷新
+$('#overLoadFlag').click(function(){
+	if($("input[name='overLoadcheckbox']").is(':checked')){
+		$('#overLoadFlagValue').val("1,2,3,4,5");
+	}
+	else{
+		$('#overLoadFlagValue').val("");
+	}
+	##自动刷新表格	
+	edited_callback();
+});
+
+##点击是否告警
+$('#warnFlag').click(function(){
+	if($("input[name='warncheckbox']").is(':checked')){
+		$('#warnFlagValue').val("1");
+	}
+	else{
+		$('#warnFlagValue').val("");
+	}
+	##自动刷新表格	
+	edited_callback();
+});
+
+
+		          
+##	初始化后绑定列表       
+function grid_dataBound(e){
+			## 默认选中第一行
+			$("#fxzf_datalist").data("kendoGrid").select("tr:eq(5)");
+          	var node =$('#centerMain').css("height");
+          	node = node.substring(0,node.length-2);
+          	var height1=2*(node-28-29-29)/5+"px";
+          	var height2=3*(node-28-29-29)/5+"px";
+          	$('#ftpimageHead').css("height",height1);
+          	$('#ftpimageTail').css("height",height2);
+          	
+          	 var data = e.sender._data;
+          	
+          	 ##默认显示第一行选中的图片
+          	  if(typeof(data)!='undefined'&&data!=null&&data!='')
+          	 {
+          	 	if(0==data[0].overLoadPunish){
+          	 	imageShow(data[0].headCarPicdir,data[0].tailCarPicdir,'正常通车');
+          	 }else{
+          	 	imageShow(data[0].headCarPicdir,data[0].tailCarPicdir,'超限通车');
+          	 }
+             sender = e.sender;
+          	 for(var i=0;i< data.length;i++)
+               {
+               	$(e.sender.tbody[0].childNodes[i]).bind('click',function(){
+               		var headCarPicdir = $(this).children().eq(14).text();
+       				var tailCarPicdir = $(this).children().eq(15).text();
+       				var status = $(this).children().eq(13).text();
+       	    		imageShow(headCarPicdir,tailCarPicdir,status);
+               	});
+               
+                	
+               	##根据治超站的不同设置不同的颜色
+               	var  stationFlag =  $(e.sender.tbody[0].childNodes[i]).find('td').eq(16).text()+'';
+               	var  detectionStation = $(e.sender.tbody[0].childNodes[i]).find('td').eq(2).text()+'';
+               	if(stationFlag=='1'){ 
+               		$(e.sender.tbody[0].childNodes[i]).find('td').css("color","#D30CEE");
+               		$(e.sender.tbody[0].childNodes[i]).find('td').eq(2).text('永嘉治超站');
+               		$(e.sender.tbody[0].childNodes[i]).find('td').eq(3).text("往仙居方向");
+               		
+               	}
+				if(stationFlag=='2'){ 
+					$(e.sender.tbody[0].childNodes[i]).find('td').css("color","#6B6B75");
+					$(e.sender.tbody[0].childNodes[i]).find('td').eq(2).text('永嘉治超站');
+               		$(e.sender.tbody[0].childNodes[i]).find('td').eq(3).text("往永嘉方向");
+				}
+				
+				##设置轴数和总重
+	       	 	var content1 = $(e.sender.tbody[0].childNodes[i]).find('td').eq(7).text()+'轴/'
+	       	  	var content2 = $(e.sender.tbody[0].childNodes[i]).find('td').eq(8).text()+'吨'
+	       	  	$(e.sender.tbody[0].childNodes[i]).find('td').eq(7).text(content1+content2);
+               	
+               	##設置长宽高
+       	 		 var length = $(e.sender.tbody[0].childNodes[i]).find('td').eq(18).text();
+       	 		 var width = $(e.sender.tbody[0].childNodes[i]).find('td').eq(19).text();
+       	  		 var height = $(e.sender.tbody[0].childNodes[i]).find('td').eq(20).text();
+       	  		 if(length==-1){length='';}
+       	  		 if(width==-1){width='';}
+       	  		 if(height==-1){height='';}
+       	  		 var lwh=length+'*'+width+'*'+height;
+       	  		 var htmllwh='<span title=\"'+lwh+'\">'+lwh+'</span>'
+       	  		 $(e.sender.tbody[0].childNodes[i]).find('td').eq(17).html(htmllwh);
+               
+               	 var id = ($(e.sender.tbody[0].childNodes[i]).find('td').eq(1).text());
+               	 var result;
+               	 if(0==data[i].overLoadPunish)
+               	 {
+               	 	result="正常通车";
+               	 	$(e.sender.tbody[0].childNodes[i]).find('td').eq(13).html(result);
+               	 }
+               	 if(1==data[i].overLoadPunish)
+               	 {
+               	 	result="已处罚";
+               	 	$(e.sender.tbody[0].childNodes[i]).find('td').eq(13).html(result);
+               	 }
+               	 if(2==data[i].overLoadPunish)
+               	 {
+               	 	result="未处罚";
+               	 	$(e.sender.tbody[0].childNodes[i]).find('td').eq(13).html(result);
+               	 }
+               	
+               }
+          	 }
+          }
+
+##查看图片
+function imageShow(headCarPicdir,tailCarPicdir,status){
+	var height1=$('#ftpimageHead').css("height");
+	var height2=$('#ftpimageTail').css("height");
+	var width=$('#ftpimageHead').css("width");
+	var headPic = headCarPicdir;
+	if (headPic){
+		headPic = headCarPicdir.replace(/\#/g,'%23');;		
+	}
+	var tailPic = tailCarPicdir;
+	if (tailPic){
+		tailPic = tailCarPicdir.replace(/\#/g,'%23');;		
+	}
+    headCarPicdir = imageServer+headPic;
+	tailCarPicdir =  imageServer+tailPic;
+	
+	## 查看图片详细路径
+	var imgHead ='<img title="点击查看大图" height='+height1+' width='+ width +' src='+headCarPicdir+' onclick="openImage('+'\''+headPic+'\''+')" border="0" onerror="this.src=\'$!{rc.contextPath}/assets/images/img404.jpg\'"></img>'
+	var imgTail ='<img title="点击查看大图" height='+height2+' width='+ width +' src='+tailCarPicdir+' onclick="openImage('+'\''+tailPic+'\''+')" border="0" onerror="this.src=\'$!{rc.contextPath}/assets/images/img404.jpg\'"></img>'
+	$('#ftpimageHead').html(imgHead);
+	$('#ftpimageTail').html(imgTail);
+}
+function openImage(carPicdir){
+	window.open(imageServer+carPicdir);
+}	
+##	审核信息
+	function mesCheck(id){
+		quick_dialog('check_Dlg','信息审核','$!{rc.contextPath}/fxzf/search/check?id='+id,1000,480);
+	}
+	
+##	关联处罚
+	function unionCheck(id){
+		quick_dialog('union_Dlg','关联处罚','$!{rc.contextPath}/fxzf/search/union?id='+id,650,240);
+	}
+		
+    
+		
+##  回调函数
+   function edited_callback(){
+   		var grid = $("#fxzf_datalist").data("kendoGrid");
+	     grid.dataSource.read();
+   }          
+		          
+
+## 导出本页
+function exportExcelPage(obj, grid){
+		var total = sender.pager.dataSource._total;
+		var pageNo = sender.pager.dataSource._page;
+    	if(total==0){
+    		notify("列表数据为空,不允许导出", "warn");
+    		return ;
+    	}if(total>20*(pageNo-1))
+    	{
+    		total=total-(pageNo-1)*20;
+    	}
+		var license = $('#license').val()
+		var licenseColor=$('#licenseColor').val();
+		license = encodeURI(encodeURI(license));
+		licenseColor = 	encodeURI(encodeURI(licenseColor));
+		var overLoadStatus ='';
+		if($("input[type='checkbox']").is(':checked'))
+    	{
+    	  ## 选中违法信息获取全部违章信息
+			overLoadStatus="1,2,3,4,5";
+			window.location.href="$!{rc.contextPath}/fxzf/search/exportPage?pageNo="+pageNo+"&condition.license="+license+"&condition.licenseColor="+licenseColor+
+    						"&condition.overStatus="+overLoadStatus;
+		}else{
+		
+			window.location.href="$!{rc.contextPath}/fxzf/search/exportAll?condition.license="+license+"&condition.licenseColor="+licenseColor;
+		}
+}
+
+## 导出全部
+function exportExcelAll(){
+		var total = sender.pager.dataSource._total;
+    	if(total==0){
+    		notify("列表数据为空,不允许导出", "warn");
+    		return ;
+    	}else if(total>2000)
+    	{
+    		if (!confirm("列表数据超过2000条,确定导出吗?"))return;
+    	}
+
+ 	  var license = $('#license').val()
+	  var licenseColor=$('#licenseColor').val();
+	  license = encodeURI(encodeURI(license));
+	  licenseColor = 	encodeURI(encodeURI(licenseColor));
+ 	  var overLoadStatus = $('#overLoadStatus').val();
+ 	  var warnFlag=$('#warnFlagValue').val();
+		if($("input[type='checkbox']").is(':checked'))
+    	{
+    	  ## 选中违法信息获取全部违章信息
+			overLoadStatus="1,2,3,4,5";
+			 window.location.href="$!{rc.contextPath}/fxzf/search/exportAll?condition.license="+license+"&condition.licenseColor="+licenseColor+
+      						"&condition.overStatus="+overLoadStatus+"&condition.warnFlag="+warnFlag;
+		}else{
+			 window.location.href="$!{rc.contextPath}/fxzf/search/exportAll?condition.license="+license+"&condition.licenseColor="+licenseColor+"&condition.warnFlag="+warnFlag;
+		}
+                    	
+}
+ </script>
+ </body>
+ <style>
+ 	span{
+ 		  font-family: tahoma, arial, "宋体", "Microsoft Yahei", \5b8b\4f53;
+  		  font-size: 12px;
+ 	}
+ 	.ui-layout-pane-center {
+		overflow: inherit;
+	}
+ </style>
+ </html>

@@ -1,0 +1,121 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+<div class="ui-layout-north">
+    #bread_crumbs2("FXZF_QBB_MBXX")
+    <div class="ui-search-container">
+        <form id="search_form">
+            <table width="100%">
+                <tr>
+                    <td>
+                        <table class="ui-search-table">
+                            <tr>
+                                <td class="ui-search-name first">信息内容：</td>
+                                <td class="ui-search-c"><input name="condition.xxnr" class="k-textbox"></td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td width="100">
+                        <button type="submit" class="hc_btn k-primary"><i class="fa fa-search"></i>查询</button>
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+
+<div class="ui-layout-center">
+    <div id="grid"></div>
+</div>
+
+    #parse("platform/_footer.vm")
+<script>
+    var _iframe_layout;
+    $(function () {
+        _iframe_layout = $('body').layout({
+            center__maskContents: true,
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            },
+            center: {
+                onresize_end: function () {
+                    var grid = $("#grid").data("kendoGrid");
+                    grid.resize();
+                }
+            },
+            north: {size: 84}
+        });
+
+        quick_datagrid("#grid", "#search_form", "$!{rc.contextPath}/fxzf/qbb/qbbmbxx/list", [
+            {
+                field: "id",
+                hidden: true
+            }, {
+                field: "xxnr",
+                title: "信息内容",
+                attributes: {
+                    style: "text-align: left;"
+                }
+            }, {
+                field: "czfsStr",
+                title: "出字方式"
+            }, {
+                field: "fontStr",
+                title: "字体"
+            }, {
+                field: "colorStr",
+                title: "颜色"
+            }], {
+                sortable: false,
+                pageable: true
+            }, {
+                serverSorting: true
+            }, [
+                ##                    #hc_grid_buttons("FXZF_QBB_MBXX")#end
+                {
+                    name: "添加",
+                    icon: "fa fa-plus",
+                    onclick: function (obj, grid) {
+                        quick_dialog("qbbmbxx_add_dlg", "添加情报板信息模板", "$!{rc.contextPath}/fxzf/qbb/qbbmbxx/add", 680, 260, obj);
+                    }
+                }, {
+                    name: "修改",
+                    icon: "fa fa-pencil",
+                    onclick: function (obj, grid) {
+                        var row = grid.select();
+                        if (null == row || row.length == 0) {
+                            notify("你还没有选择要修改的信息内容", "warn");
+                            return;
+                        }
+                        var data = grid.dataItem(row);
+                        quick_dialog("qbbmbxx_edit_dlg", "修改情报板信息模板", "$!{rc.contextPath}/fxzf/qbb/qbbmbxx/edit?id=" + data.id, 680, 220, obj);
+                    }
+                }, {
+                    name: "删除",
+                    icon: "fa fa-remove",
+                    onclick: function (obj, grid) {
+                        var row = grid.select();
+                        if (null == row || row.length == 0) {
+                            notify("你还没有选择要删除的信息内容", "warn");
+                            return;
+                        }
+                        if (!confirm("确定删除吗？"))return;
+                        var data = grid.dataItem(row);
+                        quick_ajax("$!{rc.contextPath}/fxzf/qbb/qbbmbxx/delete", {id: data.id}, null, obj, grid);
+                    }
+                }
+            ]
+        );
+    });
+
+    function edited_callback() {
+        var grid = $("#grid").data("kendoGrid");
+        grid.dataSource.read();
+    }
+
+</script>
+</body>
+</html>

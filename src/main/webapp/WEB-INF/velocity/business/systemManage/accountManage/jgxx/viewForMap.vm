@@ -1,0 +1,106 @@
+#parse("platform/_header.vm")
+</head>
+<body class="g-d">
+<div class="g-d-tit" >$!{jgxx.jgmc}</div>
+    <form id="basic_jgxx_view_form" method="post" action="" class="ui-dialog-form">
+      <table width="100%">
+        <tr>
+            <td class="label">机构分类：</td>
+            <td>
+           		<span>
+            		#if($jgxx.jgdj)
+						#dic_name("XTGL_JGXX_JGDJ","$!{jgxx.jgdj}")
+					#end
+				</span>
+			</td>
+        </tr>
+        <tr>
+            <td class="label">行政区划：</td>
+            <td><span id="xzqh"></span></td>
+        </tr>
+        <tr>
+            <td class="label">负责人：</td>
+            <td><span>$!{jgxx.fzr}</span></td>
+        </tr>
+        <tr>
+            <td class="label">联系电话：</td>
+            <td><span>$!{jgxx.fzrlxfs}</span></td>
+        </tr>
+      </table>
+    </form> 
+    #if($!evaluateCount > 0 || $!checkRecordCount>0 || $!wzglCount > 0 || $!sbglCount > 0)
+  	<div class="g-d-btns-cont">
+        <div class="g-d-btn-left g-d-btn-dir"></div>
+    	<div class="g-d-btns">
+    		#if($!evaluateCount > 0)
+    			<button onclick="evaluateView('$!{jgxx.id}')">评定情况</button>
+    		#end
+    		#if($!checkRecordCount > 0)
+    			<button onclick="checkRecordView('$!{jgxx.jgmc}')">巡查记录</button>
+    		#end
+    		#if($!wzglCount > 0)
+    			<button onclick="wzglView('$!{jgxx.id}')">物资</button>
+    		#end
+    		#if($!sbglCount > 0)
+    			<button onclick="sbglView('$!{jgxx.id}')">设备</button>
+    		#end
+        </div>
+    	<div class="g-d-btn-right g-d-btn-dir"></div>
+	</div>
+	#end
+	
+    #parse("platform/_footer.vm")
+</body>
+<script src="$!{rc.contextPath}/assets/js/xtgl/xzqh.js" type="text/javascript"></script>
+<script>
+$.xzqh_mc( {contextPath : "$!{rc.contextPath}", spanId: "xzqh", xzqhdm : "$!{jgxx.xzqhdm}" ,isQC : true});
+$(function() {
+	gisPopInit();
+});
+
+##查看评定情况
+function evaluateView(id){
+	var _w = window.screen.width;
+	var _h = window.screen.height;
+	var _height=450;
+	var _width=1100;
+	var _top = (_h - _height )/2;
+	var _left = (_w - _width )/2; 
+	window.open("$!{rc.contextPath}/basedata/evaluate/list?jgid="+id+"&_t="+Math.random()*100000000 ,"查看评定情况",'height=' + _height+ ',width= ' + _width + ',top=' + _top + ',left='+ _left +',titlebar=no, toolbar=no,menubar=no,scrollbars=no, resizable=no,location=no, status=yes');
+}
+
+##巡查记录
+function checkRecordView(name){
+	var _w = window.screen.width;
+	var _h = window.screen.height;
+	var _height=450;
+	var _width=1100;
+	var stationName = encodeURI(encodeURI(name.substring(0,2)));
+	var _top = (_h - _height )/2;
+	var _left = (_w - _width )/2; 
+	window.open("$!{rc.contextPath}/jcjk/checkRecord/roadCheckList?stationName="+stationName+"&_t="+Math.random()*100000000 ,"查看巡查记录",'height=' + _height+ ',width= ' + _width + ',top=' + _top + ',left='+ _left +',titlebar=no, toolbar=no,menubar=no,scrollbars=no, resizable=no,location=no, status=yes');
+}
+
+##查看物资信息
+function wzglView(id){
+	var _w = window.screen.width;
+	var _h = window.screen.height;
+	var _height=400;
+	var _width=770;
+	var _top = (_h - _height )/2;
+	var _left = (_w - _width )/2; 
+	window.open("$!{rc.contextPath}/business/yjzygl/yjwzcbzdgl/viewWzxx?id="+id+"&_t="+Math.random()*100000000 ,"查看物资信息",'height=' + _height+ ',width= ' + _width + ',top=' + _top + ',left='+ _left +',titlebar=no, toolbar=no,menubar=no,scrollbars=no, resizable=no,location=no, status=yes');
+}
+
+##查看设备信息
+function sbglView(id){
+	var _w = window.screen.width;
+	var _h = window.screen.height;
+	var _height=400;
+	var _width=770;
+	var _top = (_h - _height )/2;
+	var _left = (_w - _width )/2; 
+	window.open("$!{rc.contextPath}/business/yjzygl/yjwzcbzdgl/viewZbxx?id="+id+"&_t="+Math.random()*100000000 ,"查看设备信息",'height=' + _height+ ',width= ' + _width + ',top=' + _top + ',left='+ _left +',titlebar=no, toolbar=no,menubar=no,scrollbars=no, resizable=no,location=no, status=yes');
+}
+</script>
+</html>

@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://hc.supconit.com/mybatis-3-mapper.dtd">
+
+<!-- 学习可参看：http://www.mybatis.org/core/zh/index.html -->
+
+<mapper namespace="com.supconit.kqfx.web.xtgl.entities.ExtUser">
+
+	<resultMap type="com.supconit.kqfx.web.xtgl.entities.ExtUser" id="UserResultMap">
+		<id property="id" column="ID" />
+		<result property="username" column="USERNAME" />
+		<result property="email" column="EMAIL" />
+		<result property="password" column="PASSWORD" />
+		<result property="personId" column="PERSON_ID" />
+		<result property="description" column="DESCRIPTION" />
+		<result property="avatar" column="AVATAR" />
+		<result property="expired" column="EXPIRED" />
+		<result property="disabled" column="DISABLED" />
+		<result property="locked" column="LOCKED" />
+		<result property="deleted" column="DELETED" />
+		<result property="creator" column="CREATOR" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="modifier" column="MODIFIER" />
+		<result property="modifiedTime" column="MODIFIED_TIME" />
+	</resultMap>
+
+	<sql id="TABLE_NAME" lang="velocity">HO_USER</sql>
+	<sql id="SEQUENCE" lang="velocity">SELECT SEQ_<include refid="TABLE_NAME"/>.NEXTVAL FROM DUAL</sql>
+	<sql id="SELECT_PRE" lang="velocity">SELECT * FROM <include refid="TABLE_NAME"/></sql>
+	<sql id="COUNT_PRE" lang="velocity">SELECT COUNT(1) FROM <include refid="TABLE_NAME"/></sql>
+
+	<sql id="GET_CONDITION_SQL" lang="velocity">
+		<![CDATA[
+		#where()
+			#if($_parameter.id)
+				ID = @{_parameter.id,jdbcType=NUMERIC}
+			#end
+			#if($_parameter.username && $_parameter.username != '')
+				AND USERNAME = @{_parameter.username,jdbcType=VARCHAR}
+			#end
+			#if($_parameter.email && $_parameter.email != '')
+				AND EMAIL = @{_parameter.email,jdbcType=VARCHAR}
+			#end
+			AND DELETED <> 1
+		#end
+		]]>
+	</sql>
+	<sql id="SEARCH_CONDITION_SQL" lang="velocity">
+		<![CDATA[
+		#where()
+			#if($_parameter.condition.roleId)
+				ID IN (SELECT DISTINCT UR.USER_ID FROM HO_USER_ROLE UR WHERE UR.ROLE_ID = @{_parameter.condition.roleId,jdbcType=VARCHAR})
+			#end
+			#if($_parameter.condition.notRoleId)
+				AND ID NOT IN (SELECT DISTINCT UR.USER_ID FROM HO_USER_ROLE UR WHERE UR.ROLE_ID = @{_parameter.condition.notRoleId,jdbcType=VARCHAR})
+			#end
+			#if($_parameter.condition.jgbh)
+				AND PERSON_ID IN (
+					SELECT HP.ID FROM HO_PERSON HP WHERE HP.JGBH = @{_parameter.condition.jgbh,jdbcType=NUMERIC}
+				)			
+			#end
+			#if($_parameter.condition.department)
+				AND PERSON_ID IN (
+					SELECT DP.PERSON_ID FROM HO_DEPARTMENT_PERSON DP WHERE 
+					#if($_parameter.condition.department.lft && $_parameter.condition.department.rgt)
+						DP.DEPARTMENT_ID IN (
+							SELECT D.ID FROM HO_DEPARTMENT D WHERE D.LFT >= @{_parameter.condition.department.lft,jdbcType=NUMERIC} AND D.RGT <= @{_parameter.condition.department.rgt,jdbcType=NUMERIC}
+						)
+					#else
+						DP.DEPARTMENT_ID = @{_parameter.condition.department.id,jdbcType=NUMERIC}
+					#end
+				)
+			#elseif($_parameter.condition.departmentId)
+				AND PERSON_ID IN (
+					SELECT DP.PERSON_ID FROM HO_DEPARTMENT_PERSON DP WHERE 
+						DP.DEPARTMENT_ID = @{_parameter.condition.departmentId,jdbcType=NUMERIC}
+				)
+			#end
+			#if($_parameter.condition.positionId)
+				AND PERSON_ID IN (
+					SELECT PP.PERSON_ID FROM HO_POSITION_PERSON PP WHERE PP.POSITION_ID = @{_parameter.condition.positionId,jdbcType=NUMERIC}
+				)
+			#end
+			#if($_parameter.condition.notAssigned == true)
+				AND PERSON_ID IS NULL
+			#end
+			#if($_parameter.condition.username && $_parameter.condition.username != '')
+				#set($_username = '%' + $_parameter.condition.username + '%')
+				AND USERNAME LIKE @{_username,jdbcType=VARCHAR}
+			#end
+			#if($_parameter.condition.person.name && $_parameter.condition.person.name != '')
+				#set($_personName = '%' + $_parameter.condition.person.name + '%')
+				AND PERSON_ID IN (SELECT ID FROM HO_PERSON WHERE NAME LIKE @{_personName,jdbcType=VARCHAR})
+			#end
+			#if($_parameter.condition.personId)
+				AND PERSON_ID = @{_parameter.condition.personId,jdbcType=NUMERIC}
+			#end
+			AND DELETED <> 1
+		#end
+		]]>	
+	</sql>
+	
+	<sql id="INSERT_SQL" lang="velocity">
+		INSERT INTO <include refid="TABLE_NAME"/>(
+			#if($_databaseId == 'oracle') ID, #end
+			USERNAME,
+			EMAIL,
+			PASSWORD,
+			PERSON_ID,
+			DESCRIPTION,
+			AVATAR,
+			EXPIRED,
+			DISABLED,
+			LOCKED,
+			<include refid="_PUBLIC_V.INSERT_AUDIT_BEFORE" />
+		) VALUES (
+			#if($_databaseId == 'oracle') @{_parameter.id,jdbcType=NUMERIC}, #end
+			@{_parameter.username,jdbcType=VARCHAR},
+			@{_parameter.email,jdbcType=VARCHAR},
+			@{_parameter.password,jdbcType=VARCHAR},
+			#if($_parameter.person.id)@{_parameter.person.id,jdbcType=NUMERIC}#{else}@{_parameter.personId,jdbcType=NUMERIC}#{end},
+			@{_parameter.description,jdbcType=VARCHAR},
+			@{_parameter.avatar,jdbcType=VARCHAR},
+			@{_parameter.expired,jdbcType=BOOLEAN},
+			@{_parameter.disabled,jdbcType=BOOLEAN},
+			@{_parameter.locked,jdbcType=BOOLEAN},
+			<include refid="_PUBLIC_V.INSERT_AUDIT_AFTER" />
+		)
+	</sql>
+	<insert id="insert" parameterType="com.supconit.kqfx.web.xtgl.entities.ExtUser" keyProperty="id" keyColumn="ID" lang="velocity" databaseId="oracle">
+		<selectKey keyProperty="id" resultType="long" order="BEFORE"><include refid="SEQUENCE" /></selectKey>
+        <include refid="INSERT_SQL" />
+	</insert>
+	<insert id="insert" parameterType="com.supconit.kqfx.web.xtgl.entities.ExtUser" keyProperty="id" keyColumn="ID" lang="velocity">
+        <include refid="INSERT_SQL"/>
+        <selectKey keyProperty="id" resultType="long" order="AFTER"><include refid="_PUBLIC_V.SELECT_KEY"/> </selectKey>
+    </insert>
+	<update id="update" parameterType="com.supconit.kqfx.web.xtgl.entities.ExtUser" lang="velocity">
+		UPDATE <include refid="TABLE_NAME"/> 
+		#mset()
+		<![CDATA[
+			#if($_parameter.username)			USERNAME 			= @{_parameter.username,jdbcType=VARCHAR},		#end
+			#if($_parameter.email)				EMAIL 				= @{_parameter.email,jdbcType=VARCHAR},			#end
+			#if($_parameter.password) 			PASSWORD 			= @{_parameter.password,jdbcType=VARCHAR},		#end
+			#if($_parameter.person.id && $_parameter.person.id > 0) 			
+												PERSON_ID			= @{_parameter.person.id,jdbcType=NUMERIC},		
+			#elseif($_parameter.personId) 		PERSON_ID			= @{_parameter.personId,jdbcType=NUMERIC},		
+			#end
+			
+			#if($_parameter.description) 		DESCRIPTION 		= @{_parameter.description,jdbcType=VARCHAR},	#end
+			#if($_parameter.avatar) 			AVATAR 				= @{_parameter.avatar,jdbcType=VARCHAR},		#end
+					EXPIRED 			= @{_parameter.expired,jdbcType=BOOLEAN},		
+					DISABLED 			= @{_parameter.disabled,jdbcType=BOOLEAN},		
+					LOCKED 				= @{_parameter.locked,jdbcType=BOOLEAN},		
+		]]>
+			<include refid="_PUBLIC_V.UPDATE_AUDIT" />
+		#end
+		WHERE ID = @{_parameter.id,jdbcType=NUMERIC}
+		
+	</update>
+	
+	<update id="disabledById" parameterType="long" lang="velocity"> 
+		<!-- DELETE FROM <include refid="TABLE_NAME"/> WHERE ID = @{_parameter,jdbcType=NUMERIC} -->
+		UPDATE <include refid="TABLE_NAME"/> SET DELETED = 1 WHERE ID = @{_parameter,jdbcType=NUMERIC}
+	</update>
+
+	<select id="selectPager" lang="velocity" resultMap="UserResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+		<include refid="SELECT_PRE"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+		#order($_parameter.condition,"USERNAME ASC")
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	</select>
+	
+	<select id="selectPager" lang="velocity" resultMap="UserResultMap" databaseId="sqlserver">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+		SELECT * 
+		<include refid="_PUBLIC_V.ROW_NUMBER_OVER" /> 
+		#order($_parameter.condition,"USERNAME ASC")
+		<include refid="_PUBLIC_V.AS_ROW_NUM" />
+		FROM <include refid="TABLE_NAME"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	</select>
+
+	<select id="countPager" lang="velocity" resultType="long">
+		<include refid="COUNT_PRE"/><include refid="SEARCH_CONDITION_SQL"/>
+	</select>
+	
+	<delete id="deleteUserRoleByUserId" lang="velocity" parameterType="long">
+		DELETE FROM HO_USER_ROLE WHERE USER_ID = @{_parameter,jdbcType=NUMERIC}
+	</delete>	
+	<insert id="insertUserRoles" lang="velocity">
+		INSERT INTO HO_USER_ROLE(USER_ID,ROLE_ID) SELECT @{_parameter.userId,jdbcType=NUMERIC},R.ID FROM HO_ROLE R WHERE 
+		#repeat( $_parameter.roleIds $roleId "," " R.ID IN (" ")" )
+		    @{roleId,jdbcType=NUMERIC}
+		#end
+	</insert>
+	
+	<select id="getByCondition" parameterType="com.supconit.kqfx.web.xtgl.entities.ExtUser" resultMap="UserResultMap" lang="velocity">
+		<include refid="SELECT_PRE"/>
+		<include refid="GET_CONDITION_SQL"/>
+		#if($_databaseId == 'mysql') LIMIT 1 #end
+	</select>
+	
+	<select id="findUsernamesByRoleCodes" resultType="string" lang="velocity">
+		<![CDATA[
+		SELECT U.USERNAME FROM HO_USER U WHERE U.DELETED <> 1 AND U.ID IN (SELECT UR.USER_ID FROM HO_USER_ROLE UR WHERE UR.ROLE_ID IN (SELECT R.ID FROM HO_ROLE R WHERE 
+			#repeat( $_parameter.roleCodes $code "," " R.CODE IN (" ")" )
+		    	@{code,jdbcType=VARCHAR}
+			#end
+		))
+		]]>
+	</select>
+	<select id="findUsernamesByPersonCodes" resultType="string" lang="velocity">
+		<![CDATA[
+		SELECT U.USERNAME FROM HO_USER U WHERE U.DELETED <> 1 AND U.PERSON_ID IN (
+			SELECT P.ID FROM HO_PERSON P WHERE 
+			#repeat( $_parameter.personCodes $code "," " P.CODE IN (" ")" )
+		    	@{code,jdbcType=VARCHAR}
+			#end
+		)
+		]]>
+	</select>
+	<select id="findByPersonIds" resultMap="UserResultMap" lang="velocity">
+		<include refid="SELECT_PRE"/> 
+		<![CDATA[
+		U WHERE U.DELETED <> 1 AND
+			#repeat( $_parameter.personIds $pid "," " U.PERSON_ID IN (" ")" )
+		    	@{pid,jdbcType=VARCHAR}
+			#end
+		]]>
+	</select>
+
+	<select id="findList" lang="velocity" parameterType="com.supconit.kqfx.web.xtgl.entities.ExtUser" resultMap="UserResultMap">
+		<include refid="SELECT_PRE"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+		#order($_parameter.condition,"ID DESC")
+	</select>
+	
+	<select id="findRoleByUserId" lang="velocity" parameterType="com.supconit.kqfx.web.xtgl.entities.ExtUser" resultType="com.supconit.kqfx.web.xtgl.entities.ExtUser">
+		select 
+		t.NAME as roleName,
+		t.ID as roleId,
+		t.CODE as code
+		
+		from HO_USER t2  
+		left join HO_USER_ROLE t1
+		on t2.ID= t1.USER_ID 
+		left join  HO_ROLE t
+		on t1.ROLE_ID = t.ID
+	WHERE t2.ID = @{_parameter.id,jdbcType=NUMERIC}		
+	
+	</select>	
+	
+	<select id="getUserIdByJgbh" parameterType="long"  resultMap="UserResultMap" lang="velocity">
+	
+	SELECT * FROM <include refid="TABLE_NAME"/> WHERE  DELETED=0 AND PERSON_ID IN (
+		SELECT ID FROM HO_PERSON WHERE JGBH= @{_parameter,jdbcType=NUMERIC}
+	  )
+	</select>
+	
+	
+	<select id="getUserIdByRoleId" parameterType="long"  resultMap="UserResultMap" lang="velocity">
+	
+	SELECT * FROM <include refid="TABLE_NAME"/> WHERE  DELETED=0 AND ID IN (
+		SELECT USER_ID FROM HO_USER_ROLE WHERE ROLE_ID = @{_parameter,jdbcType=NUMERIC}
+	  )
+	</select>
+
+</mapper>

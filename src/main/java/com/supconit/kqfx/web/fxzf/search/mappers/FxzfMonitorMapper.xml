@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.supconit.kqfx.web.fxzf.search.entities.FxzfMonitor">
+  
+   <sql id="TABLE_NAME" lang="velocity">T_FXZF_MONITOR</sql>
+  
+   <resultMap type="com.supconit.kqfx.web.fxzf.search.entities.FxzfMonitor" id="FxzfMonitorResultMap">
+			 <result property="id" column="ID" />
+			 <result property="detectStation" column="DETECT_STATION" />
+			 <result property="lane" column="LANE" />
+		     <result property="weight" column="WEIGHT" />
+		     <result property="speed" column="SPEED" />
+			 <result property="axisCount" column="AXIS_COUNT" />
+			 <result property="overLoadStatus" column="OVERLOAD_STATUS" />
+			 <result property="overLoadPercent" column="OVERLOAD_PERCENT" />
+			 <result property="carModel" column="CAR_MODEL" />
+		     <result property="captureTime" column="CAPTURE_TIME"/>
+			 <result property="license" column="LICENSE" />
+			 <result property="licenseColor" column="LICENSE_COLOR" />
+			 
+			 <result property="headLicensePicdir" column="HEAD_LICENSE_PICDIR" />
+			 <result property="headCarPicdir" column="HEAD_CAR_PICDIR" />
+			 
+			 <result property="tailLicensePicdir" column="TAIL_LICENSE_PICDIR" />
+			 <result property="tailCarPicdir" column="TAIL_CAR_PICDIR" />
+			 
+			 <result property="carDirection" column="CAR_DIRECTION" />
+		     <result property="overLoadPunish" column="OVERLOAD_PUNISH" />
+		     <result property="punishId" column="PUNISH_ID" />
+		     <result property="punishOpintion" column="PUNISH_OPINION" />
+		     <result property="punishReason" column="PUNISH_REASON" />
+		     <result property="picFlag" column="PIC_FLAG" />
+		     <result property="xxnr" column="XXNR"/>
+	</resultMap>
+  	
+  	<select id="getStationCount" parameterType="com.supconit.kqfx.web.fxzf.search.entities.FxzfMonitor" resultType="int" lang="velocity">
+  		SELECT COUNT(*) FROM 
+  		<include refid="TABLE_NAME"/> 
+  		<![CDATA[
+  			#where()
+				#if($_parameter.detectStation && $_parameter.detectStation != '')
+				   AND DETECT_STATION = @{_parameter.detectStation,jdbcType=VARCHAR}
+			    #end
+		    #end
+  		]]>
+  	</select>
+  	
+  	<select id="getMinTime"  parameterType="com.supconit.kqfx.web.fxzf.search.entities.FxzfMonitor" resultType="date" lang="velocity">
+  		SELECT MIN(CAPTURE_TIME) FROM 
+  		<include refid="TABLE_NAME"/> 
+  		<![CDATA[
+  			#where()
+				#if($_parameter.detectStation && $_parameter.detectStation != '')
+				   AND DETECT_STATION = @{_parameter.detectStation,jdbcType=VARCHAR}
+			    #end
+		    #end
+  		]]>
+  	</select>
+  	
+  	<select id="getByTimeAndStation" parameterType="com.supconit.kqfx.web.fxzf.search.entities.FxzfMonitor" resultType="com.supconit.kqfx.web.fxzf.search.entities.FxzfMonitor" lang="velocity">
+  		SELECT MIN(CAPTURE_TIME) FROM 
+  		<include refid="TABLE_NAME"/> 
+  		<![CDATA[
+  			#where()
+				#if($_parameter.detectStation && $_parameter.detectStation != '')
+				   AND DETECT_STATION = @{_parameter.detectStation,jdbcType=VARCHAR}
+			    #end
+			    #if($_parameter.captureTime && $_parameter.captureTime != '')
+				   AND CAPTURE_TIME = @{_parameter.captureTime,jdbcType=TIMESTAMP}
+			    #end
+		    #end
+  		]]>
+  	</select>
+ 
+ 	<delete id="deleteByStaionAndTime" parameterType="com.supconit.kqfx.web.fxzf.search.entities.FxzfMonitor" lang="velocity">
+  		DELETE FROM T_FXZF T WHERE T.CAPTURE_TIME =(SELECT MIN(CAPTURE_TIME) FROM T_FXZF WHERE DETECT_STATION='2' )
+  	</delete>
+  	
+  	
+  	<delete id="deleteByTime" parameterType="com.supconit.kqfx.web.fxzf.search.entities.FxzfMonitor" lang="velocity">
+		DELETE FROM  
+		<include refid="TABLE_NAME" />
+		<![CDATA[
+  			#where()
+				#if($_parameter.detectStation && $_parameter.detectStation != '')
+				   AND DETECT_STATION = @{_parameter.detectStation,jdbcType=VARCHAR}
+			    #end
+			    #if($_parameter.captureTime && $_parameter.captureTime != '')
+				   AND CAPTURE_TIME = @{_parameter.captureTime,jdbcType=TIMESTAMP}
+			    #end
+		    #end
+  		]]>
+	</delete>
+  	
+	<delete id="deleteById" parameterType="string" lang="velocity">
+		DELETE FROM  <include refid="TABLE_NAME" />
+		 WHERE ID = @{_parameter,jdbcType=VARCHAR}
+	</delete>
+  
+  	<select id="getByStation" parameterType="string" lang="velocity" resultMap="FxzfMonitorResultMap" >
+  		SELECT * FROM <include refid="TABLE_NAME" />
+		WHERE DETECT_STATION = @{_parameter,jdbcType=VARCHAR}
+  	</select>
+  
+  
+    <select id="getByTotalStation" parameterType="com.supconit.kqfx.web.fxzf.search.entities.FxzfMonitor" lang="velocity" resultMap="FxzfMonitorResultMap">
+    	SELECT * FROM 
+    	<include refid="TABLE_NAME"/>
+    	<![CDATA[
+  			#where()
+  				#if($_parameter.detectStation && $_parameter.detectStation != '')
+				 AND
+					(
+					 #repeat( $_parameter.stationStrings $code "," " DETECT_STATION IN (" ")" )
+		    			@{code,jdbcType=VARCHAR}
+					 #end
+					)
+				#end
+				 AND ROWNUM<=5
+		    #end
+  		]]>
+  		ORDER BY CAPTURE_TIME DESC
+	 </select>
+  
+  
+	
+	<insert id="insert" parameterType="com.supconit.kqfx.web.fxzf.search.entities.FxzfMonitor" 
+		keyProperty="ID" keyColumn="ID" 		lang="velocity" databaseId="oracle">
+		  <include refid="INSERT_SQL" />
+	</insert>
+	<insert id="insert" parameterType="com.supconit.kqfx.web.fxzf.search.entities.FxzfMonitor" 
+		keyProperty="ID" keyColumn="ID" 		 lang="velocity">
+        <include refid="INSERT_SQL"/>
+        <selectKey keyProperty="ID" resultType="string" order="AFTER">
+        <include refid="_PUBLIC_V.SELECT_KEY"/> 
+        </selectKey>    
+      </insert>
+	<sql id="INSERT_SQL" lang="velocity">
+		INSERT INTO <include refid="TABLE_NAME"/>(
+		#if($_databaseId == 'oracle') ID,#end
+									DETECT_STATION
+									,LANE
+									,WEIGHT
+									,SPEED
+									,AXIS_COUNT
+									,OVERLOAD_STATUS
+									,OVERLOAD_PERCENT
+									,CAR_MODEL
+									,CAPTURE_TIME
+									,LICENSE
+									,LICENSE_COLOR
+									,HEAD_LICENSE_PICDIR
+									,HEAD_CAR_PICDIR
+									,TAIL_LICENSE_PICDIR
+									,TAIL_CAR_PICDIR
+									,CAR_DIRECTION
+									,OVERLOAD_PUNISH
+									,PIC_FLAG
+									,XXNR
+		) VALUES (
+		#if($_databaseId == 'oracle') @{_parameter.id,jdbcType=VARCHAR},#end
+										@{_parameter.detectStation,jdbcType=VARCHAR}
+										,@{_parameter.lane,jdbcType=NUMERIC}
+										,@{_parameter.weight,jdbcType=NUMERIC}
+										,@{_parameter.speed,jdbcType=NUMERIC}
+										,@{_parameter.axisCount,jdbcType=NUMERIC}
+										,@{_parameter.overLoadStatus,jdbcType=NUMERIC}
+										,@{_parameter.overLoadPercent,jdbcType=NUMERIC}
+										,@{_parameter.carModel,jdbcType=NUMERIC}
+										,@{_parameter.captureTime,jdbcType=TIMESTAMP}
+										,@{_parameter.license,jdbcType=VARCHAR}
+										,@{_parameter.licenseColor,jdbcType=VARCHAR}
+										,@{_parameter.headLicensePicdir,jdbcType=VARCHAR}
+										,@{_parameter.headCarPicdir,jdbcType=VARCHAR}
+										,@{_parameter.tailLicensePicdir,jdbcType=VARCHAR}
+										,@{_parameter.tailCarPicdir,jdbcType=VARCHAR}
+										,@{_parameter.carDirection,jdbcType=NUMERIC}
+										,@{_parameter.overLoadPunish,jdbcType=NUMERIC}
+										,@{_parameter.picFlag,jdbcType=NUMERIC}
+										,@{_parameter.xxnr,jdbcType=VARCHAR}
+	)
+	</sql>
+  
+  
+	
+  
+ 
+  
+    
+  
+  </mapper>

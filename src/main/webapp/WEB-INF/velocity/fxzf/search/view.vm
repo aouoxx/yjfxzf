@@ -1,0 +1,131 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+	<div style="position: absolute;left: 10px;top: 0px;">
+		<button id="print" class="hc_btn k-primary search-btn"><i class="fa fa-print"></i>打 印</button>
+	</div>
+    <table style="margin-top: 17px;">
+    	<input type="hidden" value="$!{fxzf.id}" id="fxzfId" />
+    	<input type="hidden" value="$!{fxzf.licensePicdir}" id="license" />
+    	<input type="hidden" value="$!{fxzf.carPicdir}" id="car" />
+    	<input type="hidden" value="$!{fxzf.headLicensePicdir}" id="headLicense" / />
+    	<input type="hidden" value="$!{fxzf.headCarPicdir}" id="headCar" />
+    	<input type="hidden" value="$!{fxzf.tailLicensePicdir}" id="tailLicense" />
+    	<input type="hidden" value="$!{fxzf.tailCarPicdir}" id="tailCar" />
+        <tr class="closeimage">
+            <td class="label">车牌号：</td>
+            <td style="height: 35px;"><span>$!{fxzf.license}</span></td>
+            <td class="label">车牌颜色：</td>
+            <td style="height: 35px;"><span>$!{fxzf.licenseColor}</span></td>
+        </tr>
+        <tr class="closeimage">
+         	<td class="label">所属治超站：</td>
+            <td style="height: 35px;"><span>#if($!{fxzf.detectStation})#dic_name("STATIONNAME","$!{fxzf.detectStation}")#end</span></td>
+            <td class="label">过车时间：</td>
+            <td style="height: 35px;"><span>#date_format($!{fxzf.captureTime},"yyyy-MM-dd HH:mm:ss")</span></td>
+        </tr >
+        <tr id="trPunish" class="closeimage">
+        	<td class="label">车道号：</td>
+            <td style="height: 35px;"><span>$!{fxzf.lane} </span></td>
+        	<td class="label">处罚结果：</td>
+            <td style="height: 35px;"><span id="Punish">#if($!{fxzf.overLoadPunish})#dic_name("OVERLOADPUNISH","$!{fxzf.overLoadPunish}")#end</span></td>
+        </tr>
+        <tr class="closeimage">
+            <td class="label">轴数：</td>
+            <td style="height: 35px;"><span>$!{fxzf.axisCount} 轴</span></td>
+            <td class="label"> 总重(吨)：</td>
+            <td style="height: 35px;"><span>$!{fxzf.weight} t</span></td>
+        </tr>
+         <tr class="closeimage">
+            <td class="label">超限率：</td>
+            <td style="height: 35px;"><span>$!{fxzf.overLoadPercent} %</span></td>
+             <td class="label">超限等级：</td>
+            <td style="height: 35px;"><span>#if($!{fxzf.overLoadStatus})#dic_name("OVERLOADSTATUS","$!{fxzf.overLoadStatus}")#end</span></td>
+        </tr>
+        <tr class="closeimage">
+            <td class="label">长*宽*高：</td>
+            <td style="height: 35px;">$!{fxzf.length}*$!{fxzf.width}*$!{fxzf.height}</td>
+             <td class="label">速度：</td>
+            <td style="height: 35px;"><span>$!{fxzf.speed} km/h</span></td>
+        </tr>
+        <tr>
+            <td class="label" colspan="2" style="text-align:center;" >车头车牌图</td>
+            <td class="label" colspan="2" style="text-align:center;" >车尾车牌图</td>
+        </tr>
+        <tr>
+        	 <td colspan="2" id="headimageLicnese"></td>
+        	 <td colspan="2" id="tailimageLicnese"></td>
+        </tr>
+        <tr>
+        	<td class="label" colspan="2" style="text-align:center;" >车头全景图</td>
+            <td class="label" colspan="2" style="text-align:center;" >车尾全景图</td>
+        </tr>
+        <tr >
+        	<div id="imageBig" onmouseout="clearBigImage();"style="position:absolute;right:12%;top:0%;"></div>
+            <td colspan="2" id="headimageCar"></td>
+            <td colspan="2" id="tailimageCar"></td>
+        </tr>
+    </table>
+    #parse("platform/_footer.vm")
+</body>
+<script type="text/javascript">
+$("body").css({"padding":"10px","height":"auto"});
+$("table").addClass("ui-view");
+$("table").find("tr:odd").addClass("odd");
+$("table").find("tr:even").addClass("even");
+var imageServer;
+$(function(){
+##设置全局图片地址
+	imageServer="$!{imageServerAddr}";
+	##加载图片
+	var headLicensePicdir = imageServer+$('#headLicense').val();
+	var tailLicnesePicdir = imageServer+$('#tailLicense').val();
+	var headCarPicdir = imageServer+$('#headCar').val();
+	var tailCarPicdir = imageServer+$('#tailCar').val();
+	var headimgLicenese ='<img  border="0" style="width:90%;height:50px;margin-left: 1.5%;" src='+headLicensePicdir+' onerror="this.src=\'$!{rc.contextPath}/assets/images/img404.jpg\'"></img>';
+	var tailimgLicenese ='<img  border="0" style="width:90%;height:50px;margin-left: 1.5%;" src='+tailLicnesePicdir+' onerror="this.src=\'$!{rc.contextPath}/assets/images/img404.jpg\'"></img>';
+	var headimgCar ='<img  border="0" style="width:95%;height:180px;" onmouseover="imageBigShow('+'\''+headCarPicdir+'\''+');" src='+headCarPicdir+' onerror="this.src=\'$!{rc.contextPath}/assets/images/img404.jpg\'" ></img>';
+	var tailimgCar ='<img  border="0" style="width:95%;height:180px;" onmouseover="imageBigShow('+'\''+tailCarPicdir+'\''+');" src='+tailCarPicdir+' onerror="this.src=\'$!{rc.contextPath}/assets/images/img404.jpg\'" ></img>';
+	$('#headimageLicnese').html(headimgLicenese);
+	$('#headimageCar').html(headimgCar);
+	$('#tailimageLicnese').html(tailimgLicenese)
+	$('#tailimageCar').html(tailimgCar)
+});
+
+## 鼠标移动到图片上显示大图
+function imageBigShow(carPicdir){
+		var image = '<img style="margin:0 auto;" height="450px" width="600px" src='+carPicdir+' border="0" onerror="this.src=\'$!{rc.contextPath}/assets/images/img404.jpg\'"></img>'
+		$('#imageBig').html(image);
+	}
+## 鼠标移动到图片上显示大图
+function clearBigImage(){
+	$('#imageBig').html('');
+	}
+
+##打印该页面
+$('#print').click(function (){
+	$('#print').hide();
+	window.print();
+})
+</script>
+
+<style>
+.ui-view td.label {
+	width: 15%;
+}
+.ui-view td.cont {
+	width: 30%;
+}
+.ui-view td {
+	border-bottom: 1px solid #e6e6e6;
+}
+.dcl{
+	color: #df7d00;
+}
+.ysh{
+	color: #3fa01a;
+}
+
+</style>
+
+</html>

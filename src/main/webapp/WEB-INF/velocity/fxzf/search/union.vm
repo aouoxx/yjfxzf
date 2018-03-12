@@ -1,0 +1,100 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+<form id="check" class="ui-dialog-form nice-validator n-default">
+	<input type="hidden" name="condition.id" value="$!{condition.id}" />
+	<input type="hidden" name="flag" value="$!{flag}" id="flag" />
+	<input type="hidden" name="condition.punishOpintion" value="$!{condition.punishOpintion}" />
+	<input type="hidden" name="condition.punishReason" value="$!{condition.punishReason}" />
+ 	<div class="piece-title">
+		##<span class="piece-name">处罚关联&nbsp;->&nbsp;</span>
+		<span class="piece-name-title">关联处罚单ID</span>
+	</div>
+	<div class="piece-container">
+	  <div class="piece-box">
+	    ##<div class="piece-inside-title"><div class="font">关联处罚单ID</div></div>
+		<div class="piece-content">
+			<div class="piece-item piece-item-noborder">
+				  <table width="100%">
+					<tr id="passValue" style="height:65px;">
+						<td class="label"><span class="ui-form-required">*</span>处罚单ID：</td>
+						<td class="ui-search-c"><input type="text" name="condition.punishId" class="k-textbox" id="punishId" style="  width: 90%;"/></td>
+			        </tr>
+			    </table>
+			   </div>
+			  </div>
+			</div>
+		  </div>
+    <div class="actions">
+        <button class="k-primary hc_btn save-s" type="submit">保存</button>
+        <button class="hc_btn cancel close-s"  type="button" id="close">取 消</button>
+    </div>
+	
+</form>
+
+
+#parse("platform/_footer.vm")
+</body>
+ 
+
+
+<script>
+
+$('#close').click(function(){
+	close_dialog('union_Dlg');
+
+}); 
+
+$('form').validator({
+        rules: {
+        },
+        messages:{
+        	required:'请输入关联的处罚单ID'
+        },
+        fields: {
+        	"condition.punishId":{
+         					rule:"required",
+         					tip:"请输入处罚单ID"
+         }
+        },
+        valid: function(form){
+             $.ajax({
+                url: "$!{rc.contextPath}/fxzf/search/union",
+                data: $('form').serialize(),
+				type: 'post',
+                success: function(data){
+                	notify("完成处罚");
+                	var datas = data.data.split(":");
+                	var id = datas[1];
+                	var flag = $('#flag').val();
+                	if(flag=='view'){
+                		get_fun_in_dialog('warn_dlg').havePunish(datas[0]);
+                		close_dialog('union_Dlg');
+                		close_dialog('warn_dlg');
+                		quick_dialog('warn_dlg','查看告警详情','$!{rc.contextPath}/fxzf/warn/history/view?id='+id+'&flag=view',940,685);
+                	}else{
+                		window.parent.frames["_main_frame"].edited_callback();
+                		close_dialog('union_Dlg');
+                	}
+                },
+                error:function(data){
+                	##console.log(data.data);
+                }
+            });
+        }
+      });
+
+</script>
+<style>
+.ui-dialog-form .label {
+  text-align: right;
+  color: #4b4b4b;
+  width: 150px;
+}
+
+.k-combobox {
+  min-width: 3em;
+  width: 25%;
+}
+</style>
+</html>

@@ -1,0 +1,111 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+<div class="ui-layout-north">
+    <div class="ui-search-container">
+        <form id="search_form">
+            <table width="100%">
+            	<input type="hidden" name="condition.flag" value="$!{flag}"/>
+                <tr>
+                    <td>
+                        <table class="ui-search-table">
+                            <tr>
+                                <td class="ui-search-name ">信息内容：</td>
+                                <td class="ui-search-c"><input name="condition.xxnr" class="k-textbox"></td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td width="100" >
+                        <button type="submit" class="hc_btn k-primary"><i class="fa fa-search"></i>查询</button>
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+
+<div class="ui-layout-center">
+    <div id="grid"></div>
+</div>
+
+#parse("platform/_footer.vm")
+<script>
+    var _iframe_layout;
+    $(function () {
+        _iframe_layout = $('body').layout({
+            center__maskContents: true,
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            },
+            center: {
+                onresize_end: function () {
+                    var grid = $("#grid").data("kendoGrid");
+                    grid.resize();
+                }
+            },
+            north: {}
+        });
+
+        quick_datagrid("#grid", "#search_form", "$!{rc.contextPath}/fxzf/qbb/qbbmbxx/list", [
+            {
+                field: "id",
+                hidden: true
+        	},{
+                field: "xxnr",
+                title: "信息内容",
+                attributes :{
+                	style: "text-align: left;"
+                }
+            },{
+                field: "czfsStr",
+                title: "出字方式",
+                width: 100
+            },{
+                field: "fontStr",
+                title: "字体",
+                width: 100              
+            },{
+                field: "colorStr",
+                title: "颜色",
+                width: 100
+            }], {
+             sortable: false,
+			 pageable: true
+        	}, {
+             serverSorting: true
+        	},
+			[
+                {
+                    name: "选择模板",
+                    icon: "fa fa-plus",
+                    onclick: function (obj, grid) {
+                        var row = grid.select();
+                        if (null == row || row.length == 0) {
+                            notify("你还没有选择信息模板", "warn");
+                            return;
+                        }
+                        var data = grid.dataItem(row);
+						var dlg_id="$!{dlg_id}";
+						var count = "$!{count}";
+						if(dlg_id !="undefined" && dlg_id){
+							var dlg = get_fun_in_dialog(dlg_id);
+                            window.parent.frames["_main_frame"].setSelectTemp(data.xxnr, data.czfs, data.font, data.color);
+						}else{
+							window.parent.frames["_main_frame"].setSelectTemp(data.xxnr, data.czfsStr, data.fontStr, data.colorStr,data.id,count);
+						}
+						close_dialog('_select_qbbmbxx');
+                    }
+                }
+			]);
+    });
+	
+    function edited_callback() {
+        var grid = $("#grid").data("kendoGrid");
+        grid.dataSource.read();
+    }
+</script>
+</body>
+</html>

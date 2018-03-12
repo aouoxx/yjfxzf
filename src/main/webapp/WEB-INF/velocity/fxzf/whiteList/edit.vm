@@ -1,0 +1,62 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+
+<form id="blackList" class="ui-dialog-form">
+	<table style="width:100%;">
+			<tr>
+				<td class="ui-search-name" colspan="2" style="text-align:center;font-size: 14px;font-weight: bold;"> <i class="fa fa-exclamation-triangle" ></i>一年内超限次数大于该值将加入黑名单</td>
+				
+			</tr>
+			<tr style="height:40px">
+				<td class="ui-search-name" style="  text-align: right;"><span class="ui-form-required">*</span>黑名单设置：</td>
+				<td class="ui-search-c"> <input type="text" id="license" name="condition.overloadTimes" class="k-textbox" value="请输入超限次数..."/></td>
+			</tr>
+			
+	</table>
+	<div class="actions">
+        <button class="k-primary hc_btn" type="submit"><i class="fa fa-save"></i>确认并刷新</button>
+        <button class="hc_btn cancel"  type="reset"><i class="fa fa-close"></i>取 消</button>
+    </div>
+  </form>
+
+#parse("platform/_footer.vm")
+
+ 
+<script>
+
+$('#license').focus(function(){
+	$(this).val("");
+	
+})
+
+$('form').validator({
+        rules: {
+        },
+        messages:{
+        },
+        fields: {
+         "condition.overloadTimes":{
+         					rule:"required",
+         					tip:"请输入黑名单阀值"
+         					
+         }
+        },
+        valid: function(form){
+             $.ajax({
+                url: "$!{rc.contextPath}/fxzf/blackList/edit",
+                data: $('form').serialize(),
+				type: 'post',
+                success: function(data){
+    		     	notify("消息报送成功");
+    		     	window.parent.frames["_main_frame"].edited_callback();
+    				close_dialog('edit_blackList_Dlg');
+                }
+            });
+        }
+      });
+
+</script>
+ 
+</body>
+</html>

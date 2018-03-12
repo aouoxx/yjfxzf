@@ -1,0 +1,291 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+<div class="ui-layout-north">
+	#bread_crumbs2("FXZF_WARN_HISTORY_INFO")
+	<div class="ui-search-container">
+		<form id="history-search-condition">
+			<table style="margin-top: 12px;">
+				<tbody>
+					<tr>
+						<td class="ui-search-name">告警时间：</td>
+						<td> <input type="text" name="condition.warnTime" id="datePicker1"></td>
+						<td style="text-align: right;padding-right: 10px;"> &nbsp;&nbsp;至&nbsp;&nbsp; </td> 
+						<td> <input type="text" name="condition.backTime" id="datePicker2"></td>
+						
+					</tr>
+					<tr>
+						<td class="ui-search-name">车牌号：</td>
+						<td> <input type="text" name="condition.license" id="license" class="k-textbox" style="width:187px;"/> </td>
+						<td class="ui-search-name">车牌颜色：</td>
+						<td class="ui-search-c"> #dic_select2("PLATECOLOR","condition.plateColor","condition_plateColor","ui-combobox","condition_plateColor")</td>
+						<td class="ui-search-name">告警类型：</td>
+						<td class="ui-search-name" id="selectWarnType" style="width:220px;"></td>
+						<td><button type="submit" class="hc_btn k-primary search-btn" style="margin-left:0px;">查询</button></td>
+						<td><button type="reset" class="hc_btn k-primary reset-btn" style="margin-left: 20px;" id="resetForm"></i>重置</button></td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+</div>
+<div class="ui-layout-center" style="overflow: inherit;">
+	<div id="history_datalist"></div>
+</div>
+#parse("platform/_footer.vm")
+<script>
+$(document).ready(function(){
+	 var start = $("#datePicker1").hcDateTimePicker({
+    	culture : "zh-CN",
+    	format :"yyyy-MM-dd HH:mm:ss",
+    	change : startChange
+    }).data("kendoDateTimePicker");
+    var end = $("#datePicker2").hcDateTimePicker({
+    	culture : "zh-CN",
+    	format : "yyyy-MM-dd HH:mm:ss",
+    	change : endChange
+    }).data("kendoDateTimePicker");
+   function startChange() {
+        var startDate = start.value(),
+        endDate = end.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate());
+            end.min(startDate);
+        } else if (endDate) {
+            start.max(new Date(endDate));
+        } else {
+            endDate = new Date();
+            start.max(endDate);
+        }
+    }
+    function endChange() {
+        var endDate = end.value(),
+        startDate = start.value();
+
+        if (endDate) {
+            endDate = new Date(endDate);
+            endDate.setDate(endDate.getDate());
+            start.max(endDate);
+        } else if (startDate) {
+            end.min(new Date(startDate));
+        } else {
+            endDate = new Date();
+            start.max(endDate);
+        }
+    }    
+    startChange();
+    endChange();
+    });
+var  _iframe_layout,_inner_layout;
+$(function(){
+	warnType();
+	 _iframe_layout = $('body').layout({
+	    defaults: {
+	        resizable: false,
+	        closable: false,
+	        spacing_open: 0
+	        },
+	    center: {
+	        onresize_end: function () {}
+	        },
+	    north: {size:125}
+    });       
+    
+     quick_datagrid("#history_datalist", "#history-search-condition", "$!{rc.contextPath}/fxzf/warn/history/list", [
+		            {
+		                field: "id",
+		                hidden: true
+		        	},{
+		                field: "license",
+		                title: "车牌号",
+		                width: "10%"
+		            },{
+		                field: "plateColor",
+		                title: "车牌颜色",
+		                width: "10%"
+		            },{
+		                field: "warnTime",
+		                title: "告警时间",
+		                width: "10%"
+		            },{
+		                field: "warnType",
+		                title: "告警类型",
+		                width: "10%"
+		            },{
+		                field: "warnInfo",
+		                title: "告警内容",
+		                template:"<a href=\"javascript:void(0)\" title=\"查看告警详情\" onclick=\"warnShow('+#:data.id#+','+#:data.no#+','+#:data.flag#+');\" >#: data.warnInfo #</a> ",
+		                attributes :{
+			                	style: "text-align: left;"
+			                }
+		            },{
+		                field: "flag",
+		                hidden: true
+		        	}], {
+		           
+		             columnResizeHandleWidth: 6,
+					 pageable:true, 
+					 dataBound:function(e){
+					 	grid_dataBound(e);
+					 }
+		        	}, {
+		             serverSorting: true
+		        	},[
+		        		{
+		                name: "导出本页",
+		                icon: "fa fa-download",
+		                onclick: function (obj, grid) {
+		                	exportExcelPage(obj, grid);
+		                }
+		                },
+		                {
+		                name: "导出全部",
+		                icon: "fa fa-download",
+		                onclick: function (obj, grid) {
+		                	exportExcelAll();
+		                }
+		                }
+		                ]
+		        	);
+        
+});
+
+function warnShow(id,no,flag){
+	if(flag=='+1+'){
+		quick_dialog('warn_dlg','查看告警详情','$!{rc.contextPath}/fxzf/warn/history/view?id='+id+'&no='+no,800,740);
+	}else{
+		quick_dialog('warn_dlg','查看告警详情','$!{rc.contextPath}/fxzf/warn/history/view?id='+id+'&no='+no,800,740);
+	}
+}
+
+function grid_dataBound(e){
+          	 var data = e.sender._data;
+             sender = e.sender;
+              for(var i=0;i< data.length;i++)
+               {
+               	 if('1'==data[i].warnType)
+               	 {
+               	 	result="情报板告警";
+               	 	$(e.sender.tbody[0].childNodes[i]).find('td').eq(5).html(result);
+               	 }
+               	 if('2'==data[i].warnType)
+               	 {
+               	 	result="网页告警";
+               	 	$(e.sender.tbody[0].childNodes[i]).find('td').eq(5).html(result);
+               	 }
+               }
+             }
+
+##	回调函数
+function edited_callback() {
+        var grid = $("#history_datalist").data("kendoGrid");
+        grid.dataSource.read();
+       }
+
+function view(id){
+    close_dialog('warn_dlg');
+	quick_dialog('warn_dlg','查看告警详情','$!{rc.contextPath}/fxzf/warn/history/view?id='+id,940,620);
+}
+
+## 重置页面后刷新页面
+$('#resetForm').click(function(){
+	$('#license').val("");
+	$('#condition_plateColor').val("");
+	$('#warnType').val('');
+	$('#datePicker1').val('');
+	$('#datePicker2').val('');
+	edited_callback();
+});
+
+##  获取告警类型
+function warnType(){
+   		$.ajax({
+		        url: "$!{rc.contextPath}/fxzf/warn/history/warnType",
+		        dataType: "json",
+		        type: "post",
+		        data: {
+		        },
+       			success: function(data,textStatus){ 
+			        		var html = '<select id="warnType" class="ui-combobox" multiple="multipe" name="condition.overType"><option></option>';
+			          		 for( var i=0; i<data.data.length;i++){
+			          		 		var detectStations = data.data[i].split(":");
+			           				html =  html + '<option value="'+detectStations[0]+'">'+detectStations[1]+'</option>';
+			          				 }
+			          		 html=html+'</select>';
+	      					 $("#selectWarnType").html(html);
+	      					 $("#warnType").hcMultiSelect();
+							},
+        		error: function(XMLHttpRequest, textStatus, errorThrown){}
+    			  });
+             }
+
+##  导出本页
+	function exportExcelPage(obj, grid){
+
+		var total = sender.pager.dataSource._total;
+		var pageNo = sender.pager.dataSource._page;
+    	if(total==0){
+    		notify("列表数据为空,不允许导出", "warn");
+    		return ;
+    	}if(total>20*(pageNo-1))
+    	{
+    		total=total-(pageNo-1)*20;
+    	}
+    	var overType = $('#warnType').val();
+    	var license = $('#license').val();
+    	license = encodeURI(encodeURI(license));
+    	var plateColor = $("#condition_plateColor option:selected").val();
+    	var begin='';
+	 	var end ='';
+		if($("#datePicker2").data("kendoDateTimePicker").value()!=null){
+					 end = $("#datePicker2").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+				}
+		if($("#datePicker1").data("kendoDateTimePicker").value()!=null){
+			 		 begin  = $("#datePicker1").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+				} 
+    	window.location.href="$!{rc.contextPath}/fxzf/warn/history/exportPage?pageNo="+pageNo+"&condition.license="+license+
+    			"&condition.plateColor="+plateColor+"&condition.warnTime="+begin+"&condition.backTime="+end+
+    			"&condition.overType="+overType;
+
+}
+
+## 导出全部
+function exportExcelAll(){
+		var total = sender.pager.dataSource._total;
+    	if(total==0){
+    		notify("列表数据为空,不允许导出", "warn");
+    		return;
+    	}else if(total>2000&&total<65535)
+		{
+		    if(!confirm("列表数据超过2000条,确定导出吗?"))
+		    return;
+		}
+		if(total>65535)
+    	{
+    		notify("导出的数据不可以超出65535条记录");
+    	}
+    	else
+    	{
+    	  var overType = $('#warnType').val();
+	      var license = $('#license').val();
+	      license = encodeURI(encodeURI(license));
+	      var begin='';
+		  var end ='';
+		  if($("#datePicker2").data("kendoDateTimePicker").value()!=null){
+						 end = $("#datePicker2").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+					}
+		  if($("#datePicker1").data("kendoDateTimePicker").value()!=null){
+				 		 begin  = $("#datePicker1").data("kendoDateTimePicker").value().format('yyyy-MM-dd HH:mm:ss');
+					} 
+	      var plateColor = $("#condition_plateColor option:selected").val();
+	      window.location.href="$!{rc.contextPath}/fxzf/warn/history/exportAll?condition.license="+license+
+			    			 "&condition.plateColor="+plateColor+"&condition.warnTime="+begin+"&condition.backTime="+end+
+			    			 "&condition.overType="+overType;
+    	}
+}          
+</script>
+
+</body>
+</html>

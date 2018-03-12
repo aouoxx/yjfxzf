@@ -1,0 +1,67 @@
+#parse("platform/_header.vm")
+</head>
+<body>
+    <table >
+		<tr>
+            <td class="label">公告标题：</td>
+            <td colspan="3" class="cont" style="height: 50px;"><span>$!{condition.title}</span></td>
+        </tr>
+        <tr>
+            <td class="label">公告范围：</td>
+            <td style="height: 35px;"><span>$!{condition.range}</span></td>
+            <td class="label">公告类型：</td>
+            <td style="height: 35px;"><span id="type"></span></td>
+        </tr>
+         <tr>
+            <td class="label">公告发布时间：</td>
+            <td  style="height: 35px;"><span>$!{send}</span></td>
+            <td class="label">公告有效期截止时间：</td>
+            <td  style="height: 35px;"><span>$!{end}</span></td>
+        </tr>
+        <tr>
+        	<td class="label">公告内容：</td>
+            <td colspan="3" style="height: 80px;"><span>$!{condition.content}</span></td>
+        </tr>
+    </table>
+    #parse("platform/_footer.vm")
+</body>
+<script type="text/javascript">
+$("body").css({"padding":"10px","height":"auto"});
+$("table").addClass("ui-view");
+$("table").find("tr:odd").addClass("odd");
+$("table").find("tr:even").addClass("even");
+
+   $(function(){
+      	 var result= $!{condition.type};
+      	  if(0==result)
+           	{
+           	 	result="一般紧急";
+           	 }
+           if(1==result)
+           	 {
+           	 	result="一般不紧急";
+           	 }
+          if(2==result)
+           	 {
+           	 	result="重要紧急";
+           	 }
+          if(3==result)
+           	 {
+           	 	result="重要不紧急";
+           	 }
+           $('#type').html(result);
+   
+   })
+     
+</script>
+
+<style>
+.ui-view td.label {
+	width: 9%;
+}
+.ui-view td.cont {
+	width: 30%;
+}
+</style>
+
+</html>

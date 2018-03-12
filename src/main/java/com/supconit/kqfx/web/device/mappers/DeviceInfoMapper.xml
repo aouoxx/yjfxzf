@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.supconit.kqfx.web.device.entities.DeviceInfo">
+
+	<resultMap type="com.supconit.kqfx.web.device.entities.DeviceInfo" id="DeviceInfoResultMap">
+		<id property="id" column="ID" />
+		<result property="no" column="NO" />
+		<result property="deviceIp" column="DEVICEIP"/>
+		<result property="deviceType" column="DEVICETYPE"/>
+		<result property="deviceName" column="DEVICENAME" />
+		<result property="deviceFactory" column="DEVICEFACTORY"/>
+		<result property="deviceZh" column="DEVICEZH"/>
+		<result property="deviceStation" column="DEVICESTATION" />
+		<result property="deviceDirection" column="DEVICEDIRECTION"/>
+		<result property="chargeCycle" column="CHARGECYCLE"/>
+		<result property="alarmThreshold" column="ALARMTHRESHOLD"/>
+	</resultMap>
+	
+	<sql id="TABLE_NAME" lang="velocity">T_DEVICE_INFO</sql>
+    
+    
+    <select id="getStationAllDeviceInfo" parameterType="com.supconit.kqfx.web.device.entities.DeviceInfo" resultMap="DeviceInfoResultMap" lang="velocity">
+    	SELECT * FROM 
+    	<include refid="TABLE_NAME"/>
+    	<![CDATA[
+  			#where()
+				#if($_parameter.deviceDirection && $_parameter.deviceDirection != '')
+				   AND DEVICEDIRECTION = @{_parameter.deviceDirection,jdbcType=VARCHAR}
+			    #end
+		    #end
+  		]]>
+    </select>
+    
+    <select id="getOneDevice" parameterType="com.supconit.kqfx.web.device.entities.DeviceInfo" resultMap="DeviceInfoResultMap" lang="velocity">
+    	SELECT * FROM 
+    	<include refid="TABLE_NAME"/>
+    	<![CDATA[
+  			#where()
+				#if($_parameter.deviceDirection && $_parameter.deviceDirection != '')
+				   AND DEVICEDIRECTION = @{_parameter.deviceDirection,jdbcType=VARCHAR}
+			    #end
+			    #if($_parameter.deviceStation && $_parameter.deviceStation != '')
+				   AND DEVICESTATION = @{_parameter.deviceStation,jdbcType=VARCHAR}
+			    #end
+			    #if($_parameter.deviceType && $_parameter.deviceType != '')
+				   AND DEVICETYPE = @{_parameter.deviceType,jdbcType=VARCHAR}
+			    #end
+		    #end
+  		]]>
+    </select>
+    
+</mapper>

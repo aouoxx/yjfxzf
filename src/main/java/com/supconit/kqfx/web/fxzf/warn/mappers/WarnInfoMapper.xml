@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://hc.supconit.com/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.supconit.kqfx.web.fxzf.warn.entities.WarnInfo">
+
+	<resultMap type="com.supconit.kqfx.web.fxzf.warn.entities.WarnInfo" id="WarnInfoResultMap">
+		<id property="id" column="ID" />
+		<result property="detectStation" column="DETECTSTATION"/>
+		<result property="warnType" column="WARN_TYPE" />
+		<result property="qbbTempletId" column="QBB_TEMPLET_ID"/>
+		<result property="templetInfo" column="TEMPLET_INFO"/>
+		<result property="deleted" column="DELETED"/>
+		<association property="qbbmbxx" column="QBB_TEMPLET_ID" select="getMbxx" />
+	</resultMap>
+	
+	<resultMap type="com.supconit.kqfx.web.fxzf.qbb.entities.QbbMbxx" id="QbbMbxxResultMap">
+		<id property="id" column="ID" />
+		<result property="xxnr" column="XXNR" />
+		<result property="czfs" column="CZFS"/>
+		<result property="font" column="FONT"/>
+		<result property="color" column="COLOR"/>
+		<result property="time" column="TIME"/>
+		<result property="deleted" column="DELETED"/>
+	</resultMap>
+	
+	<sql id="TABLE_NAME" lang="velocity">T_WARN_INFO</sql>
+	<sql id="SELECT_PRE" lang="velocity">SELECT * FROM <include refid="TABLE_NAME"/></sql>
+	<sql id="COUNT_PRE" lang="velocity">SELECT COUNT(1) FROM <include refid="TABLE_NAME"/></sql>
+
+	<sql id="SEARCH_CONDITION_SQL" lang="velocity">
+		<![CDATA[
+		#where()
+			AND DELETED = 0	
+		#end
+		]]>	
+	</sql>
+	
+	
+	<select id="getById" resultMap="WarnInfoResultMap" parameterType="string" lang="velocity">
+		<include refid="SELECT_PRE" />
+		<![CDATA[
+		#where()
+			#if($_parameter.detectStation && $_parameter.detectStation != '')
+				AND DETECTSTATION = @{_parameter.detectStation, jdbcType=VARCHAR}
+			#end
+			#if($_parameter.warnType && $_parameter.warnType != '')
+				AND WARN_TYPE = @{_parameter.warnType, jdbcType=VARCHAR}
+			#end
+		#end
+		]]>	
+	</select>
+	
+	<select id="getByTempletTypeAndStation" resultMap="WarnInfoResultMap" parameterType="com.supconit.kqfx.web.fxzf.warn.entities.WarnInfo" lang="velocity">
+		<include refid="SELECT_PRE" />
+		<![CDATA[
+		#where()
+			#if($_parameter.detectStation && $_parameter.detectStation != '')
+				AND DETECTSTATION = @{_parameter.detectStation, jdbcType=VARCHAR}
+			#end
+			#if($_parameter.warnType && $_parameter.warnType != '')
+				AND WARN_TYPE = @{_parameter.warnType, jdbcType=VARCHAR}
+			#end
+			AND DELETED = 0	
+		#end
+		]]>	
+	</select>
+	
+	<select id="getMbxx" resultMap="QbbMbxxResultMap" parameterType="string" lang="velocity">
+		SELECT * FROM T_QBB_MBXX
+				WHERE ID = @{_parameter, jdbcType=VARCHAR} AND DELETED = 0	
+	</select>
+	
+	<select id="getAll" resultMap="WarnInfoResultMap" parameterType="string" lang="velocity">
+		<include refid="SELECT_PRE" />
+		WHERE DELETED = 0  ORDER BY DETECTSTATION ASC , WARN_TYPE DESC
+	</select>
+			
+	<select id="selectPager" lang="velocity" resultMap="WarnInfoResultMap">
+		<include refid="_PUBLIC_V.PAGER_BEFORE"/>
+		<include refid="SELECT_PRE"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+		#order($_parameter.condition,"DETECTSTATION ASC")
+		<include refid="_PUBLIC_V.PAGER_AFTER"/>
+	</select>
+
+	<select id="countPager" lang="velocity" resultType="long">
+		<include refid="COUNT_PRE"/>
+		<include refid="SEARCH_CONDITION_SQL"/>
+	</select>
+	
+	<sql id="INSERT_SQL" lang="velocity">
+		INSERT INTO <include refid="TABLE_NAME"/>(
+		#if($_databaseId == 'oracle') ID,#end
+								 DETECTSTATION
+								,WARN_TYPE
+								,QBB_TEMPLET_ID
+								,TEMPLET_INFO
+								,DELETED
+		) VALUES (
+		#if($_databaseId == 'oracle') @{_parameter.id,jdbcType=VARCHAR},#end
+								 @{_parameter.detectStation,jdbcType=VARCHAR}
+								,@{_parameter.warn_type,jdbcType=VARCHAR}
+								,@{_parameter.qbbTempletId,jdbcType=VARCHAR}
+								,@{_parameter.templetInfo,jdbcType=VARCHAR}
+								,@{_parameter.deleted,jdbcType=NUMERIC}
+								
+	)
+	</sql>
+	
+	<insert id="insert" parameterType="com.supconit.kqfx.web.fxzf.warn.entities.WarnInfo" 
+		keyProperty="ID" keyColumn="ID" 		lang="velocity" databaseId="oracle">
+		  <include refid="INSERT_SQL" />
+	</insert>
+	<insert id="insert" parameterType="com.supconit.kqfx.web.fxzf.warn.entities.WarnInfo" 
+		keyProperty="ID" keyColumn="ID" 		 lang="velocity">
+        <include refid="INSERT_SQL"/>
+        <selectKey keyProperty="ID" resultType="string" order="AFTER"><include refid="_PUBLIC_V.SELECT_KEY"/> </selectKey>    </insert>
+    
+	<update id="update" parameterType="com.supconit.kqfx.web.fxzf.warn.entities.WarnInfo" lang="velocity">
+		UPDATE <include refid="TABLE_NAME"/> 
+		#mset()
+		<![CDATA[
+			#if($_parameter.detectStation)DETECTSTATION = @{_parameter.detectStation,jdbcType=VARCHAR},#end
+			#if($_parameter.warn_type)WARN_TYPE = @{_parameter.warn_type,jdbcType=VARCHAR},#end
+			#if($_parameter.qbbTempletId)QBB_TEMPLET_ID = @{_parameter.qbbTempletId,jdbcType=VARCHAR},#end
+			#if($_parameter.templetInfo)TEMPLET_INFO = @{_parameter.templetInfo,jdbcType=VARCHAR},#end
+			#if($_parameter.deleted)DELETED = @{_parameter.deleted,jdbcType=NUMERIC},#end
+		]]>
+		#end
+		WHERE ID = @{_parameter.id,jdbcType=VARCHAR}
+	</update>
+	
+	<delete id="deleteById" parameterType="string" lang="velocity">
+		DELETE FROM <include refid="TABLE_NAME" /> WHERE ID = @{_parameter,jdbcType=VARCHAR}
+	</delete>
+    		
+</mapper>

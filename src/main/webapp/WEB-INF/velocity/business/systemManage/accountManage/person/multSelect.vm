@@ -1,0 +1,235 @@
+#parse("platform/_header.vm")
+<link href="$!{_platform_assets_url}/css/ztree/zTreeStyle.css" rel="stylesheet">
+<script src="$!{_platform_assets_url}/js/jquery.ztree.all-3.5.min.js"></script>
+</head>
+<body>
+<div class="ui-layout-north">
+    <div class="ui-search-container">
+        <form id="search_form">
+           <input type="hidden" name="condition.jgbh" value="" />
+			<table width="100%">
+                <tr>
+                    <td>
+                        <table class="ui-search-table">
+                            <tr>
+                                <td class="ui-search-name first">人员名称：</td>
+                                <td class="ui-search-c"><input name="condition.name" class="k-textbox" type="text"></td>
+                                <td class="ui-search-name">人员编码：</td>
+                                <td class="ui-search-c" width="200">
+                                   <input class="k-textbox" type="text" name="condition.code" value="$!{condition.code}" />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td width="100" >
+                        <button type="submit" class="hc_btn k-primary"><i class="fa fa-search"></i>查询</button>
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+<div class="ui-layout-south" style="text-align:right;background:#eee;border-top:1px solid #ccc;">
+     <button class="k-primary hc_btn k-button" type="button" style="margin:5px 10px;" onclick="selectMultPersonDetail();">选 择</button>
+	 <button class="hc_btn cancel" onclick="close_dialog('$!{digId}')" type="button">取 消</button>
+</div>
+<div class="ui-layout-center">
+    <div id="grid"></div>
+</div>
+<div class="ui-layout-west" id="department_tree_container" style="border-right:solid 1px #e1e5e6;">
+    <div class="ui-layout-north">
+        <div class="k-header k-grid-toolbar" style="padding-left:10px;">
+            机构簇
+        </div>
+    </div>
+    <div class="ui-layout-center">
+        <ul id="tree" class="ztree"></ul>
+    </div>
+</div>
+  
+    #parse("platform/_footer.vm")
+<script>
+    var _iframe_layout;
+	
+  
+    $(function () {
+	
+
+        _iframe_layout = $('body').layout({
+            center__maskContents: true,
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            },
+            center: {
+                onresize_end: function () {
+                    var grid = $("#grid").data("kendoGrid");
+                    grid.resize();
+                }
+            },
+            west: {
+                size: 250,
+                closable: true,
+                spacing_open: 5
+            }
+        });
+
+        $("#department_tree_container").layout({
+            defaults: {
+                resizable: false,
+                closable: false,
+                spacing_open: 0
+            }
+        });
+
+        var tree = $.fn.zTree.init($("#tree"), {
+            data: {
+			key : {
+					name : "jgmc" 
+				},
+                simpleData: {
+                    enable: true,
+                    pIdKey: "pid",
+                    rootPId: 0
+                }
+            },
+            view: {
+                selectedMulti: false
+            }, callback: {
+                onClick: function (event, treeId, node) {
+                   $("#search_form input[name='condition.jgbh']").val(node.id);
+					 var grid = $("#grid").data("kendoGrid");
+               		 grid.dataSource.read();
+					
+                }
+            }
+        }, $!{jgxxJson});
+
+        tree.expandAll(true);
+
+       quick_datagrid("#grid", "#search_form", "$!{rc.contextPath}/xtgl/zhgl/person/select-list", [
+            
+			 {
+                width: 50,
+                headerTemplate: "选择",
+                template: "<div align=\"center\"><input #:(jQuery.inArray(data.name+'',selected)>=0)?'checked':''# onclick=\"check_id(this,'#:data.id#')\" type=\"checkbox\" name=\"ids\" value=\"#:data.name  #\"></div>"
+              }		
+			
+			,{
+                field: "name",
+                title: "人员名称",
+                sortable: true,
+                width: 150
+            }, {
+                field: "code",
+                title: "人员编码",
+                sortable: true,
+                width: 150
+            }, {
+                field: "jgxxJgmc",
+                title: "所属机构",
+                width: 150
+            }
+			], {
+             sortable: false,
+			 pageable: true
+        	}, {
+             serverSorting: true
+        	},
+			[
+				
+			
+			
+			]);
+
+		
+        $("#departmentPid").kendoComplexeSelect({
+            multiple: false,
+            selectClick: function (e) {
+                _select_department("#departmentPid", "", false)
+            },
+            change: function (e) {
+                var grid = $("#grid").data("kendoGrid");
+                grid.dataSource.read();
+
+                var val = this.value();
+                if (val && val.length > 0) {
+                    var id = val[0];
+                    var node = tree.getNodeByParam("id", id, null);
+                    if (node) {
+                        tree.selectNode(node, false);
+                    }
+                }else{
+                    tree.cancelSelectedNode();
+                }
+            }
+        });
+
+    });
+	
+	
+	var personName="";
+    var personId="";
+	
+	
+	var selected = "";
+  if (!selected){ 
+  		selected = []
+	};
+  	
+	var selected_copy = [];
+  	var selectedItems = {};
+  
+      for (var i = 0; i < selected.length; i++) {
+        	selectedItems[selected[i]] = "";
+        	selected_copy.push(selected[i]);
+      }
+	
+	
+	function check_id(o, id) {
+        if (o.checked) {
+		
+          selectedItems[o.value] = id;
+        } else {
+          delete selectedItems[o.value];
+        }
+		
+	
+		
+  }
+	
+  
+  function selectMultPersonDetail(dialogid,idinput,nameinput){
+  			
+  			var dialogid="$!{digId}";
+			var idinput="$!{input_id}";
+			var nameinput="$!{input_name}";
+  	
+			var dlg = get_dialog(dialogid);
+			
+			
+			if(dlg =="" || dlg){
+    			 var iframe = $("iframe", dlg.element[0]);
+              	  iframe[0].contentWindow.multSelect_callback(idinput,nameinput,selectedItems);
+				close_dialog('mult_select_person');
+			}else{
+         
+				window.parent.frames["_main_frame"].multSelect_callback(idinput,nameinput,selectedItems);
+				close_dialog('mult_select_person');
+			}
+	}
+  
+
+  
+    function edited_callback() {
+        var grid = $("#grid").data("kendoGrid");
+        grid.dataSource.read();
+    }
+    function _select_department(el, dlgId, multiple) {
+        quick_dialog("auth_department_select_dlg", "选择部门", "$!{rc.contextPath}/platform/auth/department/select?el=" + encodeURIComponent(el) + "&dlgId=" + dlgId + "&multiple=" + (multiple || false), 680, 480);
+    }
+</script>
+</body>
+</html>

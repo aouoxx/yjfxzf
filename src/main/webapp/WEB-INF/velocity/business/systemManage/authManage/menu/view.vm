@@ -1,0 +1,52 @@
+#set($_title = "新增部门 - " + $_site_name)
+#parse("platform/_header.vm")
+</head>
+<body>
+
+<form method="post" action="$!{rc.contextPath}/platform/authorization/menu/view" class="ui-dialog-form">
+    <table width="100%">
+        <tr>
+            <td class="label">菜单编码：</td>
+            <td>$!{menu.code}</td>
+            <td class="label">菜单名称：</td>
+            <td>$!{menu.name}</td>
+        </tr>
+		<tr>
+            <td class="label">上级菜单：</td>
+            <td>$!{menu.parent.name}</td>
+			<td class="label">图标样式：</td>
+            <td>$!{menu.showIcon}</td>
+        </tr>
+		<tr>
+            <td class="label">排序值：</td>
+            <td>$!{menu.sortValue}</td>
+			<td class="label">是否隐藏：</td>
+            <td>#if($menu.display == false) 是#{else}否 #{end}</td>
+        </tr>
+		<tr>
+            <td class="label">菜单URL：</td>
+            <td colspan="3">$!{menu.linkUrl}</td>
+        </tr>
+		<tr>
+            <td class="label">控制URL：<br>(一行一个)</td>
+            <td colspan="3"><textarea name="menu.resources" class="k-textbox" readonly>$!{menu.resources}</textarea></td>
+        </tr>
+		<tr>
+            <td class="label">备注：</td>
+            <td colspan="3"><textarea name="menu.description" class="k-textbox" readonly>$!{menu.description}</textarea></td>
+        </tr>
+    </table>
+    <div class="actions">
+        <button class="hc_btn cancel" onclick="close_dialog('menu_view_dlg')" type="button">取 消</button>
+    </div>
+</form>
+
+    #parse("platform/_footer.vm")
+</body>
+<script type="text/javascript">
+$("body").css({"padding":"10px","height":"auto"});
+$("table").addClass("ui-view");
+$("table").find("tr:odd").addClass("odd");
+$("table").find("tr:even").addClass("even");
+</script>
+</html>

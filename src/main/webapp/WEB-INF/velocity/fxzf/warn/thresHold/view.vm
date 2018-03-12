@@ -1,0 +1,159 @@
+#parse("platform/_header.vm")
+
+</head>
+<body>
+
+#bread_crumbs2("FXZF_WARN_THRESHOLD")
+<div style="padding-top:2%">
+	<table border="1" style="width:70%" class="thresHold-table">
+		<caption align="top"  class="mark" style="margin-bottom:20px;font-size:x-large">浙江省车辆超限认定标准</caption>  
+		<tbody>
+			<tr>
+				<th>违法程度</th>
+				<th>两轴车超限量（吨）</th>
+				<th>三轴车超限量（吨）</th>
+				<th>四轴车超限量（吨）</th>
+				<th>五轴车超限量（吨）</th>
+				<th>六轴以上车超限量（吨）</th>
+				<th>处罚幅度</th>
+			</tr>
+			<tr>
+				<td class="mark">轻微</td>
+				<td><=1</td>
+				<td><=1.5</td>
+				<td><=2</td>
+				<td><=2.5</td>
+				<td><=3</td>
+				<td>不罚款，教育放行</td>
+			</tr>
+			<tr>
+				<td class="mark" rowspan="3">一般</td>
+				<td>1~2</td>
+				<td>1.5~3</td>
+				<td>2~5</td>
+				<td>2.5~6</td>
+				<td>3~7</td>
+				<td>罚款300元以下</td>
+			</tr>
+			<tr>
+				<td>2~4</td>
+				<td>3~7</td>
+				<td>5~9</td>
+				<td>6~10</td>
+				<td>7~13</td>
+				<td>罚款300-700元</td>
+			</tr>
+			<tr>
+				<td>4~6</td>
+				<td>7~10</td>
+				<td>9~13</td>
+				<td>10~14</td>
+				<td>13~18</td>
+				<td>罚款700-1000元</td>
+			</tr>
+			<tr>
+				<td class="mark" rowspan="2">较重</td>
+				<td>6~8</td>
+				<td>10~13</td>
+				<td>13~17</td>
+				<td>14~19</td>
+				<td>18~23</td>
+				<td>罚款1000-2000元</td>
+			</tr>
+			<tr>
+				<td>8~10</td>
+				<td>13~15</td>
+				<td>17~20</td>
+				<td>19~25</td>
+				<td>23~28</td>
+				<td>罚款2000-2500元</td>
+			</tr>
+			<tr>
+				<td class="mark" rowspan="3">严重</td>
+				<td>10~12</td>
+				<td>15~18</td>
+				<td>20~24</td>
+				<td>25~31</td>
+				<td>28~34</td>
+				<td>罚款2500-3500元</td>
+			</tr>
+			<tr>
+				<td>12~14</td>
+				<td>18~22</td>
+				<td>24~28</td>
+				<td>31~37</td>
+				<td>34~40</td>
+				<td>罚款3500-5000元</td>
+			</tr>
+			<tr>
+				<td>14~16</td>
+				<td>22~25</td>
+				<td>28~33</td>
+				<td>37~42</td>
+				<td>40~46</td>
+				<td>罚款5000-7000元</td>
+			</tr>
+			<tr>
+				<td class="mark" rowspan="3">特别严重</td>
+				<td>16~18</td>
+				<td>25~27</td>
+				<td>33~37</td>
+				<td>42~47</td>
+				<td>46~51</td>
+				<td>罚款7000-9000元</td>
+			</tr>
+			<tr>
+				<td>18~20</td>
+				<td>27~30</td>
+				<td>37~40</td>
+				<td>47~50</td>
+				<td>51~55</td>
+				<td>罚款9000-11000元</td>
+			</tr>
+			<tr>
+				<td>>20</td>
+				<td>>30</td>
+				<td>>40</td>
+				<td>>50</td>
+				<td>>55</td>
+				<td>罚款11000-30000元（每超5%加处罚款1000元）</td>
+			</tr>
+		
+		</tbody>
+		
+	</table>
+</div>
+
+#parse("platform/_footer.vm")
+<script>
+
+$(function(){
+
+})
+</script>
+</body>
+<style>
+	table {
+		  font-size:16px;
+		  border-collapse: collapse;
+		  border-color: gray;
+		  width: 70%;
+		  margin: 0 auto;
+		  padding-top: 232px;
+	}
+	td {
+		width:100px;
+		height:40px;
+		text-align:center;
+	}
+	th {
+		width:120px;
+		background-color:gainsboro;
+		height:40px;
+		text-align:center;
+	}
+	.mark{
+		font-weight:bold;
+	}
+</style>
+</html>
